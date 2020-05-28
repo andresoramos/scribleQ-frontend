@@ -81,6 +81,21 @@ export default function Register(props) {
     passwordText: "",
     emailText: "",
   });
+  const shouldSubmit = () => {
+    console.log("submit function is running");
+    if (username && password && email) {
+      const { usernameText, passwordText, emailText } = error;
+      if (usernameText || passwordText || emailText) {
+        console.log("a");
+        return true;
+      } else {
+        console.log("b");
+        return false;
+      }
+    }
+    console.log("c");
+    return true;
+  };
   const thisSchema = {
     email: Joi.string().email().min(3).max(100).required(),
     username: Joi.string().min(5).max(20).required(),
@@ -201,6 +216,7 @@ export default function Register(props) {
             onClick={handleSubmit}
             type="submit"
             fullWidth
+            disabled={shouldSubmit()}
             variant="contained"
             color="primary"
             className={classes.submit}
