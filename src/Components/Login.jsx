@@ -37,6 +37,7 @@ export function validate(data, schema) {
   if (!error) {
     return null;
   }
+  console.log(error, "this is the error object");
   const errors = {};
   for (let item of error.details) {
     errors[item.path[0]] = item.message;
@@ -72,21 +73,19 @@ function validateProperty(name, value, macroSchema) {
   return error.details[0].message;
 }
 
-export default function Register(props) {
+export default function Login(props) {
   const classes = useStyles();
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState({
-    usernameText: "",
+    nameText: "",
     passwordText: "",
-    emailText: "",
   });
   const shouldSubmit = () => {
     console.log("submit function is running");
-    if (username && password && email) {
-      const { usernameText, passwordText, emailText } = error;
-      if (usernameText || passwordText || emailText) {
+    if (name && password) {
+      const { nameText, passwordText } = error;
+      if (nameText || passwordText) {
         return true;
       } else {
         return false;
@@ -95,44 +94,10 @@ export default function Register(props) {
     return true;
   };
   const thisSchema = {
-    email: Joi.string().email().min(3).max(100).required().label("Email"),
-    username: Joi.string().min(5).max(20).required().label("Username"),
+    name: Joi.string().min(5).max(20).required().label("Username"),
     password: Joi.string().min(8).max(55).required().label("Password"),
   };
-  const handleEmailChange = (e) => {
-    const validated = validateProperty(
-      e.target.name,
-      e.target.value,
-      thisSchema
-    );
-    if (validated) {
-      const newError = { ...error };
-      newError.emailText = validated;
-      setError(newError);
-    } else {
-      const newError = { ...error };
-      newError.emailText = "";
-      setError(newError);
-    }
-    setEmail(e.target.value);
-  };
-  const handleNameChange = (e) => {
-    const validated = validateProperty(
-      e.target.name,
-      e.target.value,
-      thisSchema
-    );
-    if (validated) {
-      const newError = { ...error };
-      newError.usernameText = validated;
-      setError(newError);
-    } else {
-      const newError = { ...error };
-      newError.usernameText = "";
-      setError(newError);
-    }
-    setUsername(e.target.value);
-  };
+
   const handlePasswordChange = (e) => {
     const validated = validateProperty(
       e.target.name,
@@ -153,20 +118,46 @@ export default function Register(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = { username, email, password };
+      const data = { name, password };
       const notAllowed = validate(data, thisSchema);
       if (notAllowed) {
         return;
       }
-      console.log(data, "this is the data youre sending");
-      const post = await axios.post("http://localhost:5000/api/users", data);
+      const post = await axios.post("http://localhost:5000/api/auth", data);
       if (post) {
-        console.log(post, "this was a successful post");
+        console.log(post, "this was the post");
       }
     } catch (error) {
       console.log(error, "this is the error");
-      window.location = "/testredirect";
+      //   window.location = "/testredirect";
     }
+  };
+
+  const handleEmailOrNameChange = (e) => {
+    const nameSchema = {
+      name: Joi.string().min(3).max(100).required().label("Input"),
+    };
+    const submitted = { name: e.target.value };
+
+    const validated = validate(submitted, nameSchema);
+
+    if (validated) {
+      if (submitted.name.length === 0) {
+        const newError = { ...error };
+        newError.nameText = "Field cannot be empty.";
+        setError(newError);
+      } else {
+        const newError = { ...error };
+        newError.nameText =
+          "Username or email must be longer than three characters";
+        setError(newError);
+      }
+    } else {
+      const newError = { ...error };
+      newError.nameText = "";
+      setError(newError);
+    }
+    setName(e.target.value);
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -176,7 +167,7 @@ export default function Register(props) {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Create a new account!
+          Welcome back!
         </Typography>
         <form className={classes.form} noValidate>
           <TextField
@@ -185,30 +176,14 @@ export default function Register(props) {
             required
             fullWidth
             id="email"
-            label="Email Address"
+            label="Email Address or User Name"
             name="email"
             data-testid="email"
             autoComplete="email"
             autoFocus
-            onChange={handleEmailChange}
-            helperText={error.emailText}
-            error={Boolean(error.emailText)}
-          />
-          {/* <div data-testid="sample">
-            <label>Sample</label>
-          </div> */}
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="User Name"
-            name="username"
-            autoFocus
-            onChange={handleNameChange}
-            helperText={error.usernameText}
-            error={Boolean(error.usernameText)}
+            onChange={handleEmailOrNameChange}
+            helperText={error.nameText}
+            error={Boolean(error.nameText)}
           />
           <TextField
             onChange={handlePasswordChange}
@@ -236,7 +211,7 @@ export default function Register(props) {
             color="primary"
             className={classes.submit}
           >
-            Create my account!
+            Sign-in
           </Button>
         </form>
       </div>

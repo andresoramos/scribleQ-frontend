@@ -9,6 +9,8 @@ import Badge from "@material-ui/core/Badge";
 import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import MenuIcon from "@material-ui/icons/Menu";
+import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
@@ -23,7 +25,6 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   title: {
-    display: "none",
     [theme.breakpoints.up("sm")]: {
       display: "block",
     },
@@ -31,28 +32,38 @@ const useStyles = makeStyles((theme) => ({
   search: {
     position: "relative",
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(30),
+    zIndex: 0,
+    // backgroundColor: fade(theme.palette.common.white, 0.15),
+    // "&:hover": {
+    //   backgroundColor: fade(theme.palette.common.white, 0.25),
+    // },
+
+    marginRight: theme.spacing(2),
     marginLeft: 0,
+    display: "flex",
+    alignItems: "left",
+    justifyContent: "left",
     width: "100%",
     [theme.breakpoints.up("sm")]: {
       marginLeft: theme.spacing(3),
-      width: "auto",
+      width: "100%",
     },
   },
 
-  searchIcon: {
-    padding: theme.spacing(0, 2),
+  menuItem: {
+    padding: "4px 20px",
+    userSelect: "none",
     height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.1)",
+    },
+    cursor: "pointer",
+    [theme.breakpoints.up("sm")]: {
+      display: "block",
+    },
   },
+
   inputRoot: {
     color: "inherit",
   },
@@ -90,6 +101,11 @@ export default function NavBar() {
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
+  };
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    window.location = "/login";
   };
 
   const handleMobileMenuClose = () => {
@@ -174,30 +190,31 @@ export default function NavBar() {
           >
             <MenuIcon />
           </IconButton>
-          <div className={classes.right}>
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <Typography className={classes.title} variant="h6" noWrap>
-                  Sign-in
-                </Typography>
-              </div>
-            </div>
 
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <Typography className={classes.title} variant="h6" noWrap>
-                  Make an Account
-                </Typography>
-              </div>
-            </div>
-            <div className={classes.search}>
-              <div className={classes.searchIcon}>
-                <Typography className={classes.title} variant="h6" noWrap>
-                  Make a Quiz
-                </Typography>
-              </div>
-            </div>
-          </div>
+          <Typography
+            className={classes.menuItem}
+            variant="h6"
+            onClick={handleLogin}
+            noWrap
+          >
+            Sign-in
+          </Typography>
+
+          <Typography
+            className={classes.menuItem}
+            onClick={() => {
+              window.location = "/register";
+            }}
+            variant="h6"
+            noWrap
+          >
+            Make an Account
+          </Typography>
+
+          <Typography className={classes.menuItem} variant="h6" noWrap>
+            Make a Quiz
+          </Typography>
+
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
             <IconButton aria-label="show 4 new mails" color="inherit">

@@ -152,20 +152,34 @@ export default function Register(props) {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("submit was clicked");
     try {
       const data = { username, email, password };
       const notAllowed = validate(data, thisSchema);
       if (notAllowed) {
         return;
       }
-      console.log(data, "this is the data youre sending");
-      const post = await axios.post("http://localhost:5000/api/users", data);
+      const submitted = { name: username, email, password };
+      const options = {
+        headers: { "X-Custom-Header": "x-auth-token" },
+      };
+      const post = await axios.post(
+        "http://localhost:5000/api/users",
+        submitted,
+        options
+      );
       if (post) {
-        console.log(post, "this was a successful post");
+        localStorage.setItem("token", post.headers["x-auth-token"]);
+        if (props.history.goBack) {
+          console.log("used goback");
+          return (window.location = props.history.goBack);
+        }
+        console.log("did not have goback");
+        window.location = "/";
       }
     } catch (error) {
       console.log(error, "this is the error");
-      window.location = "/testredirect";
+      // window.location = "/testredirect";
     }
   };
   return (
