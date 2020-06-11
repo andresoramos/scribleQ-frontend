@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-
+import Form from "../Services/EmailForm";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+import Alert from "@material-ui/lab/Alert";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
@@ -15,6 +16,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Joi from "joi";
+import { addToLockedOut } from "../Services/lockedOutServices";
+import {
+  checkIpObject,
+  instantiateIpObject,
+  getIp,
+  putIpObject,
+} from "./../Services/trackIpService";
 
 function Copyright() {
   return (
@@ -35,6 +43,8 @@ export function validate(data, schema) {
   });
   const { error } = result;
   if (!error) {
+    console.log("left validate peacefully");
+
     return null;
   }
   console.log(error, "this is the error object");
@@ -73,10 +83,53 @@ function validateProperty(name, value, macroSchema) {
   return error.details[0].message;
 }
 
+const addToIpObject = async () => {
+  const getId = await checkIpObject();
+  const id = getId.id;
+  const ip = await getIp();
+  const putObject = { ...getId.data };
+  if (!putObject[ip]) {
+    putObject[ip] = [];
+    putObject[ip].push(new Date(Date.now()));
+  } else {
+    putObject[ip].push(new Date(Date.now()));
+  }
+
+  const calculated = await calculateTime(
+    putObject[ip][0],
+    putObject[ip][putObject[ip].length - 1],
+    putObject[ip],
+    ip
+  );
+  if (calculated) {
+    putObject[ip] = calculated;
+  }
+  const newAddition = { ...putObject };
+  putObject.id = id;
+  putObject.ips = newAddition;
+  console.log(putObject, "put object before putting");
+  const changed = await putIpObject(putObject);
+};
+
+const calculateTime = async (time1, time2, array, ip) => {
+  const timeDiff = time2 - new Date(time1);
+  if (timeDiff <= 300000) {
+    if (array.length >= 20) {
+      await addToLockedOut(ip);
+      console.log("lockedout");
+      return;
+    }
+  } else {
+    array.splice(0, array.length - 1);
+  }
+  return array;
+};
+
 export default function Login(props) {
   const classes = useStyles();
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
   const [error, setError] = useState({
     nameText: "",
     passwordText: "",
@@ -94,11 +147,12 @@ export default function Login(props) {
     return true;
   };
   const thisSchema = {
-    name: Joi.string().min(5).max(20).required().label("Username"),
+    name: Joi.string().min(5).max(100).required().label("Username"),
     password: Joi.string().min(8).max(55).required().label("Password"),
   };
 
   const handlePasswordChange = (e) => {
+    setLoginError(false);
     const validated = validateProperty(
       e.target.name,
       e.target.value,
@@ -118,22 +172,37 @@ export default function Login(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = { name, password };
-      const notAllowed = validate(data, thisSchema);
-      if (notAllowed) {
-        return;
+      const ipObject = await checkIpObject();
+
+      if (ipObject.data.length === 0) {
+        await instantiateIpObject();
       }
-      const post = await axios.post("http://localhost:5000/api/auth", data);
-      if (post) {
-        console.log(post, "this was the post");
-      }
+      await addToIpObject();
+
+      // getIp();
+      // const data = { name, password };
+      // const notAllowed = validate(data, thisSchema);
+      // if (notAllowed) {
+      //   return;
+      // }
+      // const post = await axios.post("http://localhost:5000/api/auth", data);
+      // if (post) {
+      //   localStorage.setItem("token", post.headers["x-auth-token"]);
+      //   localStorage.setItem("name", post.headers["name-token"]);
+      //   props.setName(localStorage.getItem("name"));
+
+      //   window.location = "/";
+      // }
     } catch (error) {
-      console.log(error, "this is the error");
-      //   window.location = "/testredirect";
+      console.log(error.response, "this is the ERROR");
+      // if (error.response.status === 400) {
+      //   setLoginError(true);
+      // }
     }
   };
 
   const handleEmailOrNameChange = (e) => {
+    setLoginError(false);
     const nameSchema = {
       name: Joi.string().min(3).max(100).required().label("Input"),
     };
@@ -158,6 +227,12 @@ export default function Login(props) {
       setError(newError);
     }
     setName(e.target.value);
+  };
+  const handleMakeAccount = (e) => {
+    props["0"].history.push("/register");
+  };
+  const handleForgot = (e) => {
+    props["0"].history.push("/passwordReset");
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -213,6 +288,23 @@ export default function Login(props) {
           >
             Sign-in
           </Button>
+          {loginError && (
+            <Alert severity="error">
+              Invalid entry entered. Please try again
+            </Alert>
+          )}
+          <Grid container>
+            <Grid item xs>
+              <Link onClick={handleForgot} href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link onClick={handleMakeAccount} href="#" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
         </form>
       </div>
       <Box mt={8}>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -15,6 +14,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Joi from "joi";
+import { setHeaders } from "./../Services/setHeaders";
+import { authPost } from "./../Services/authServices";
+import { validatedProperty, validate } from "./../Services/validations";
 
 function Copyright() {
   return (
@@ -27,21 +29,6 @@ function Copyright() {
       {"."}
     </Typography>
   );
-}
-
-export function validate(data, schema) {
-  const result = Joi.validate(data, schema, {
-    abortEarly: false,
-  });
-  const { error } = result;
-  if (!error) {
-    return null;
-  }
-  const errors = {};
-  for (let item of error.details) {
-    errors[item.path[0]] = item.message;
-  }
-  return errors;
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -63,14 +50,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3, 0, 2),
   },
 }));
-
-function validateProperty(name, value, macroSchema) {
-  const obj = { [name]: value };
-  const schema = { [name]: macroSchema[name] };
-  const { error } = Joi.validate(obj, schema);
-  if (!error) return null;
-  return error.details[0].message;
-}
 
 export default function Register(props) {
   const classes = useStyles();
@@ -100,86 +79,59 @@ export default function Register(props) {
     password: Joi.string().min(8).max(55).required().label("Password"),
   };
   const handleEmailChange = (e) => {
-    const validated = validateProperty(
+    validatedProperty(
       e.target.name,
       e.target.value,
-      thisSchema
+      thisSchema,
+      error,
+      setError,
+      "emailText"
     );
-    if (validated) {
-      const newError = { ...error };
-      newError.emailText = validated;
-      setError(newError);
-    } else {
-      const newError = { ...error };
-      newError.emailText = "";
-      setError(newError);
-    }
+
     setEmail(e.target.value);
   };
   const handleNameChange = (e) => {
-    const validated = validateProperty(
+    validatedProperty(
       e.target.name,
       e.target.value,
-      thisSchema
+      thisSchema,
+      error,
+      setError,
+      "usernameText"
     );
-    if (validated) {
-      const newError = { ...error };
-      newError.usernameText = validated;
-      setError(newError);
-    } else {
-      const newError = { ...error };
-      newError.usernameText = "";
-      setError(newError);
-    }
     setUsername(e.target.value);
   };
   const handlePasswordChange = (e) => {
-    const validated = validateProperty(
+    validatedProperty(
       e.target.name,
       e.target.value,
-      thisSchema
+      thisSchema,
+      error,
+      setError,
+      "passwordText"
     );
-    if (validated) {
-      const newError = { ...error };
-      newError.passwordText = validated;
-      setError(newError);
-    } else {
-      const newError = { ...error };
-      newError.passwordText = "";
-      setError(newError);
-    }
+
     setPassword(e.target.value);
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("submit was clicked");
-    try {
-      const data = { username, email, password };
-      const notAllowed = validate(data, thisSchema);
-      if (notAllowed) {
-        return;
-      }
-      const submitted = { name: username, email, password };
-      const options = {
-        headers: { "X-Custom-Header": "x-auth-token" },
-      };
-      const post = await axios.post(
-        "http://localhost:5000/api/users",
-        submitted,
-        options
-      );
-      if (post) {
-        localStorage.setItem("token", post.headers["x-auth-token"]);
-        if (props.history.goBack) {
-          console.log("used goback");
-          return (window.location = props.history.goBack);
-        }
-        console.log("did not have goback");
-        window.location = "/";
-      }
-    } catch (error) {
-      console.log(error, "this is the error");
-      // window.location = "/testredirect";
+
+    const data = { username, email, password };
+    const notAllowed = validate(data, thisSchema);
+    if (notAllowed) {
+      console.log(notAllowed, "ERROR object returned");
+      return;
+    }
+    const payload = { name: username, email, password };
+
+    const post = await authPost(props, payload);
+
+    if (post) {
+      setHeaders(post, props);
+
+      if (props.location.key) {
+        props.history.goBack();
+      } else props.history.push("/");
     }
   };
   return (
@@ -201,6 +153,7 @@ export default function Register(props) {
             id="email"
             label="Email Address"
             name="email"
+            value={email}
             data-testid="email"
             autoComplete="email"
             autoFocus
@@ -219,6 +172,7 @@ export default function Register(props) {
             id="username"
             label="User Name"
             name="username"
+            value={username}
             autoFocus
             onChange={handleNameChange}
             helperText={error.usernameText}
@@ -231,6 +185,7 @@ export default function Register(props) {
             required
             fullWidth
             name="password"
+            value={password}
             label="Password"
             type="password"
             id="password"

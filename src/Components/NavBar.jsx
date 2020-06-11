@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { fade, makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -10,12 +10,12 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Menu from "@material-ui/core/Menu";
 import MenuIcon from "@material-ui/icons/Menu";
 import Button from "@material-ui/core/Button";
-import Link from "@material-ui/core/Link";
 import SearchIcon from "@material-ui/icons/Search";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   grow: {
@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "4px 20px",
     userSelect: "none",
     height: "100%",
+    color: "#FFFFFF",
     backgroundColor: "rgba(0, 0, 0, 0)",
     "&:hover": {
       backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -91,13 +92,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function NavBar() {
+export default function NavBar(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const [name, setName] = useState(localStorage.getItem("name"));
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -120,6 +122,10 @@ export default function NavBar() {
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
+  const handleLogOut = () => {
+    localStorage.clear();
+    window.location = "/";
+  };
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -134,6 +140,9 @@ export default function NavBar() {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {localStorage.getItem("token") && (
+        <MenuItem onClick={handleLogOut}>Log out</MenuItem>
+      )}
     </Menu>
   );
 
@@ -190,26 +199,43 @@ export default function NavBar() {
           >
             <MenuIcon />
           </IconButton>
+          <Link to="/" style={{ textDecoration: "none" }}>
+            <Typography
+              className={classes.menuItem}
+              variant="h6"
+              // onClick={() => {
+              //   window.location = "/";
+              // }}
+              noWrap
+            >
+              Home
+            </Typography>
+          </Link>
+          {!localStorage.getItem("token") && (
+            <Typography
+              className={classes.menuItem}
+              variant="h6"
+              onClick={handleLogin}
+              noWrap
+            >
+              Sign-in
+            </Typography>
+          )}
 
-          <Typography
-            className={classes.menuItem}
-            variant="h6"
-            onClick={handleLogin}
-            noWrap
-          >
-            Sign-in
-          </Typography>
-
-          <Typography
-            className={classes.menuItem}
-            onClick={() => {
-              window.location = "/register";
-            }}
-            variant="h6"
-            noWrap
-          >
-            Make an Account
-          </Typography>
+          {!localStorage.getItem("token") && (
+            <Link to="/register" style={{ textDecoration: "none" }}>
+              <Typography
+                className={classes.menuItem}
+                // onClick={() => {
+                //   window.location = "/register";
+                // }}
+                variant="h6"
+                noWrap
+              >
+                Make an Account
+              </Typography>
+            </Link>
+          )}
 
           <Typography className={classes.menuItem} variant="h6" noWrap>
             Make a Quiz
@@ -217,6 +243,12 @@ export default function NavBar() {
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
+            {Boolean(localStorage.getItem("token")) && (
+              <Typography className={classes.menuItem} variant="h6" noWrap>
+                Welcome, {props.signedIn}!
+              </Typography>
+            )}
+
             <IconButton aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <MailIcon />
