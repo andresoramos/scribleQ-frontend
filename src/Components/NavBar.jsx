@@ -109,6 +109,9 @@ export default function NavBar(props) {
 
     window.location = "/login";
   };
+  const handleMakeQuiz = () => {
+    console.log("we be working");
+  };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -224,22 +227,24 @@ export default function NavBar(props) {
 
           {!localStorage.getItem("token") && (
             <Link to="/register" style={{ textDecoration: "none" }}>
-              <Typography
-                className={classes.menuItem}
-                // onClick={() => {
-                //   window.location = "/register";
-                // }}
-                variant="h6"
-                noWrap
-              >
+              <Typography className={classes.menuItem} variant="h6" noWrap>
                 Make an Account
               </Typography>
             </Link>
           )}
-
-          <Typography className={classes.menuItem} variant="h6" noWrap>
+          <Link to="/makeQuiz" style={{ textDecoration: "none" }}>
+            <Typography className={classes.menuItem} variant="h6" noWrap>
+              Make a Quiz
+            </Typography>
+          </Link>
+          {/* <Typography
+            onClick={handleMakeQuiz}
+            className={classes.menuItem}
+            variant="h6"
+            noWrap
+          >
             Make a Quiz
-          </Typography>
+          </Typography> */}
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>

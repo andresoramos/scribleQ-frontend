@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import Form from "../Services/EmailForm";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
+
 import Alert from "@material-ui/lab/Alert";
 import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
@@ -16,7 +14,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Joi from "joi";
-import { addToLockedOut } from "../Services/lockedOutServices";
+import {
+  addToLockedOut,
+  checkIfLockedOut,
+} from "../Services/lockedOutServices";
 import {
   checkIpObject,
   instantiateIpObject,
@@ -87,6 +88,10 @@ const addToIpObject = async () => {
   const getId = await checkIpObject();
   const id = getId.id;
   const ip = await getIp();
+  const lockedOut = await checkIfLockedOut(ip);
+  if (lockedOut) {
+    return lockedOut;
+  }
   const putObject = { ...getId.data };
   if (!putObject[ip]) {
     putObject[ip] = [];
@@ -95,34 +100,37 @@ const addToIpObject = async () => {
     putObject[ip].push(new Date(Date.now()));
   }
 
-  const calculated = await calculateTime(
-    putObject[ip][0],
-    putObject[ip][putObject[ip].length - 1],
-    putObject[ip],
-    ip
-  );
+  const calculated = await calculateTime(putObject[ip], ip);
   if (calculated) {
     putObject[ip] = calculated;
   }
   const newAddition = { ...putObject };
   putObject.id = id;
   putObject.ips = newAddition;
-  console.log(putObject, "put object before putting");
   const changed = await putIpObject(putObject);
 };
 
-const calculateTime = async (time1, time2, array, ip) => {
-  const timeDiff = time2 - new Date(time1);
-  if (timeDiff <= 300000) {
-    if (array.length >= 20) {
-      await addToLockedOut(ip);
-      console.log("lockedout");
-      return;
+const calculateTime = async (array, ip) => {
+  console.log(array, "array passed in");
+  const final = array[array.length - 1];
+
+  let countingArray = [];
+  let timeFiltered = [];
+  for (var i = 0; i < array.length - 1; i++) {
+    if (final - new Date(array[i]) <= 10000) {
+      console.log("getting to first block");
+      countingArray.push(new Date(array[i]));
     }
-  } else {
-    array.splice(0, array.length - 1);
   }
-  return array;
+  countingArray.push(final);
+
+  console.log(array, "time filtered vs original");
+
+  if (countingArray.length >= 20) {
+    await addToLockedOut(ip);
+    return;
+  }
+  return countingArray;
 };
 
 export default function Login(props) {
@@ -177,27 +185,30 @@ export default function Login(props) {
       if (ipObject.data.length === 0) {
         await instantiateIpObject();
       }
-      await addToIpObject();
+      const addOrLockOut = await addToIpObject();
+      if (addOrLockOut) {
+        props[0].history.push("/banned");
+      }
 
       // getIp();
-      // const data = { name, password };
-      // const notAllowed = validate(data, thisSchema);
-      // if (notAllowed) {
-      //   return;
-      // }
-      // const post = await axios.post("http://localhost:5000/api/auth", data);
-      // if (post) {
-      //   localStorage.setItem("token", post.headers["x-auth-token"]);
-      //   localStorage.setItem("name", post.headers["name-token"]);
-      //   props.setName(localStorage.getItem("name"));
+      const data = { name, password };
+      const notAllowed = validate(data, thisSchema);
+      if (notAllowed) {
+        return;
+      }
+      const post = await axios.post("http://localhost:5000/api/auth", data);
+      if (post) {
+        localStorage.setItem("token", post.headers["x-auth-token"]);
+        localStorage.setItem("name", post.headers["name-token"]);
+        props.setName(localStorage.getItem("name"));
 
-      //   window.location = "/";
-      // }
+        window.location = "/";
+      }
     } catch (error) {
       console.log(error.response, "this is the ERROR");
-      // if (error.response.status === 400) {
-      //   setLoginError(true);
-      // }
+      if (error.response.status === 400) {
+        setLoginError(true);
+      }
     }
   };
 
