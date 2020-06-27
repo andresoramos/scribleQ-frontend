@@ -44,11 +44,8 @@ export function validate(data, schema) {
   });
   const { error } = result;
   if (!error) {
-    console.log("left validate peacefully");
-
     return null;
   }
-  console.log(error, "this is the error object");
   const errors = {};
   for (let item of error.details) {
     errors[item.path[0]] = item.message;
@@ -111,20 +108,16 @@ const addToIpObject = async () => {
 };
 
 const calculateTime = async (array, ip) => {
-  console.log(array, "array passed in");
   const final = array[array.length - 1];
 
   let countingArray = [];
   let timeFiltered = [];
   for (var i = 0; i < array.length - 1; i++) {
     if (final - new Date(array[i]) <= 10000) {
-      console.log("getting to first block");
       countingArray.push(new Date(array[i]));
     }
   }
   countingArray.push(final);
-
-  console.log(array, "time filtered vs original");
 
   if (countingArray.length >= 20) {
     await addToLockedOut(ip);
@@ -143,7 +136,6 @@ export default function Login(props) {
     passwordText: "",
   });
   const shouldSubmit = () => {
-    console.log("submit function is running");
     if (name && password) {
       const { nameText, passwordText } = error;
       if (nameText || passwordText) {
@@ -177,39 +169,38 @@ export default function Login(props) {
     }
     setPassword(e.target.value);
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const ipObject = await checkIpObject();
 
-      if (ipObject.data.length === 0) {
-        await instantiateIpObject();
-      }
-      const addOrLockOut = await addToIpObject();
-      if (addOrLockOut) {
-        props[0].history.push("/banned");
-      }
+    // const ipObject = await checkIpObject();
 
-      // getIp();
-      const data = { name, password };
-      const notAllowed = validate(data, thisSchema);
-      if (notAllowed) {
-        return;
-      }
-      const post = await axios.post("http://localhost:5000/api/auth", data);
-      if (post) {
-        localStorage.setItem("token", post.headers["x-auth-token"]);
-        localStorage.setItem("name", post.headers["name-token"]);
+    // if (ipObject.data.length === 0) {
+    //   await instantiateIpObject();
+    // }
+    // const addOrLockOut = await addToIpObject();
+    // if (addOrLockOut) {
+    //   props.history.push("/banned");
+    // }
+
+    const data = { name, password };
+    // const notAllowed = validate(data, thisSchema);
+    // if (notAllowed) {
+    //   return;
+    // }
+    axios
+      .post("/api/auth", data)
+      .then((res) => {
+        props.history.push("/");
+        localStorage.setItem("token", res.headers["x-auth-token"]);
+        localStorage.setItem("name", res.headers["name-token"]);
         props.setName(localStorage.getItem("name"));
-
-        window.location = "/";
-      }
-    } catch (error) {
-      console.log(error.response, "this is the ERROR");
-      if (error.response.status === 400) {
-        setLoginError(true);
-      }
-    }
+      })
+      .catch((err) => {
+        console.log("WE RAN INTO AN UNEXPECTED ERROR");
+        if (error.response.status === 400) {
+          setLoginError(true);
+        }
+      });
   };
 
   const handleEmailOrNameChange = (e) => {
@@ -240,10 +231,10 @@ export default function Login(props) {
     setName(e.target.value);
   };
   const handleMakeAccount = (e) => {
-    props["0"].history.push("/register");
+    props.history.push("/register");
   };
   const handleForgot = (e) => {
-    props["0"].history.push("/passwordReset");
+    props.history.push("/passwordReset");
   };
   return (
     <Container component="main" maxWidth="xs">
@@ -292,7 +283,7 @@ export default function Login(props) {
             name="submit"
             data-testid="submit"
             fullWidth
-            // disabled={shouldSubmit()}
+            disabled={shouldSubmit()}
             variant="contained"
             color="primary"
             className={classes.submit}

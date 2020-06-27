@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const checkIfLockedOut = async (ip) => {
   try {
-    const check = await axios.get("http://localhost:5000/api/lockedOut");
+    const check = await axios.get("/api/lockedOut");
     console.log(check, "this is probably empty");
     if (check.data[0]) {
       const dataArr = check.data[0].ips.banned;
@@ -20,7 +20,7 @@ export const checkIfLockedOut = async (ip) => {
             const duplicateArr = [...dataArr];
             duplicateArr.splice(i, 1);
             const put = await axios.put(
-              `http://localhost:5000/api/lockedOut/expiredBans/${dataArrId}`,
+              `/api/lockedOut/expiredBans/${dataArrId}`,
               { duplicateArr }
             );
             return false;
@@ -36,14 +36,14 @@ export const checkIfLockedOut = async (ip) => {
 
 export const addToLockedOut = async (ip) => {
   try {
-    const check = await axios.get("http://localhost:5000/api/lockedOut");
+    const check = await axios.get("/api/lockedOut");
     // console.log(check.data.length, "Our check has revealed this");
     if (check.data.length === 0) {
-      await axios.post("http://localhost:5000/api/lockedOut", {
+      await axios.post("/api/lockedOut", {
         ips: { dudProp: true },
       });
     }
-    const identify = await axios.get("http://localhost:5000/api/lockedOut");
+    const identify = await axios.get("/api/lockedOut");
     // console.log(identify, "identify object");
     const id = identify.data[0]._id;
     let arr = identify.data[0].ips.banned;
@@ -54,9 +54,6 @@ export const addToLockedOut = async (ip) => {
     arr.push(newIp);
     const updated = { ...identify.data[0] };
 
-    const lockedOut = axios.put(
-      `http://localhost:5000/api/lockedOut/${id}`,
-      updated
-    );
+    const lockedOut = axios.put(`/api/lockedOut/${id}`, updated);
   } catch (err) {}
 };

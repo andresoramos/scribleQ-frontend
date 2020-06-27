@@ -104,11 +104,6 @@ export default function NavBar(props) {
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    window.location = "/login";
-  };
   const handleMakeQuiz = () => {
     console.log("we be working");
   };
@@ -203,26 +198,16 @@ export default function NavBar(props) {
             <MenuIcon />
           </IconButton>
           <Link to="/" style={{ textDecoration: "none" }}>
-            <Typography
-              className={classes.menuItem}
-              variant="h6"
-              // onClick={() => {
-              //   window.location = "/";
-              // }}
-              noWrap
-            >
+            <Typography className={classes.menuItem} variant="h6" noWrap>
               Home
             </Typography>
           </Link>
           {!localStorage.getItem("token") && (
-            <Typography
-              className={classes.menuItem}
-              variant="h6"
-              onClick={handleLogin}
-              noWrap
-            >
-              Sign-in
-            </Typography>
+            <Link to="/login" style={{ textDecoration: "none" }}>
+              <Typography className={classes.menuItem} variant="h6" noWrap>
+                Sign-in
+              </Typography>
+            </Link>
           )}
 
           {!localStorage.getItem("token") && (

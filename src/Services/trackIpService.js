@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const checkIpObject = async () => {
   try {
-    const checked = await axios.get("http://localhost:5000/api/ipTracker");
+    const checked = await axios.get("/api/ipTracker");
 
     if (checked.data.length === 0) {
       const data = { data: checked.data, id: null };
@@ -19,10 +19,7 @@ export const checkIpObject = async () => {
 export const instantiateIpObject = async () => {
   const ipObject = { ips: { dudProp: true } };
   try {
-    const checked = await axios.post(
-      "http://localhost:5000/api/ipTracker",
-      ipObject
-    );
+    const checked = await axios.post("/api/ipTracker", ipObject);
     return checked;
   } catch (err) {
     console.log("This is the error: ", err.response);
@@ -31,10 +28,7 @@ export const instantiateIpObject = async () => {
 
 export const putIpObject = async (ipObject) => {
   try {
-    const put = await axios.put(
-      `http://localhost:5000/api/ipTracker/${ipObject.id}`,
-      ipObject
-    );
+    const put = await axios.put(`/api/ipTracker/${ipObject.id}`, ipObject);
     return put;
   } catch (err) {
     console.log("This is your error: ", err.response);
@@ -43,7 +37,7 @@ export const putIpObject = async (ipObject) => {
 
 export const getIp = async () => {
   try {
-    const ip = await axios.get("http://localhost:5000/api/ipTracker/ip");
+    const ip = await axios.get("/api/ipTracker/ip");
     return ip.data;
   } catch (err) {
     console.log("This is the error: ", err.response);

@@ -10,7 +10,7 @@ import Joi, { describe } from "joi";
 jest.mock("axios");
 
 // describe("Validation", () => {
-it("should show an error when email is blank", () => {
+xit("should show an error when email is blank", () => {
   const { queryByLabelText, getByLabelText } = render(<Register></Register>);
 
   // fireEvent.click(screen.getByTestId("submit"));
@@ -28,7 +28,7 @@ it("should show an error when email is blank", () => {
   // expect(getByText("not allowed to be empty")).toBeInTheDocument();
 });
 
-it("Validate should return an errors object if user object is invalid", () => {
+xit("Validate should return an errors object if user object is invalid", () => {
   const data = {
     username: "andresoramos",
     email: "cum",

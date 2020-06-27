@@ -2,10 +2,7 @@ import axios from "axios";
 
 export const getResetToken = async (body) => {
   try {
-    const token = await axios.post(
-      "http://localhost:5000/api/passwordReset",
-      body
-    );
+    const token = await axios.post("/api/passwordReset", body);
     return token;
   } catch (err) {
     console.log("You had the following error: ", err);
@@ -15,10 +12,7 @@ export const getResetToken = async (body) => {
 export const setNewPassword = async (payload) => {
   try {
     console.log("getting into the try block of set passsword");
-    const put = await axios.put(
-      "http://localhost:5000/api/passwordReset",
-      payload
-    );
+    const put = await axios.put("/api/passwordReset", payload);
     console.log(put, "this is the put");
     return put;
   } catch (err) {
