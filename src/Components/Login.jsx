@@ -169,7 +169,7 @@ export default function Login(props) {
     }
     setPassword(e.target.value);
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // const ipObject = await checkIpObject();
@@ -187,20 +187,18 @@ export default function Login(props) {
     // if (notAllowed) {
     //   return;
     // }
-    axios
-      .post("/api/auth", data)
-      .then((res) => {
-        props.history.push("/");
-        localStorage.setItem("token", res.headers["x-auth-token"]);
-        localStorage.setItem("name", res.headers["name-token"]);
-        props.setName(localStorage.getItem("name"));
-      })
-      .catch((err) => {
-        console.log("WE RAN INTO AN UNEXPECTED ERROR");
-        if (error.response.status === 400) {
-          setLoginError(true);
-        }
-      });
+
+    try {
+      const res = await axios.post("/api/auth", data);
+      localStorage.setItem("token", res.headers["x-auth-token"]);
+      localStorage.setItem("name", res.headers["name-token"]);
+      props.setName(localStorage.getItem("name"));
+      props.history.push("/");
+    } catch (err) {
+      if (err.response.status === 400) {
+        setLoginError(true);
+      }
+    }
   };
 
   const handleEmailOrNameChange = (e) => {

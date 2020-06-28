@@ -1,10 +1,17 @@
 import React from "react";
 import sinon from "sinon";
 import axios from "axios";
-import { render, waitFor, fireEvent, screen } from "@testing-library/react";
+import {
+  render,
+  waitFor,
+  fireEvent,
+  screen,
+  wait,
+} from "@testing-library/react";
 import "@testing-library/jest-dom";
 import Login from "../../Components/Login";
 import App from "../../App";
+import { act } from "react-dom/test-utils";
 
 const s = (re, sel) => {
   return re.container.querySelector(sel);
@@ -14,32 +21,15 @@ const submitSel = "button[name=submit]";
 const emailSel = "input#email[name=email]";
 const passwordSel = "input#password[name=password]";
 
+const postStub = sinon.stub(axios, "post");
+
 describe("Login component", () => {
   afterEach(() => {
-    // postStub.reset();
+    postStub.reset();
   });
 
-  it("should have a disabled submit button before inputs pass validation", () => {
-    postStub.withArgs("/api/auth", sinon.match.any).resolves(
-      Promise.resolve({
-        status: 200,
-        data: {},
-        headers: {
-          "x-auth-token": "",
-          "name-token": "",
-        },
-      })
-    );
-
-    const re = render(<Login setName={() => null} />);
-
-    fireEvent.click(s(re, submitSel));
-
-    expect(postStub.callCount).toBe(0);
-  });
-
-  it("should make a post when validation passes and submit button is clicked", () => {
-    postStub.withArgs("/api/auth", sinon.match.any).resolves({
+  it("should have a disabled submit button before inputs pass validation", async () => {
+    const resPromise = Promise.resolve({
       status: 200,
       data: {},
       headers: {
@@ -47,8 +37,29 @@ describe("Login component", () => {
         "name-token": "",
       },
     });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
 
     const re = render(<Login setName={() => null} />);
+
+    fireEvent.click(s(re, submitSel));
+
+    await act(() => resPromise);
+
+    expect(postStub.callCount).toBe(0);
+  });
+
+  it("should make a post when validation passes and submit button is clicked", async () => {
+    const resPromise = Promise.resolve({
+      status: 200,
+      data: {},
+      headers: {
+        "x-auth-token": "",
+        "name-token": "",
+      },
+    });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
+    const historyMock = { push: jest.fn().mockName("history.push") };
+    const re = render(<Login setName={() => null} history={historyMock} />);
 
     fireEvent.change(s(re, emailSel), {
       target: { value: "andresoramos@gmail.com" },
@@ -58,27 +69,50 @@ describe("Login component", () => {
     });
 
     fireEvent.click(s(re, submitSel));
+    await act(() => resPromise);
 
     expect(postStub.callCount).toBe(1);
+    expect(historyMock.push).toHaveBeenCalled();
+    expect(historyMock.push).toHaveBeenCalledWith("/");
   });
 
-  // consider refactoring common code
-
   it("should make a post when credentials are submitted but shows error when they are incorrect", async () => {
-    postStub.withArgs("/api/auth", sinon.match.any).rejects({ status: 400 });
-    const re = render(
-      <Login
-        setName={() => {
-          return null;
-        }}
-      />
-    );
+    // ---- Solution 1 -----
+    // postStub
+    //   .withArgs("/api/auth", sinon.match.any)
+    //   .rejects({ response: { status: 400 } });
+
+    // ---- Solution 2 -----
+    const resPromise = Promise.reject({ response: { status: 400 } });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
+    // ----  -----
+
+    const histMock = { push: jest.fn() };
+
+    const re = render(<Login setName={() => null} history={histMock} />);
+
     fireEvent.change(s(re, emailSel), {
       target: { value: "andresoramos@gmail.com" },
     });
     fireEvent.change(s(re, passwordSel), {
       target: { value: "Abcd1234" },
     });
+    fireEvent.click(s(re, submitSel));
+
+    // ---- EITHER ONE OF THESE SOLUTIONS WORK -----
+
+    // ---- Solution 1 -----
+    // await waitFor(() =>
+    //   expect(
+    //     re.getByText("Invalid entry entered. Please try again")
+    //   ).toBeInTheDocument()
+    // );
+
+    // ---- Solution 2 -----
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+
     expect(
       re.getByText("Invalid entry entered. Please try again")
     ).toBeInTheDocument();
@@ -90,10 +124,8 @@ describe("Login component", () => {
     // you will need to uncomment ip checking code in Login component
   });
 
-  it.only("should navigate to login page, and land on home page", async () => {
-    const postStub = sinon.stub(axios, "post");
-
-    postStub.resolves({
+  it("should navigate to login page, and land on home page", async () => {
+    const resPromise = Promise.resolve({
       status: 200,
       data: {},
       headers: {
@@ -102,28 +134,24 @@ describe("Login component", () => {
         "name-token": "Andres",
       },
     });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
 
     const re = render(<App />);
 
     expect(re.getByText("Sign-in")).toBeInTheDocument();
-
     fireEvent.click(re.getByText("Sign-in"));
-
     expect(re.getByText("Welcome back!")).toBeInTheDocument();
 
     fireEvent.change(s(re, emailSel), {
       target: { value: "andresoramos@gmail.com" },
     });
-
     fireEvent.change(s(re, passwordSel), {
       target: { value: "Abcd1234" },
     });
 
     fireEvent.click(s(re, submitSel));
-
-    // expect(postStub.callCount).toBe(1);
-
-    // await waitFor(() => re.container.querySelector(".home-header"));
+    expect(postStub.callCount).toBe(1);
+    await act(() => resPromise);
 
     expect(re.container.innerHTML).toMatch("You are home");
   });
