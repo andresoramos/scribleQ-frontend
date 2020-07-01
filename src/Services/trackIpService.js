@@ -20,6 +20,7 @@ export const instantiateIpObject = async () => {
   const ipObject = { ips: { dudProp: true } };
   try {
     const checked = await axios.post("/api/ipTracker", ipObject);
+    console.log("1/2 passed");
     return checked;
   } catch (err) {
     console.log("This is the error: ", err.response);

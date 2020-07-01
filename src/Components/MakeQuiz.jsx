@@ -13,6 +13,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(12),
     width: "80%",
+    borderRadius: 20,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -36,7 +37,15 @@ export const MakeQuiz = () => {
   return (
     <Container className={classes.container}>
       <Paper className={classes.paper} elevation={3}>
-        <h1>Making a quiz is quick, easy, and fun!</h1>
+        <h1>It's time to put your quiz-making skills to the test!</h1>
+        <p>
+          Use the form below to create a quiz that helps drill the material you
+          need to learn!
+        </p>
+        <p>
+          Remember: Sharing is caring, so don't forget to make your quiz
+          downloadable by others!
+        </p>
         <br></br>
       </Paper>
     </Container>

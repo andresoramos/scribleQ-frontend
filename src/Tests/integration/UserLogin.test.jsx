@@ -12,6 +12,7 @@ import "@testing-library/jest-dom";
 import Login from "../../Components/Login";
 import App from "../../App";
 import { act } from "react-dom/test-utils";
+import { not } from "joi";
 
 const s = (re, sel) => {
   return re.container.querySelector(sel);
@@ -118,9 +119,154 @@ describe("Login component", () => {
     ).toBeInTheDocument();
   });
 
-  it("should not ban after single attempt", () => {});
+  it.only("should not ban after single attempt", async () => {
+    const resPromise = Promise.reject({ response: { status: 400 } });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
+    // ----  -----
 
-  it("should ban after max attempts", () => {
+    const histMock = { push: jest.fn() };
+
+    const re = render(<Login setName={() => null} history={histMock} />);
+
+    fireEvent.change(s(re, emailSel), {
+      target: { value: "esoramos@gmail.com" },
+    });
+    fireEvent.change(s(re, passwordSel), {
+      target: { value: "Abcd12294" },
+    });
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+
+    setTimeout(() => {
+      expect(
+        re.getByText(
+          "You've tried to log in too many times. Please try again later."
+        )
+      ).to.not.BeInTheDocument();
+    }, 10000);
+  });
+
+  it("should ban after max attempts", async () => {
+    const resPromise = Promise.reject({ response: { status: 400 } });
+    postStub.withArgs("/api/auth", sinon.match.any).returns(resPromise);
+    // ----  -----
+
+    const histMock = { push: jest.fn() };
+
+    const re = render(<Login setName={() => null} history={histMock} />);
+
+    fireEvent.change(s(re, emailSel), {
+      target: { value: "esoramos@gmail.com" },
+    });
+    fireEvent.change(s(re, passwordSel), {
+      target: { value: "Abcd12294" },
+    });
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+    fireEvent.click(s(re, submitSel));
+    try {
+      await act(() => resPromise);
+    } catch (e) {}
+
+    setTimeout(() => {
+      expect(
+        re.getByText(
+          "You've tried to log in too many times. Please try again later."
+        )
+      ).toBeInTheDocument();
+    }, 10000);
     // you will need to uncomment ip checking code in Login component
   });
 

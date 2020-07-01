@@ -91,9 +91,11 @@ const addToIpObject = async () => {
   }
   const putObject = { ...getId.data };
   if (!putObject[ip]) {
+    console.log("Test 2/2 instantiated a new array");
     putObject[ip] = [];
     putObject[ip].push(new Date(Date.now()));
   } else {
+    console.log("test 2/2 added to existing array");
     putObject[ip].push(new Date(Date.now()));
   }
 
@@ -113,7 +115,7 @@ const calculateTime = async (array, ip) => {
   let countingArray = [];
   let timeFiltered = [];
   for (var i = 0; i < array.length - 1; i++) {
-    if (final - new Date(array[i]) <= 10000) {
+    if (final - new Date(array[i]) <= 300000) {
       countingArray.push(new Date(array[i]));
     }
   }
@@ -172,21 +174,21 @@ export default function Login(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // const ipObject = await checkIpObject();
+    const ipObject = await checkIpObject();
 
-    // if (ipObject.data.length === 0) {
-    //   await instantiateIpObject();
-    // }
-    // const addOrLockOut = await addToIpObject();
-    // if (addOrLockOut) {
-    //   props.history.push("/banned");
-    // }
+    if (ipObject.data.length === 0) {
+      await instantiateIpObject();
+    }
+    const addOrLockOut = await addToIpObject();
+    if (addOrLockOut) {
+      props.history.push("/banned");
+    }
 
     const data = { name, password };
-    // const notAllowed = validate(data, thisSchema);
-    // if (notAllowed) {
-    //   return;
-    // }
+    const notAllowed = validate(data, thisSchema);
+    if (notAllowed) {
+      return;
+    }
 
     try {
       const res = await axios.post("/api/auth", data);
