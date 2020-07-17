@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextEditor from "./TextEditor";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Avatar from "@material-ui/core/Avatar";
-import { answerSave } from "../Services/answerSave";
+import { answerSave, updateAndSave } from "../Services/answerSave";
+import editOrNew from "../Services/editOrNew";
 
 const useStyles = makeStyles((theme) => ({
   buttonGroup: {
@@ -37,87 +38,75 @@ const useStyles = makeStyles((theme) => ({
 
 export default function QuizQuestion(props) {
   const classes = useStyles();
-  const [question, setQuestion] = useState("");
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [Q1, setQ1] = useState("");
-  const [Q2, setQ2] = useState("");
-  const [Q3, setQ3] = useState("");
-  const [Q4, setQ4] = useState("");
-  const [renderEdit, setRenderEdit] = useState(false);
+  const clickCount = props.clickCount;
 
   const changeQuestion = (content) => {
-    setQuestion(content);
-  };
+    props.setObjectQuestion(content, clickCount);
+  }; //corrected
 
   const handleSave = async () => {
-    console.log("save ran");
-    const questionContent = { question: question, edited: false };
-    const answersArray = [Q1, Q2, Q3, Q4];
-    const name = props.name;
-    const questionPayload = {
-      answer: answersArray,
-      questions: questionContent,
-      name: name,
-    };
-    const saved = await answerSave(questionPayload);
-    console.log(saved, "Is saved running");
-    setShowAnswer(false);
-    setRenderEdit(true);
-  };
-  // const showAllButLast = () => {};
-
-  // const showOnlyLast = () => {};
-
-  // const questionMappedArray = [{}];
-
-  // const questionMapped = questionMappedArray.map((item, i) => {
-
-  //   return (
-  //     <Paper className={classes.questionPaper} elevation={3}>
-  //       <div
-  //         // style={{ backgroundColor: "pink" }}
-  //         className={classes.questionNumber}
-  //       >
-  //         <div>
-  //           <b>{`# ${i + 1}`}</b>
-  //         </div>
-  //         <div
-  //           style={{
-  //             width: "90%",
-  //             marginLeft: 5,
-
-  //             // lineHeight: 0,
-  //           }}
-  //           dangerouslySetInnerHTML={{ __html: question }}
-  //         />
-  //         <br></br>
-  //       </div>
-  //     </Paper>
-  //   );
-  // });
+    const payload = { name: props.name, questions: props.payload };
+    props.setObjectShowAnswer(false, clickCount);
+    props.setObjectRenderEdit(true, clickCount);
+    const saved = await answerSave(payload);
+  }; //corrected
 
   const handleEdit = () => {
-    setRenderEdit(false);
-  };
+    props.setObjectHandleEdit(false, clickCount);
+  }; //corrected
 
   const showAnswers = () => {
-    setShowAnswer(true);
+    props.setObjectShowAnswersTrue(true, clickCount);
+    // setShowAnswer(true);
+  }; //corrected
+
+  // const openOrMulti = (idNumber) => {
+  //   for (var i = 0; i < newDisplayArray.length; i++) {
+  //     if (idNumber === newDisplayArray[i].trackNumber) {
+  //       if (newDisplayArray[i].answerType === "multiple") {
+  //         return;
+  //       }
+  //       if (newDisplayArray[i].answerType === "open") {
+  //         return "open";
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // };
+  const singleInput = (trackingNumber) => {
+    return (
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <TextField
+          size="small"
+          style={{
+            marginLeft: 5,
+            marginBottom: 20,
+          }}
+          onChange={(e) => {
+            props.setObjectSingleAnswer(e.target.value, trackingNumber);
+          }}
+          value={props.value}
+          variant="outlined"
+        />
+      </div>
+    );
   };
+
   const handleAnswerChange = (e) => {
     const id = {
-      Q1: setQ1,
-      Q2: setQ2,
-      Q3: setQ3,
-      Q4: setQ4,
+      Q1: true,
+      Q2: true,
+      Q3: true,
+      Q4: true,
     };
+
     const passedInId = e.target.id;
     for (var key in id) {
       if (passedInId === key) {
-        id[key](e.target.value);
+        props.setObjectQx(e.target.value, clickCount, key);
       }
     }
   };
-
   const inputArr = [
     { letter: "A", id: "Q1" },
     { letter: "B", id: "Q2" },
@@ -126,10 +115,10 @@ export default function QuizQuestion(props) {
   ];
   const mappedInputs = inputArr.map((item, i) => {
     const values = {
-      0: Q1,
-      1: Q2,
-      2: Q3,
-      3: Q4,
+      0: props.Q1,
+      1: props.Q2,
+      2: props.Q3,
+      3: props.Q4,
     };
 
     return (
@@ -150,9 +139,12 @@ export default function QuizQuestion(props) {
     );
   });
 
+  // console.log(`this is the state in question number ${props.number}: question: ${question}, showAnswer: ${showAnswer}, Q1: ${Q1},
+  // Q2: ${Q2}, Q3:${Q3}, Q4: ${Q4}, renderEdit: ${renderEdit}, `);
+  console.log(props.answerType, "theres an issue with the props");
   return (
     <React.Fragment>
-      {question !== "" && (
+      {props.question !== "" && (
         <Paper className={classes.questionPaper} elevation={3}>
           <div
             // style={{ backgroundColor: "pink" }}
@@ -168,21 +160,28 @@ export default function QuizQuestion(props) {
 
                 // lineHeight: 0,
               }}
-              dangerouslySetInnerHTML={{ __html: question }}
+              dangerouslySetInnerHTML={{ __html: props.question }}
             />
             <br></br>
           </div>
         </Paper>
       )}
-      {showAnswer ? (
-        <div className={classes.textField}>{mappedInputs}</div>
-      ) : renderEdit ? null : (
-        <TextEditor initialValue={question} changeQuestion={changeQuestion} />
+      {props.showAnswer ? (
+        <div className={classes.textField}>
+          {props.answerType === "multiple"
+            ? mappedInputs
+            : singleInput(clickCount)}
+        </div>
+      ) : props.renderEdit ? null : (
+        <TextEditor
+          initialValue={props.question}
+          changeQuestion={changeQuestion}
+        />
       )}
-      {question !== "" && (
+      {props.question !== "" && (
         <div className={classes.buttonGroup}>
-          {!showAnswer ? (
-            !renderEdit ? (
+          {!props.showAnswer ? (
+            !props.renderEdit ? (
               <Button onClick={showAnswers} variant="outlined" color="primary">
                 Add answers
               </Button>
@@ -191,7 +190,16 @@ export default function QuizQuestion(props) {
                 Edit
               </Button>
             )
-          ) : !renderEdit ? (
+          ) : /*
+              If showAnswer is true, then we'll have to see if render edit is true.  If so, provide a null, otherwise
+              provide a text editor
+
+            if Question doesn't equal '', then you'll render the following:  if show answer is false,
+            then you'll check to see if renderedit is false.  If so, a button adding answers appears.  Otherwise,
+            an edit button appears.  If show answer is not false, then check to see if render edit isn't true.  If
+            that's the case, then render a save button.  Otherwise, render an edit button.
+            */
+          !props.renderEdit ? (
             <Button
               onClick={() => {
                 handleSave();

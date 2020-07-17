@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
@@ -61,25 +61,130 @@ export const MakeQuiz = () => {
   const [tempName, setTempName] = useState("");
   const [mcArray, setMcArray] = useState([]);
   const [firstOut, setFirstOut] = useState(false);
-  const [newDisplayArray, setNewDisplayArray] = useState([{ i: 0 }]);
-  const bringSlide = (i) => {
+  const [newDisplayArray, setNewDisplayArray] = useState([
+    {
+      i: 0,
+      question: "",
+      showAnswer: false,
+      Q1: "",
+      Q2: "",
+      Q3: "",
+      Q4: "",
+      renderEdit: false,
+      answerType: "",
+      singleAnswer: "",
+    },
+  ]);
+  const [clickCount, setClickCount] = useState(0);
+
+  const setObjectShowAnswer = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].showAnswer = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectQx = (value, id, key) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i][key] = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectShowAnswersTrue = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].showAnswer = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectHandleEdit = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].renderEdit = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectAnswerType = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].answerType = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectRenderEdit = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        console.log("we found a match, ", newArr[i]);
+        newArr[i].renderEdit = value;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectQuestion = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        console.log("we found a match, ", newArr[i]);
+        newArr[i].question = value;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+
+  const bringSlide = async (i) => {
     if (newDisplayArray.length === 1 && firstOut === false) {
+      const newClick = clickCount + 1;
+      await setClickCount(newClick);
+      const fixedFirst = [...newDisplayArray];
+      fixedFirst[0].trackNumber = clickCount + 1;
+      setNewDisplayArray(fixedFirst);
       return setFirstOut(true);
     }
 
     const updatedArray = [...newDisplayArray];
+    console.log(updatedArray, "this is the array youre copying");
     const index = i;
 
-    updatedArray.splice(index + 1, 0, { i: index, open: false });
+    updatedArray.splice(index + 1, 0, {
+      i: index,
+      open: false,
+      trackNumber: clickCount + 1,
+      question: "",
+      showAnswer: false,
+      Q1: "",
+      Q2: "",
+      Q3: "",
+      Q4: "",
+      renderEdit: false,
+      answerType: "",
+      singleAnswer: "",
+    });
+    setClickCount(clickCount + 1);
 
     setNewDisplayArray(updatedArray);
-
-    // setSlide(true);
-
-    // let number = questionNumber;
-    // number += 1;
-    // setQuestionNumber(number);
   };
+
+  useEffect(() => {
+    console.log("Rerendered and clickCount === ", clickCount);
+  });
+
   const shouldBringSlide = (i) => {
     if (newDisplayArray.length === 1) {
       if (!firstOut) {
@@ -96,21 +201,29 @@ export const MakeQuiz = () => {
     return false;
   };
   const multipleChoice = (i) => {
-    // setQuestionOut(true);
-    // const newMcArray = [...mcArray];
-    // newMcArray.push(i);
-    // setMcArray(newMcArray);
-
     const updatedDisplayArray = [...newDisplayArray];
     updatedDisplayArray[i].open = true;
     setNewDisplayArray(updatedDisplayArray);
   };
+
+  const setObjectSingleAnswer = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        console.log("we found a match, ", newArr[i]);
+        newArr[i].singleAnswer = value;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
   const handleTempNameChange = (e) => {
     setTempName(e.target.value);
   };
+
   const handleNameSave = (e) => {
     setName(tempName);
   };
+
   const shouldGetTextbox = (i) => {
     return newDisplayArray[i].open;
   };
@@ -118,17 +231,38 @@ export const MakeQuiz = () => {
     return (
       <React.Fragment>
         {name !== "" ? (
-          <Button
-            color="primary"
-            variant="outlined"
-            className={classes.button}
-            onClick={() => {
-              bringSlide(i);
+          <div
+            style={{
+              backgroundColor: "pink",
+              display: "flex",
+              alignItems: "center",
+              width: "60%",
+              justifyContent: "space-between",
             }}
           >
-            Add Question
-            <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
-          </Button>
+            <Button
+              color="primary"
+              variant="outlined"
+              className={classes.button}
+              onClick={() => {
+                bringSlide(i);
+              }}
+            >
+              Add Question
+              <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
+            </Button>
+            <Button
+              color="primary"
+              variant="outlined"
+              className={classes.button}
+              onClick={() => {
+                bringSlide(i);
+              }}
+            >
+              Delete question
+              <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
+            </Button>
+          </div>
         ) : (
           <div className={classes.name}>
             <TextField
@@ -161,10 +295,18 @@ export const MakeQuiz = () => {
             color="primary"
             aria-label="outlined primary button group"
           >
-            <Button>Open-ended</Button>
             <Button
               onClick={() => {
                 multipleChoice(i);
+                setObjectAnswerType("open", item.trackNumber);
+              }}
+            >
+              Open-ended
+            </Button>
+            <Button
+              onClick={() => {
+                multipleChoice(i);
+                setObjectAnswerType("multiple", item.trackNumber);
               }}
             >
               Multiple Choice
@@ -173,7 +315,28 @@ export const MakeQuiz = () => {
         </Slide>
         {shouldGetTextbox(i) && (
           <Slide direction={"up"}>
-            <QuizQuestion name={name} number={i + 1} />
+            <QuizQuestion
+              setObjectSingleAnswer={setObjectSingleAnswer}
+              question={item.question}
+              showAnswer={item.showAnswer}
+              answerType={item.answerType}
+              Q1={item.Q1}
+              Q2={item.Q2}
+              Q3={item.Q3}
+              Q4={item.Q4}
+              value={item.singleAnswer}
+              clickCount={item.trackNumber}
+              renderEdit={item.renderEdit}
+              payload={newDisplayArray}
+              setObjectQx={setObjectQx}
+              setObjectShowAnswersTrue={setObjectShowAnswersTrue}
+              setObjectHandleEdit={setObjectHandleEdit}
+              setObjectRenderEdit={setObjectRenderEdit}
+              setObjectShowAnswer={setObjectShowAnswer}
+              setObjectQuestion={setObjectQuestion}
+              name={name}
+              number={i + 1}
+            />
           </Slide>
         )}
       </React.Fragment>
@@ -195,57 +358,6 @@ export const MakeQuiz = () => {
         <br></br>
       </Paper>
       {mappedDisplayArray}
-      {/* {name !== "" ? (
-        <Button
-          color="primary"
-          variant="outlined"
-          className={classes.button}
-          onClick={bringSlide}
-        >
-          Add Question
-          <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
-        </Button>
-      ) : (
-        <div className={classes.name}>
-          <TextField
-            defaultValue="Enter quiz name"
-            id="name"
-            onChange={handleTempNameChange}
-            variant="outlined"
-          />
-          <div
-            style={{
-              display: "flex",
-              marginTop: 10,
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              style={{ width: "20%" }}
-              color="primary"
-              onClick={handleNameSave}
-              variant="outlined"
-            >
-              Save
-            </Button>
-          </div>
-        </div>
-      )}
-      <Slide direction={"up"} in={slide}>
-        <ButtonGroup
-          className={classes.ButtonGroup}
-          color="primary"
-          aria-label="outlined primary button group"
-        >
-          <Button>Open-ended</Button>
-          <Button onClick={multipleChoice}>Multiple Choice</Button>
-        </ButtonGroup>
-      </Slide>
-      {questionOut && (
-        <Slide direction={"up"}>
-          <QuizQuestion name={name} number={questionNumber} />
-        </Slide>
-      )} */}
     </Container>
   );
 };
