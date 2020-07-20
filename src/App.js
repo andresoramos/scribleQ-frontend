@@ -38,7 +38,7 @@ function App() {
         <Route
           path="/makeQuiz"
           render={(props) => {
-            return <MakeQuiz {...props} />;
+            return <MakeQuiz signedInName={signedInName} {...props} />;
           }}
         />
         <Route

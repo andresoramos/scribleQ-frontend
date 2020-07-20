@@ -60,19 +60,6 @@ export default function QuizQuestion(props) {
     // setShowAnswer(true);
   }; //corrected
 
-  // const openOrMulti = (idNumber) => {
-  //   for (var i = 0; i < newDisplayArray.length; i++) {
-  //     if (idNumber === newDisplayArray[i].trackNumber) {
-  //       if (newDisplayArray[i].answerType === "multiple") {
-  //         return;
-  //       }
-  //       if (newDisplayArray[i].answerType === "open") {
-  //         return "open";
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // };
   const singleInput = (trackingNumber) => {
     return (
       <div style={{ display: "flex", flexDirection: "row" }}>

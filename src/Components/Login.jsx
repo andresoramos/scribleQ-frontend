@@ -91,11 +91,9 @@ const addToIpObject = async () => {
   }
   const putObject = { ...getId.data };
   if (!putObject[ip]) {
-    console.log("Test 2/2 instantiated a new array");
     putObject[ip] = [];
     putObject[ip].push(new Date(Date.now()));
   } else {
-    console.log("test 2/2 added to existing array");
     putObject[ip].push(new Date(Date.now()));
   }
 
@@ -194,6 +192,7 @@ export default function Login(props) {
       const res = await axios.post("/api/auth", data);
       localStorage.setItem("token", res.headers["x-auth-token"]);
       localStorage.setItem("name", res.headers["name-token"]);
+
       props.setName(localStorage.getItem("name"));
       props.history.push("/");
     } catch (err) {

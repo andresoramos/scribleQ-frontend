@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Paper from "@material-ui/core/Paper";
+import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Slide from "@material-ui/core/Slide";
@@ -8,6 +9,7 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import QuizQuestion from "./QuizQuestion";
 import TextField from "@material-ui/core/TextField";
+import { answerSave } from "../Services/answerSave";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -48,12 +50,18 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     alignItems: "center",
   },
+  styleAdd: {
+    display: "flex",
+    alignItems: "center",
+    width: "60%",
+    justifyContent: "space-between",
+  },
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
 }));
 
-export const MakeQuiz = () => {
+export const MakeQuiz = (props) => {
   const classes = useStyles();
   const [slide, setSlide] = useState(false);
   const [questionOut, setQuestionOut] = useState(false);
@@ -73,9 +81,21 @@ export const MakeQuiz = () => {
       renderEdit: false,
       answerType: "",
       singleAnswer: "",
+      selected: "",
     },
   ]);
   const [clickCount, setClickCount] = useState(0);
+
+  const setObjectSelected = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].selected = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
 
   const setObjectShowAnswer = (value, id) => {
     const newArr = [...newDisplayArray];
@@ -175,15 +195,12 @@ export const MakeQuiz = () => {
       renderEdit: false,
       answerType: "",
       singleAnswer: "",
+      selected: "",
     });
     setClickCount(clickCount + 1);
 
     setNewDisplayArray(updatedArray);
   };
-
-  useEffect(() => {
-    console.log("Rerendered and clickCount === ", clickCount);
-  });
 
   const shouldBringSlide = (i) => {
     if (newDisplayArray.length === 1) {
@@ -223,7 +240,30 @@ export const MakeQuiz = () => {
   const handleNameSave = (e) => {
     setName(tempName);
   };
+  const handleQuizSave = async () => {
+    const payload = { user: props.signedInName, name: name };
+    const saved = await axios.post(
+      "http://localhost:5000/api/quizzes/saveQuiz",
+      payload
+    );
 
+    // props.history.push("/");
+  };
+  const handleDelete = async (trackNumber, name) => {
+    if (trackNumber === undefined) {
+      trackNumber = 1;
+    }
+    const newArray = [...newDisplayArray];
+    for (var i = 0; i < newArray.length; i++) {
+      if (newArray[i].trackNumber === trackNumber) {
+        newArray.splice(i, 1);
+        break;
+      }
+    }
+    setNewDisplayArray(newArray);
+    const savePayload = { name: name, questions: newArray };
+    await answerSave(savePayload);
+  };
   const shouldGetTextbox = (i) => {
     return newDisplayArray[i].open;
   };
@@ -231,15 +271,7 @@ export const MakeQuiz = () => {
     return (
       <React.Fragment>
         {name !== "" ? (
-          <div
-            style={{
-              backgroundColor: "pink",
-              display: "flex",
-              alignItems: "center",
-              width: "60%",
-              justifyContent: "space-between",
-            }}
-          >
+          <div className={classes.styleAdd}>
             <Button
               color="primary"
               variant="outlined"
@@ -256,7 +288,7 @@ export const MakeQuiz = () => {
               variant="outlined"
               className={classes.button}
               onClick={() => {
-                bringSlide(i);
+                handleDelete(item.trackNumber, name, newDisplayArray);
               }}
             >
               Delete question
@@ -296,7 +328,15 @@ export const MakeQuiz = () => {
             aria-label="outlined primary button group"
           >
             <Button
+              color={
+                item.selected === ""
+                  ? "default"
+                  : item.selected === "open"
+                  ? "secondary"
+                  : "default"
+              }
               onClick={() => {
+                setObjectSelected("open", item.trackNumber);
                 multipleChoice(i);
                 setObjectAnswerType("open", item.trackNumber);
               }}
@@ -304,7 +344,16 @@ export const MakeQuiz = () => {
               Open-ended
             </Button>
             <Button
+              color={
+                item.selected === ""
+                  ? "default"
+                  : item.selected === "multiple"
+                  ? "secondary"
+                  : "default"
+              }
               onClick={() => {
+                setObjectSelected("multiple", item.trackNumber);
+
                 multipleChoice(i);
                 setObjectAnswerType("multiple", item.trackNumber);
               }}
@@ -358,6 +407,15 @@ export const MakeQuiz = () => {
         <br></br>
       </Paper>
       {mappedDisplayArray}
+      {newDisplayArray[0].question !== "" && (
+        <Button
+          style={{ marginTop: 20 }}
+          variant="outlined"
+          onClick={handleQuizSave}
+        >
+          Save Quiz
+        </Button>
+      )}
     </Container>
   );
 };

@@ -7,6 +7,7 @@ export async function answerSave(payload) {
       "http://localhost:5000/api/quizzes",
       payload
     );
+    console.log(saved.data, "this is you saved");
     return saved.data;
   } catch (err) {
     console.log(err, "this is your error from answerSave.js in services");
