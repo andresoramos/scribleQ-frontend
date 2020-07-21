@@ -10,6 +10,7 @@ import AddCircleIcon from "@material-ui/icons/AddCircle";
 import QuizQuestion from "./QuizQuestion";
 import TextField from "@material-ui/core/TextField";
 import { answerSave } from "../Services/answerSave";
+import decode from "jwt-decode";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -78,14 +79,33 @@ export const MakeQuiz = (props) => {
       Q2: "",
       Q3: "",
       Q4: "",
+      Q1Correct: false,
+      Q2Correct: false,
+      Q3Correct: false,
+      Q4Correct: false,
       renderEdit: false,
       answerType: "",
       singleAnswer: "",
       selected: "",
+      correctAnswer: null,
     },
   ]);
   const [clickCount, setClickCount] = useState(0);
 
+  const setObjectCorrectAnswer = (value, id) => {
+    console.log(value, id, "value and Id");
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].Q1Correct = false;
+        newArr[i].Q2Correct = false;
+        newArr[i].Q3Correct = false;
+        newArr[i].Q4Correct = false;
+        newArr[i][value] = true;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
   const setObjectSelected = (value, id) => {
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
@@ -147,6 +167,7 @@ export const MakeQuiz = (props) => {
     }
     setNewDisplayArray(newArr);
   };
+
   const setObjectRenderEdit = (value, id) => {
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
@@ -192,6 +213,10 @@ export const MakeQuiz = (props) => {
       Q2: "",
       Q3: "",
       Q4: "",
+      Q1Correct: null,
+      Q2Correct: null,
+      Q3Correct: null,
+      Q4Correct: null,
       renderEdit: false,
       answerType: "",
       singleAnswer: "",
@@ -241,13 +266,22 @@ export const MakeQuiz = (props) => {
     setName(tempName);
   };
   const handleQuizSave = async () => {
-    const payload = { user: props.signedInName, name: name };
-    const saved = await axios.post(
-      "http://localhost:5000/api/quizzes/saveQuiz",
-      payload
-    );
-
-    // props.history.push("/");
+    const email = decode(localStorage.getItem("token")).email;
+    console.log(email, "this is email");
+    const payload = { user: props.signedInName, name: name, email };
+    try {
+      const saved = await axios.post(
+        "http://localhost:5000/api/quizzes/saveQuiz",
+        payload
+      );
+      console.log(saved, "this is the saved object for now");
+      // props.history.push("/");
+    } catch (err) {
+      if (err.response.data === "This quiz is already in our database") {
+        props.history.push("/makeQuiz");
+      }
+      console.log(err.response, "this is the response");
+    }
   };
   const handleDelete = async (trackNumber, name) => {
     if (trackNumber === undefined) {
@@ -365,7 +399,14 @@ export const MakeQuiz = (props) => {
         {shouldGetTextbox(i) && (
           <Slide direction={"up"}>
             <QuizQuestion
+              questionCorrect={{
+                Q1Correct: item.Q1Correct,
+                Q2Correct: item.Q2Correct,
+                Q3Correct: item.Q3Correct,
+                Q4Correct: item.Q4Correct,
+              }}
               setObjectSingleAnswer={setObjectSingleAnswer}
+              setObjectCorrectAnswer={setObjectCorrectAnswer}
               question={item.question}
               showAnswer={item.showAnswer}
               answerType={item.answerType}

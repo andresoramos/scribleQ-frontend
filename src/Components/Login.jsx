@@ -173,11 +173,14 @@ export default function Login(props) {
     e.preventDefault();
 
     const ipObject = await checkIpObject();
+    console.log("got past ip check");
 
     if (ipObject.data.length === 0) {
       await instantiateIpObject();
     }
+    console.log("got past instantiation");
     const addOrLockOut = await addToIpObject();
+    console.log("got past addToIpObject");
     if (addOrLockOut) {
       props.history.push("/banned");
     }
@@ -190,12 +193,16 @@ export default function Login(props) {
 
     try {
       const res = await axios.post("/api/auth", data);
+      console.log(res.data);
       localStorage.setItem("token", res.headers["x-auth-token"]);
       localStorage.setItem("name", res.headers["name-token"]);
 
       props.setName(localStorage.getItem("name"));
       props.history.push("/");
     } catch (err) {
+      if (err.message === "Invalid token specified") {
+        return console.log(err, "this is the error");
+      }
       if (err.response.status === 400) {
         setLoginError(true);
       }

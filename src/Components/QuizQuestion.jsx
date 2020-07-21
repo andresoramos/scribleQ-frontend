@@ -59,6 +59,9 @@ export default function QuizQuestion(props) {
     props.setObjectShowAnswersTrue(true, clickCount);
     // setShowAnswer(true);
   }; //corrected
+  const setObjectCorrectAnswer = (value) => {
+    props.setObjectCorrectAnswer(value, clickCount);
+  };
 
   const singleInput = (trackingNumber) => {
     return (
@@ -78,6 +81,13 @@ export default function QuizQuestion(props) {
       </div>
     );
   };
+  const correctOrNot = (value) => {
+    const correct = props.questionCorrect;
+    if (correct[value] === true) {
+      return true;
+    }
+    return false;
+  };
 
   const handleAnswerChange = (e) => {
     const id = {
@@ -95,10 +105,10 @@ export default function QuizQuestion(props) {
     }
   };
   const inputArr = [
-    { letter: "A", id: "Q1" },
-    { letter: "B", id: "Q2" },
-    { letter: "C", id: "Q3" },
-    { letter: "D", id: "Q4" },
+    { letter: "A", id: "Q1", correct: "Q1Correct" },
+    { letter: "B", id: "Q2", correct: "Q2Correct" },
+    { letter: "C", id: "Q3", correct: "Q3Correct" },
+    { letter: "D", id: "Q4", correct: "Q4Correct" },
   ];
   const mappedInputs = inputArr.map((item, i) => {
     const values = {
@@ -110,6 +120,15 @@ export default function QuizQuestion(props) {
 
     return (
       <div key={i} style={{ display: "flex", flexDirection: "row" }}>
+        <Button
+          onClick={() => {
+            setObjectCorrectAnswer(item.correct);
+          }}
+        >
+          {correctOrNot(item.correct)
+            ? "Correct answer"
+            : "Click to select correct answer"}
+        </Button>
         <Avatar>{item.letter}</Avatar>
         <TextField
           size="small"
@@ -126,9 +145,6 @@ export default function QuizQuestion(props) {
     );
   });
 
-  // console.log(`this is the state in question number ${props.number}: question: ${question}, showAnswer: ${showAnswer}, Q1: ${Q1},
-  // Q2: ${Q2}, Q3:${Q3}, Q4: ${Q4}, renderEdit: ${renderEdit}, `);
-  console.log(props.answerType, "theres an issue with the props");
   return (
     <React.Fragment>
       {props.question !== "" && (

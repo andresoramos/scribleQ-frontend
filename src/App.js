@@ -18,6 +18,8 @@ function App() {
 
   const [location, setLocation] = useState("");
   const setName = (name) => {
+    const token = localStorage.getItem("token");
+
     setSignedInName(name);
   };
   const upDateLocation = (path) => {
