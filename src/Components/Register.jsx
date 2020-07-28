@@ -17,6 +17,7 @@ import Joi from "joi";
 import { setHeaders } from "./../Services/setHeaders";
 import { authPost } from "./../Services/authServices";
 import { validatedProperty, validate } from "./../Services/validations";
+import getQuizzes from "./../Services/getQuizzes";
 
 function Copyright() {
   return (
@@ -130,8 +131,16 @@ export default function Register(props) {
       setHeaders(post, props);
 
       if (props.location.key) {
+        const quizzes = await getQuizzes();
+        localStorage.setItem("account", JSON.stringify(quizzes));
         props.history.goBack();
-      } else props.history.push("/");
+      } else {
+        const quizzes = await getQuizzes();
+        localStorage.setItem("account", JSON.stringify(quizzes));
+        window.location = "/";
+
+        // props.history.push("/");
+      }
     }
   };
   return (

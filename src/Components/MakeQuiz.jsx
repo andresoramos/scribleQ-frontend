@@ -11,6 +11,8 @@ import QuizQuestion from "./QuizQuestion";
 import TextField from "@material-ui/core/TextField";
 import { answerSave } from "../Services/answerSave";
 import decode from "jwt-decode";
+import getQuizzes from "./../Services/getQuizzes";
+import authenticateUserToken from "./../Services/authenticateUserToken";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -70,6 +72,7 @@ export const MakeQuiz = (props) => {
   const [tempName, setTempName] = useState("");
   const [mcArray, setMcArray] = useState([]);
   const [firstOut, setFirstOut] = useState(false);
+  const [authState, setAuthState] = useState(false);
   const [newDisplayArray, setNewDisplayArray] = useState([
     {
       i: 0,
@@ -91,6 +94,15 @@ export const MakeQuiz = (props) => {
     },
   ]);
   const [clickCount, setClickCount] = useState(0);
+  useEffect(() => {
+    async function tokenWorks() {
+      const trueOrFalse = await authenticateUserToken(
+        localStorage.getItem("token")
+      );
+      setAuthState(trueOrFalse);
+    }
+    tokenWorks();
+  });
 
   const setObjectCorrectAnswer = (value, id) => {
     console.log(value, id, "value and Id");
@@ -275,7 +287,9 @@ export const MakeQuiz = (props) => {
         payload
       );
       console.log(saved, "this is the saved object for now");
-      // props.history.push("/");
+      const quizzes = await getQuizzes();
+      localStorage.setItem("account", JSON.stringify(quizzes));
+      window.location = "/";
     } catch (err) {
       if (err.response.data === "This quiz is already in our database") {
         props.history.push("/makeQuiz");
@@ -435,27 +449,33 @@ export const MakeQuiz = (props) => {
 
   return (
     <Container className={classes.container}>
-      <Paper className={classes.paper} elevation={3}>
-        <h1>It's time to put your quiz-making skills to the test!</h1>
-        <p>
-          Use the form below to create a quiz that drills the material you need
-          to learn!
-        </p>
-        <p>
-          Remember: Sharing is caring, so don't forget to make your quiz
-          downloadable by others!
-        </p>
-        <br></br>
-      </Paper>
-      {mappedDisplayArray}
-      {newDisplayArray[0].question !== "" && (
-        <Button
-          style={{ marginTop: 20 }}
-          variant="outlined"
-          onClick={handleQuizSave}
-        >
-          Save Quiz
-        </Button>
+      {authState === true ? (
+        <React.Fragment>
+          <Paper className={classes.paper} elevation={3}>
+            <h1>It's time to put your quiz-making skills to the test!</h1>
+            <p>
+              Use the form below to create a quiz that drills the material you
+              need to learn!
+            </p>
+            <p>
+              Remember: Sharing is caring, so don't forget to make your quiz
+              downloadable by others!
+            </p>
+            <br></br>
+          </Paper>
+          {mappedDisplayArray}
+          {newDisplayArray[0].question !== "" && (
+            <Button
+              style={{ marginTop: 20 }}
+              variant="outlined"
+              onClick={handleQuizSave}
+            >
+              Save Quiz
+            </Button>
+          )}
+        </React.Fragment>
+      ) : (
+        <div>You need to login to make a quiz.</div>
       )}
     </Container>
   );

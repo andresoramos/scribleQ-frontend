@@ -10,6 +10,7 @@ import PasswordReset from "./Components/PasswordReset";
 import NewPassword from "./Components/NewPassword";
 import { Banned } from "./Components/Banned";
 import { MakeQuiz } from "./Components/MakeQuiz";
+import ViewQuiz from "./Components/ViewQuiz";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -17,6 +18,7 @@ function App() {
   );
 
   const [location, setLocation] = useState("");
+  const [iValue, setIValue] = useState("");
   const setName = (name) => {
     const token = localStorage.getItem("token");
 
@@ -25,7 +27,9 @@ function App() {
   const upDateLocation = (path) => {
     setLocation(path);
   };
-
+  const iValueIs = (i) => {
+    console.log(i, "Got passed up correctly to papa setIVlue");
+  };
   return (
     <BrowserRouter>
       {location !== "/banned" && <NavBar signedIn={signedInName} />}
@@ -35,6 +39,12 @@ function App() {
           path="/banned"
           render={(props) => {
             return <Banned {...props} upDateLocation={upDateLocation} />;
+          }}
+        />
+        <Route
+          path="/viewQuiz"
+          render={(props) => {
+            return <ViewQuiz {...props} upDateLocation={upDateLocation} />;
           }}
         />
         <Route
@@ -73,7 +83,7 @@ function App() {
           path="/"
           exact
           render={(props) => {
-            return <Home upDateLocation={upDateLocation} />;
+            return <Home upDateLocation={upDateLocation} iValueIs={iValueIs} />;
           }}
         />
       </Switch>

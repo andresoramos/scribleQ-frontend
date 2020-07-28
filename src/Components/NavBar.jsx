@@ -122,6 +122,7 @@ export default function NavBar(props) {
   };
   const handleLogOut = () => {
     localStorage.clear();
+
     window.location = "/";
   };
 

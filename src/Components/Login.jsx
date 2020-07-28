@@ -11,6 +11,7 @@ import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+
 import Container from "@material-ui/core/Container";
 import axios from "axios";
 import Joi from "joi";
@@ -18,6 +19,7 @@ import {
   addToLockedOut,
   checkIfLockedOut,
 } from "../Services/lockedOutServices";
+import getQuizzes from "./../Services/getQuizzes";
 import {
   checkIpObject,
   instantiateIpObject,
@@ -198,11 +200,17 @@ export default function Login(props) {
       localStorage.setItem("name", res.headers["name-token"]);
 
       props.setName(localStorage.getItem("name"));
-      props.history.push("/");
+      const quizzes = await getQuizzes();
+      localStorage.setItem("account", JSON.stringify(quizzes));
+      window.location = "/";
     } catch (err) {
+      if (err) {
+        console.log(err, "This is the login error");
+      }
       if (err.message === "Invalid token specified") {
         return console.log(err, "this is the error");
       }
+
       if (err.response.status === 400) {
         setLoginError(true);
       }
