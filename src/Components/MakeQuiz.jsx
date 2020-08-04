@@ -91,6 +91,8 @@ export const MakeQuiz = (props) => {
       singleAnswer: "",
       selected: "",
       correctAnswer: null,
+      modalOpen: false,
+      pointWorth: null,
     },
   ]);
   const [clickCount, setClickCount] = useState(0);
@@ -105,7 +107,6 @@ export const MakeQuiz = (props) => {
   });
 
   const setObjectCorrectAnswer = (value, id) => {
-    console.log(value, id, "value and Id");
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
@@ -134,6 +135,16 @@ export const MakeQuiz = (props) => {
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
         newArr[i].showAnswer = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const setObjectPointValue = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].pointWorth = value;
         break;
       }
     }
@@ -184,7 +195,6 @@ export const MakeQuiz = (props) => {
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
-        console.log("we found a match, ", newArr[i]);
         newArr[i].renderEdit = value;
       }
     }
@@ -194,7 +204,6 @@ export const MakeQuiz = (props) => {
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
-        console.log("we found a match, ", newArr[i]);
         newArr[i].question = value;
       }
     }
@@ -212,7 +221,6 @@ export const MakeQuiz = (props) => {
     }
 
     const updatedArray = [...newDisplayArray];
-    console.log(updatedArray, "this is the array youre copying");
     const index = i;
 
     updatedArray.splice(index + 1, 0, {
@@ -233,6 +241,8 @@ export const MakeQuiz = (props) => {
       answerType: "",
       singleAnswer: "",
       selected: "",
+      modalOpen: false,
+      pointWorth: null,
     });
     setClickCount(clickCount + 1);
 
@@ -260,11 +270,19 @@ export const MakeQuiz = (props) => {
     setNewDisplayArray(updatedDisplayArray);
   };
 
+  const setObjectOpenModal = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        newArr[i].modalOpen = value;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
   const setObjectSingleAnswer = (value, id) => {
     const newArr = [...newDisplayArray];
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
-        console.log("we found a match, ", newArr[i]);
         newArr[i].singleAnswer = value;
       }
     }
@@ -279,14 +297,12 @@ export const MakeQuiz = (props) => {
   };
   const handleQuizSave = async () => {
     const email = decode(localStorage.getItem("token")).email;
-    console.log(email, "this is email");
     const payload = { user: props.signedInName, name: name, email };
     try {
       const saved = await axios.post(
         "http://localhost:5000/api/quizzes/saveQuiz",
         payload
       );
-      console.log(saved, "this is the saved object for now");
       const quizzes = await getQuizzes();
       localStorage.setItem("account", JSON.stringify(quizzes));
       window.location = "/";
@@ -419,11 +435,14 @@ export const MakeQuiz = (props) => {
                 Q3Correct: item.Q3Correct,
                 Q4Correct: item.Q4Correct,
               }}
+              modalOpened={item.modalOpen}
+              openModal={setObjectOpenModal}
               setObjectSingleAnswer={setObjectSingleAnswer}
               setObjectCorrectAnswer={setObjectCorrectAnswer}
               question={item.question}
               showAnswer={item.showAnswer}
               answerType={item.answerType}
+              handlePointChange={setObjectPointValue}
               Q1={item.Q1}
               Q2={item.Q2}
               Q3={item.Q3}

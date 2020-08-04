@@ -6,6 +6,11 @@ import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Avatar from "@material-ui/core/Avatar";
 import { answerSave, updateAndSave } from "../Services/answerSave";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import editOrNew from "../Services/editOrNew";
 
 const useStyles = makeStyles((theme) => ({
@@ -48,6 +53,7 @@ export default function QuizQuestion(props) {
     const payload = { name: props.name, questions: props.payload };
     props.setObjectShowAnswer(false, clickCount);
     props.setObjectRenderEdit(true, clickCount);
+    console.log(payload, "this is the paychode");
     const saved = await answerSave(payload);
   }; //corrected
 
@@ -88,6 +94,12 @@ export default function QuizQuestion(props) {
     }
     return false;
   };
+  const handleModalClose = () => {
+    props.openModal(false, clickCount);
+  };
+  const handlePointChange = (point) => {
+    props.handlePointChange(point, clickCount);
+  };
 
   const handleAnswerChange = (e) => {
     const id = {
@@ -104,6 +116,43 @@ export default function QuizQuestion(props) {
       }
     }
   };
+  const scoreModal = (
+    <Dialog
+      open={props.modalOpened}
+      onClose={handleModalClose}
+      aria-labelledby="form-dialog-title"
+    >
+      <DialogTitle id="form-dialog-title">Question Value</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Please enter in the line below how many points you would like to
+          assign to this question.
+        </DialogContentText>
+        <TextField
+          autoFocus
+          margin="dense"
+          onChange={(e) => {
+            handlePointChange(e.target.value);
+          }}
+          id="name"
+          label="Question worth..."
+          type="email"
+          fullWidth
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            handleSave();
+            handleModalClose();
+          }}
+          color="primary"
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
   const inputArr = [
     { letter: "A", id: "Q1", correct: "Q1Correct" },
     { letter: "B", id: "Q2", correct: "Q2Correct" },
@@ -193,19 +242,10 @@ export default function QuizQuestion(props) {
                 Edit
               </Button>
             )
-          ) : /*
-              If showAnswer is true, then we'll have to see if render edit is true.  If so, provide a null, otherwise
-              provide a text editor
-
-            if Question doesn't equal '', then you'll render the following:  if show answer is false,
-            then you'll check to see if renderedit is false.  If so, a button adding answers appears.  Otherwise,
-            an edit button appears.  If show answer is not false, then check to see if render edit isn't true.  If
-            that's the case, then render a save button.  Otherwise, render an edit button.
-            */
-          !props.renderEdit ? (
+          ) : !props.renderEdit ? (
             <Button
               onClick={() => {
-                handleSave();
+                props.openModal(true, clickCount);
               }}
               variant="outlined"
               color="primary"
@@ -219,6 +259,7 @@ export default function QuizQuestion(props) {
           )}
         </div>
       )}
+      {scoreModal}
     </React.Fragment>
   );
 }

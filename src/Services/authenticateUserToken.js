@@ -9,7 +9,6 @@ async function authenticateUserToken(token) {
     const tokenPayload = { token };
     const personExists = await axios.post("/api/users/exists", tokenPayload);
 
-    console.log(personExists.data, "There is a token, big boi");
     return personExists.data;
   } catch (err) {
     console.log(err, "You  hit this error at AuthenticateUserToken.js");

@@ -4,7 +4,6 @@ import { Editor } from "@tinymce/tinymce-react";
 export default function TextEditor(props) {
   const handleEditorChange = (content, editor) => {
     props.changeQuestion(content);
-    console.log(typeof content, "this is the editor");
   };
 
   return (

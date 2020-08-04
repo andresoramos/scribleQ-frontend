@@ -11,6 +11,7 @@ import NewPassword from "./Components/NewPassword";
 import { Banned } from "./Components/Banned";
 import { MakeQuiz } from "./Components/MakeQuiz";
 import ViewQuiz from "./Components/ViewQuiz";
+import SeeScore from "./Components/SeeScore";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -18,7 +19,8 @@ function App() {
   );
 
   const [location, setLocation] = useState("");
-  const [iValue, setIValue] = useState("");
+  const [quizScore, setQuizScore] = useState({});
+
   const setName = (name) => {
     const token = localStorage.getItem("token");
 
@@ -27,8 +29,11 @@ function App() {
   const upDateLocation = (path) => {
     setLocation(path);
   };
+  const handleSetQuizScore = (score) => {
+    setQuizScore(score);
+  };
   const iValueIs = (i) => {
-    console.log(i, "Got passed up correctly to papa setIVlue");
+    localStorage.setItem("i", i);
   };
   return (
     <BrowserRouter>
@@ -44,7 +49,25 @@ function App() {
         <Route
           path="/viewQuiz"
           render={(props) => {
-            return <ViewQuiz {...props} upDateLocation={upDateLocation} />;
+            return (
+              <ViewQuiz
+                {...props}
+                setQuizScore={handleSetQuizScore}
+                upDateLocation={upDateLocation}
+              />
+            );
+          }}
+        />
+        <Route
+          path="/seeScore"
+          render={(props) => {
+            return (
+              <SeeScore
+                {...props}
+                upDateLocation={upDateLocation}
+                currentScore={quizScore}
+              />
+            );
           }}
         />
         <Route

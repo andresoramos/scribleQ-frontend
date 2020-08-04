@@ -41,13 +41,11 @@ export const Home = (props) => {
 
   useEffect(() => {
     async function populateQuizArray() {
-      console.log("useEffect is happening");
       const quizzes = await getQuizzes();
       if (!quizzes) {
         console.log("we're going to the not quizzes");
         return;
       } else {
-        console.log("Things are rerendering and this is quizzes", quizzes);
         localStorage.setItem("account", JSON.stringify(quizzes));
       }
     }
