@@ -12,6 +12,7 @@ import { Banned } from "./Components/Banned";
 import { MakeQuiz } from "./Components/MakeQuiz";
 import ViewQuiz from "./Components/ViewQuiz";
 import SeeScore from "./Components/SeeScore";
+import Analytics from "./Components/Analytics";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -20,6 +21,7 @@ function App() {
 
   const [location, setLocation] = useState("");
   const [quizScore, setQuizScore] = useState({});
+  const [currentName, setCurrentName] = useState("");
 
   const setName = (name) => {
     const token = localStorage.getItem("token");
@@ -28,6 +30,9 @@ function App() {
   };
   const upDateLocation = (path) => {
     setLocation(path);
+  };
+  const handleCurrentStatName = (name) => {
+    setCurrentName(name);
   };
   const handleSetQuizScore = (score) => {
     setQuizScore(score);
@@ -71,6 +76,12 @@ function App() {
           }}
         />
         <Route
+          path="/analytics"
+          render={(props) => {
+            return <Analytics currentName={currentName} {...props} />;
+          }}
+        />
+        <Route
           path="/makeQuiz"
           render={(props) => {
             return <MakeQuiz signedInName={signedInName} {...props} />;
@@ -106,7 +117,15 @@ function App() {
           path="/"
           exact
           render={(props) => {
-            return <Home upDateLocation={upDateLocation} iValueIs={iValueIs} />;
+            return (
+              <Home
+                {...props}
+                currentName={currentName}
+                currentStatName={handleCurrentStatName}
+                upDateLocation={upDateLocation}
+                iValueIs={iValueIs}
+              />
+            );
           }}
         />
       </Switch>

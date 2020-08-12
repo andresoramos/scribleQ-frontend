@@ -9,12 +9,18 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import { makeStyles } from "@material-ui/core/styles";
-import axios from "axios";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import ListItem from "@material-ui/core/ListItem";
+import SendIcon from "@material-ui/icons/Send";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import getQuizzes from "./../Services/getQuizzes";
+import MenuIcon from "@material-ui/icons/Menu";
 import { createDate } from "./../Services/createDate";
 import deleteArrayItem from "./../Services/deleteArrayItem";
+
 const useStyles = makeStyles((theme) => ({
+  menu: { position: "absolute", marginTop: 7, cursor: "pointer" },
   paperMessage: {
     width: "70%",
     display: "flex",
@@ -38,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 export const Home = (props) => {
   const classes = useStyles();
   const [quizArray, setQuizArray] = useState([]);
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   useEffect(() => {
     async function populateQuizArray() {
@@ -55,6 +62,11 @@ export const Home = (props) => {
     props.upDateLocation(window.location.pathname);
   });
 
+  const handleStatClick = (event, name) => {
+    props.currentStatName(name);
+    setAnchorEl(event.currentTarget);
+  };
+
   const handleDelete = async (i) => {
     const email = decode(localStorage.getItem("token")).email;
     const localInfo = localStorage.getItem("account");
@@ -71,8 +83,30 @@ export const Home = (props) => {
     setQuizArray(restrung);
     window.location = "/";
   };
+  const handleStatClose = () => {
+    setAnchorEl(null);
+  };
 
   //Find how to make it so that this thing instantly deletes the quizzes off of the homepage.  The magic for that happens around here.
+  const StyledMenu = withStyles({
+    paper: {
+      border: "1px solid #d3d4d5",
+    },
+  })((props) => (
+    <Menu
+      elevation={0}
+      getContentAnchorEl={null}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "center",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "center",
+      }}
+      {...props}
+    />
+  ));
 
   const rows = [
     { name: "test", dateCreated: "test", likes: "test", dislikes: "test" },
@@ -113,15 +147,34 @@ export const Home = (props) => {
     return (
       <TableRow key={i}>
         <TableCell component="th" scope="row">
-          <Button
-            onClick={() => {
-              props.iValueIs(i);
-            }}
-            to="/viewQuiz"
-            component={Link}
-          >
-            {item.name}
-          </Button>
+          <div>
+            <Button
+              onClick={() => {
+                props.iValueIs(i);
+              }}
+              to="/viewQuiz"
+              component={Link}
+            >
+              {item.name}
+            </Button>
+            <Button
+              aria-controls="customized-menu"
+              aria-haspopup="true"
+              onClick={(e) => {
+                handleStatClick(e, item.name);
+              }}
+              component={MenuIcon}
+            />
+            {/* <StyledMenu
+              id="customized-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={Boolean(anchorEl)}
+              onClose={handleStatClose}
+            >
+              <ListItem>{`See Analytics for ${item.name}`}</ListItem>
+            </StyledMenu> */}
+          </div>
         </TableCell>
         <TableCell>{item.dateCreated}</TableCell>
         <TableCell>{item.likes}</TableCell>
@@ -168,6 +221,19 @@ export const Home = (props) => {
               <TableBody>{mappedRows}</TableBody>
             </Table>
           </TableContainer>
+          <StyledMenu
+            id="customized-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleStatClose}
+          >
+            <Button
+              onClick={() => {
+                props.history.push("/analytics");
+              }}
+            >{`See Analytics for ${props.currentName}`}</Button>
+          </StyledMenu>
         </React.Fragment>
       ) : (
         <div>You're Home</div>
