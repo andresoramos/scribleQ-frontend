@@ -3,7 +3,6 @@ import Button from "@material-ui/core/Button";
 import authenticateUserToken from "./../Services/authenticateUserToken";
 import { makeStyles } from "@material-ui/core/styles";
 import { findQuiz, findScoreScreen } from "../Services/findQuiz";
-import saveScoredObject from "./../Services/saveScoredObject";
 import Paper from "@material-ui/core/Paper";
 import Avatar from "@material-ui/core/Avatar";
 
@@ -46,9 +45,9 @@ function SeeScore(props) {
   const [approved, setApproved] = useState(false);
   const [showWrong, setShowWrong] = useState(false);
   const scoreScreen = localStorage.getItem("scoreScreen");
+
   const scoreScreentoObject = JSON.parse(scoreScreen);
 
-  const test = findScoreScreen(localStorage.getItem("scoreScreen"));
   const showIncorrect = () => {
     setShowWrong(!showWrong);
   };
@@ -60,8 +59,6 @@ function SeeScore(props) {
     );
     const scoreScreen = findScoreScreen("scoreScreen");
     const { specifics } = scoreScreen;
-    console.log(scoreScreen, "this is your scorescreen");
-    // console.log(quiz, "HERE IS THE QUIZ");
     const returnArray = [];
     for (var key in specifics) {
       const returnObj = {};
@@ -70,18 +67,20 @@ function SeeScore(props) {
         const newId = Number(key) - 1;
         returnObj.newId = newId;
         returnObj.question = quiz.quiz.questions[newId].question;
-        const wrongAnswer =
-          quiz.quiz.questions[newId][specifics[key].answerSelected];
+        const wrongAnswer = specifics[key].singleAnswerFlag
+          ? specifics[key].answerSelected
+          : quiz.quiz.questions[newId][specifics[key].answerSelected];
         returnObj.yourResponse = wrongAnswer;
 
-        returnObj.correctAnswer =
-          quiz.quiz.questions[newId][specifics[key].correctAnswer];
+        returnObj.correctAnswer = specifics[key].singleAnswerFlag
+          ? specifics[key].correctAnswer
+          : quiz.quiz.questions[newId][specifics[key].correctAnswer];
         returnArray.push(returnObj);
       }
     }
     const mapped = returnArray.map((item, i) => {
       return (
-        <div className={classes.questionContainer}>
+        <div key={i} className={classes.questionContainer}>
           <h2>Question</h2>
           <Paper className={classes.paper}>
             <div className={classes.question}>
@@ -151,7 +150,7 @@ function SeeScore(props) {
         scoreScreentoObject.stringScore
       )}`}</h1>
       <Button onClick={showIncorrect}>
-        Click to see how you did on each question!
+        Click to see which questions you got wrong
       </Button>
       {showWrong ? createQuestion() : null}
       <div className={classes.buttonRow}>

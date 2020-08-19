@@ -8,6 +8,8 @@ import Avatar from "@material-ui/core/Avatar";
 import MuiAlert from "@material-ui/lab/Alert";
 import returnAccountId from "../Services/returnAccountId";
 import saveScoredObject from "./../Services/saveScoredObject";
+import TextField from "@material-ui/core/TextField";
+import getEditDistance from "./../Services/levensteinDistance";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -84,6 +86,7 @@ function ViewQuiz(props) {
   const [presentQuiz, setPresentQuiz] = useState([]);
   const [quizSuccess, setQuizSuccess] = useState({});
   const [quizScore, setQuizScore] = useState({});
+  const [singleAnswer, setSingleAnswer] = useState("");
 
   const iValue = localStorage.getItem("i");
   useState(() => {
@@ -133,7 +136,6 @@ function ViewQuiz(props) {
       answerSelected,
       passOrFail
     );
-    console.log(seeSpecifics, "here are specifics");
 
     const newPayload = { correct: passOrFail, points, specifics: seeSpecifics };
     const newSuccess = { ...quizSuccess };
@@ -202,6 +204,66 @@ function ViewQuiz(props) {
     });
     return questionsReturned;
   };
+  const mockFunctionForLDistance = (word1, word2) => {
+    const newWord1 = word1.toLowerCase();
+    const newWord2 = word2.toLowerCase();
+    const editDistance = getEditDistance(word1, word2);
+    if (word2.length < 3) {
+      if (editDistance > 0) {
+        return false;
+      }
+      return true;
+    }
+    if (word2.length >= 3 && word2.length < 10) {
+      if (editDistance > 2) {
+        return false;
+      }
+      return true;
+    }
+    if (word2.length >= 10 && word2.length < 20) {
+      if (editDistance > 4) {
+        return false;
+      }
+      return true;
+    }
+    if (word2.length >= 20) {
+      if (editDistance > 7) {
+        return false;
+      }
+      return true;
+    }
+  };
+
+  const handleSingleAnswerSave = (index) => {
+    const submitted = singleAnswer;
+    const properAnswer = JSON.parse(presentQuiz).questions[index].singleAnswer;
+    const distanceAcceptable = mockFunctionForLDistance(
+      submitted,
+      properAnswer
+    );
+    let successes = { ...quizSuccess };
+
+    if (distanceAcceptable) {
+      successes[index + 1] = { correct: true };
+    } else {
+      successes[index + 1] = { correct: false };
+    }
+    const points = JSON.parse(presentQuiz).questions[index].pointWorth;
+    successes[index + 1] = {
+      ...successes[index + 1],
+      points,
+      specifics: {
+        answerSelected: submitted,
+        correctAnswer: properAnswer,
+        singleAnswerFlag: true,
+      },
+    };
+    setQuizSuccess(successes);
+    // const correctAnswer =
+  };
+  const handleSingleAnswerChange = (e) => {
+    setSingleAnswer(e.target.value);
+  };
   const returnQuestionsArray = (string) => {
     if (typeof string === "string") {
       const quizObj = JSON.parse(string);
@@ -253,14 +315,34 @@ function ViewQuiz(props) {
         {item.selected === "multiple" ? (
           <div>{mappedLetters(presentQuiz, i)}</div>
         ) : (
-          "bla"
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
+            <TextField
+              value={singleAnswer}
+              onChange={(e) => {
+                handleSingleAnswerChange(e);
+              }}
+            />
+            <Button
+              onClick={() => {
+                handleSingleAnswerSave(i);
+              }}
+            >
+              Save Answer
+            </Button>
+          </div>
         )}
       </Container>
     );
   });
   const handleSave = async () => {
     const successObject = { ...quizSuccess };
-    console.log(successObject, "his path should lead to specifics");
     let earned = 0;
     let possible = 0;
     let specifics = {};
@@ -273,7 +355,6 @@ function ViewQuiz(props) {
       } else {
       }
     }
-    console.log(specifics, "correct shizz");
     const actualScore = (earned / possible) * 100;
     const scoreInString = JSON.stringify(actualScore) + "%";
     const scoreObj = {

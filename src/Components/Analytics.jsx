@@ -17,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     alignItems: "center",
-    backgroundColor: "pink",
     justifyContent: "center",
     flexDirection: "column",
   },
@@ -44,9 +43,8 @@ function Analytics(props) {
     }
 
     const average = findAverages(findAllQuizzes);
-    const troubled = findTroubled(findAllQuizzes);
-    console.log(troubled, "Maybe the trouble is here");
-
+    const troubled = findTroubled(findAllQuizzes, setLow);
+    setHigh(findAllQuizzes.length);
     setEarned(average);
     setMistakes(JSON.stringify(troubled));
   };
@@ -55,10 +53,13 @@ function Analytics(props) {
   const handleDialogOpen = () => {
     setDialogOpen(true);
   };
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
 
   const findQuiz = (number) => {
     const userQuizzes = JSON.parse(localStorage.getItem("account")).quizzes;
-    const name = localStorage.getItem("name");
+    const name = localStorage.getItem("quizName");
     let foundQuiz;
     for (var i = 0; i < userQuizzes.length; i++) {
       if (userQuizzes[i].quiz.name === name) {
@@ -68,6 +69,9 @@ function Analytics(props) {
     }
     let answerWithNum = {};
     for (var key in foundQuiz) {
+      if (foundQuiz[key].answerType === "open") {
+        return { [key + 1]: foundQuiz[key].singleAnswer };
+      }
       let answersObj = {
         Q1Correct: foundQuiz[key].Q1Correct,
         Q2Correct: foundQuiz[key].Q2Correct,
@@ -94,6 +98,7 @@ function Analytics(props) {
         delete answerWithNum[key];
       }
     }
+
     return answerWithNum;
   };
   const findQuestions = (string) => {
@@ -107,7 +112,6 @@ function Analytics(props) {
         });
       }
     }
-    console.log(questionsArray, "questions array");
     const mappedQuestions = questionsArray.map((item) => {
       const correct = findQuiz(item.number);
       let correctAnswer = "";
@@ -138,16 +142,20 @@ function Analytics(props) {
   return approved ? (
     <div className={classes.container}>
       <h1>{`Your average score for ${
-        props.currentName ? props.currentName : localStorage.getItem("name")
+        props.currentName ? props.currentName : localStorage.getItem("quizName")
       } is ${earned}`}</h1>
       <Button onClick={handleDialogOpen}>
         Click here to see which questions need the most improvement
       </Button>
-      <Dialog aria-describedby="where-mistakes-lie" open={dialogOpen}>
+      <Dialog
+        aria-describedby="where-mistakes-lie"
+        onClose={handleDialogClose}
+        open={dialogOpen}
+      >
         <DialogContent>
           <DialogTitle>
-            These are the questions that have stumped you the most, with out of
-            attempts being incorrect.
+            {`These are the questions that have stumped you the most, with ${low} out of ${high}
+            attempts being incorrect.`}
           </DialogTitle>
           <DialogContentText id="where-mistakes-lie">
             {mistakes !== null && findQuestions(mistakes)}

@@ -13,6 +13,7 @@ import { MakeQuiz } from "./Components/MakeQuiz";
 import ViewQuiz from "./Components/ViewQuiz";
 import SeeScore from "./Components/SeeScore";
 import Analytics from "./Components/Analytics";
+import Uploadtest from "./Components/Uploadtest";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -79,6 +80,12 @@ function App() {
           path="/analytics"
           render={(props) => {
             return <Analytics currentName={currentName} {...props} />;
+          }}
+        />
+        <Route
+          path="/upload"
+          render={(props) => {
+            return <Uploadtest currentName={currentName} {...props} />;
           }}
         />
         <Route
