@@ -10,6 +10,7 @@ import returnAccountId from "../Services/returnAccountId";
 import saveScoredObject from "./../Services/saveScoredObject";
 import TextField from "@material-ui/core/TextField";
 import getEditDistance from "./../Services/levensteinDistance";
+import PictureCard from "./PictureCard";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -26,6 +27,11 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
   },
   ButtonGroup: { marginBottom: theme.spacing(3) },
+  images: {
+    maxWidth: 500,
+    maxHeight: 500,
+    objectFit: "cover",
+  },
   paper: {
     backgroundColor: "pink",
     marginTop: theme.spacing(12),
@@ -288,9 +294,14 @@ function ViewQuiz(props) {
       <Container>
         <div className={classes.questionRow}>
           <Avatar className={classes.orange}>{i + 1}</Avatar>
-          <Paper style={{ padding: 10 }}>
-            <div dangerouslySetInnerHTML={{ __html: item.question }} />
-          </Paper>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Paper style={{ padding: 10, marginBottom: 5 }}>
+              <div dangerouslySetInnerHTML={{ __html: item.question }} />
+            </Paper>
+            {item.imgName !== "" && item.imgName !== undefined && (
+              <PictureCard imgAddress={item.imgName} />
+            )}
+          </div>
           <Button
             style={{ fontSize: 12 }}
             onClick={() => {

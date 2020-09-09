@@ -11,8 +11,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import editOrNew from "../Services/editOrNew";
-
+import Upload from "./Upload";
 const useStyles = makeStyles((theme) => ({
   buttonGroup: {
     display: "flex",
@@ -229,6 +228,9 @@ export default function QuizQuestion(props) {
           initialValue={props.question}
           changeQuestion={changeQuestion}
         />
+      )}
+      {props.showAnswer ? null : props.renderEdit ? null : (
+        <Upload imgName={props.imgName} indexVal={clickCount} />
       )}
       {props.question !== "" && (
         <div className={classes.buttonGroup}>

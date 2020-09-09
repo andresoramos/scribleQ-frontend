@@ -82,6 +82,7 @@ export const MakeQuiz = (props) => {
       Q2: "",
       Q3: "",
       Q4: "",
+      imgName: "",
       Q1Correct: false,
       Q2Correct: false,
       Q3Correct: false,
@@ -124,6 +125,17 @@ export const MakeQuiz = (props) => {
     for (var i = 0; i < newArr.length; i++) {
       if (newArr[i].trackNumber === id) {
         newArr[i].selected = value;
+        break;
+      }
+    }
+    setNewDisplayArray(newArr);
+  };
+  const imgName = (value, id) => {
+    const newArr = [...newDisplayArray];
+    for (var i = 0; i < newArr.length; i++) {
+      if (newArr[i].trackNumber === id) {
+        console.log(newArr[i], "getting a match");
+        newArr[i].imgName = value;
         break;
       }
     }
@@ -233,6 +245,7 @@ export const MakeQuiz = (props) => {
       Q2: "",
       Q3: "",
       Q4: "",
+      imgName: "",
       Q1Correct: null,
       Q2Correct: null,
       Q3Correct: null,
@@ -435,6 +448,7 @@ export const MakeQuiz = (props) => {
                 Q3Correct: item.Q3Correct,
                 Q4Correct: item.Q4Correct,
               }}
+              imgName={imgName}
               modalOpened={item.modalOpen}
               openModal={setObjectOpenModal}
               setObjectSingleAnswer={setObjectSingleAnswer}

@@ -143,15 +143,16 @@ function SeeScore(props) {
   const buttomButtons = (string) => {
     props.history.push(string);
   };
-
   return approved ? (
     <div className={classes.container}>
       <h1>{`You've scored ${fixFinalNumber(
         scoreScreentoObject.stringScore
       )}`}</h1>
-      <Button onClick={showIncorrect}>
-        Click to see which questions you got wrong
-      </Button>
+      {fixFinalNumber(scoreScreentoObject.stringScore) !== "100%" && (
+        <Button onClick={showIncorrect}>
+          Click to see which questions you got wrong
+        </Button>
+      )}
       {showWrong ? createQuestion() : null}
       <div className={classes.buttonRow}>
         <Button

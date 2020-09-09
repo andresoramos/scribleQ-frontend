@@ -13,7 +13,8 @@ import { MakeQuiz } from "./Components/MakeQuiz";
 import ViewQuiz from "./Components/ViewQuiz";
 import SeeScore from "./Components/SeeScore";
 import Analytics from "./Components/Analytics";
-import Uploadtest from "./Components/Uploadtest";
+import Upload from "./Components/Upload";
+import MarketForm from "./Components/marketForm";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -65,6 +66,19 @@ function App() {
           }}
         />
         <Route
+          path="/marketForm"
+          exact
+          render={(props) => {
+            return (
+              <MarketForm
+                {...props}
+                setQuizScore={handleSetQuizScore}
+                upDateLocation={upDateLocation}
+              />
+            );
+          }}
+        />
+        <Route
           path="/seeScore"
           render={(props) => {
             return (
@@ -85,7 +99,7 @@ function App() {
         <Route
           path="/upload"
           render={(props) => {
-            return <Uploadtest currentName={currentName} {...props} />;
+            return <Upload currentName={currentName} {...props} />;
           }}
         />
         <Route

@@ -12,7 +12,8 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
-import QuizQuestion from "./QuizQuestion";
+import MessageCard from "./MessageCard";
+
 const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
@@ -30,6 +31,7 @@ function Analytics(props) {
   const [low, setLow] = useState(null);
   const [high, setHigh] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [NaNFlag, setNaNFlag] = useState(false);
 
   loggedIn(setApproved);
 
@@ -41,7 +43,10 @@ function Analytics(props) {
     if (findAllQuizzes === false) {
       return setApproved(false);
     }
-
+    if (JSON.stringify(findAllQuizzes) === "[]") {
+      setNaNFlag(true);
+    }
+    console.log(findAllQuizzes, "this might be true");
     const average = findAverages(findAllQuizzes);
     const troubled = findTroubled(findAllQuizzes, setLow);
     setHigh(findAllQuizzes.length);
@@ -139,30 +144,47 @@ function Analytics(props) {
     });
     return mappedQuestions;
   };
+
   return approved ? (
-    <div className={classes.container}>
-      <h1>{`Your average score for ${
-        props.currentName ? props.currentName : localStorage.getItem("quizName")
-      } is ${earned}`}</h1>
-      <Button onClick={handleDialogOpen}>
-        Click here to see which questions need the most improvement
-      </Button>
-      <Dialog
-        aria-describedby="where-mistakes-lie"
-        onClose={handleDialogClose}
-        open={dialogOpen}
+    NaNFlag ? (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          alignContent: "center",
+        }}
       >
-        <DialogContent>
-          <DialogTitle>
-            {`These are the questions that have stumped you the most, with ${low} out of ${high}
+        <MessageCard {...props} quizName={localStorage.getItem("quizName")} />
+      </div>
+    ) : (
+      <div className={classes.container}>
+        <h1>{`Your average score for ${
+          props.currentName
+            ? props.currentName
+            : localStorage.getItem("quizName")
+        } is ${earned}`}</h1>
+        <Button onClick={handleDialogOpen}>
+          Click here to see which questions need the most improvement
+        </Button>
+
+        <Dialog
+          aria-describedby="where-mistakes-lie"
+          onClose={handleDialogClose}
+          open={dialogOpen}
+        >
+          <DialogContent>
+            <DialogTitle>
+              {`These are the questions that have stumped you the most, with ${low} out of ${high}
             attempts being incorrect.`}
-          </DialogTitle>
-          <DialogContentText id="where-mistakes-lie">
-            {mistakes !== null && findQuestions(mistakes)}
-          </DialogContentText>
-        </DialogContent>
-      </Dialog>
-    </div>
+            </DialogTitle>
+            <DialogContentText id="where-mistakes-lie">
+              {mistakes !== null && findQuestions(mistakes)}
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
+      </div>
+    )
   ) : (
     <div>Log in required</div>
   );

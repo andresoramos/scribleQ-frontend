@@ -18,6 +18,7 @@ import getQuizzes from "./../Services/getQuizzes";
 import MenuIcon from "@material-ui/icons/Menu";
 import { createDate } from "./../Services/createDate";
 import deleteArrayItem from "./../Services/deleteArrayItem";
+import quizByName from "../Services/quizByName";
 
 const useStyles = makeStyles((theme) => ({
   menu: { position: "absolute", marginTop: 7, cursor: "pointer" },
@@ -150,6 +151,7 @@ export const Home = (props) => {
           <div>
             <Button
               onClick={() => {
+                // localStorage.setItem("linkName", item.name);
                 props.iValueIs(i);
               }}
               to="/viewQuiz"
@@ -161,19 +163,12 @@ export const Home = (props) => {
               aria-controls="customized-menu"
               aria-haspopup="true"
               onClick={(e) => {
+                props.iValueIs(i);
+
                 handleStatClick(e, item.name);
               }}
               component={MenuIcon}
             />
-            {/* <StyledMenu
-              id="customized-menu"
-              anchorEl={anchorEl}
-              keepMounted
-              open={Boolean(anchorEl)}
-              onClose={handleStatClose}
-            >
-              <ListItem>{`See Analytics for ${item.name}`}</ListItem>
-            </StyledMenu> */}
           </div>
         </TableCell>
         <TableCell>{item.dateCreated}</TableCell>
@@ -227,12 +222,31 @@ export const Home = (props) => {
             keepMounted
             open={Boolean(anchorEl)}
             onClose={handleStatClose}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+            }}
           >
-            <Button
+            <MenuItem
+              onClick={() => {
+                const userAccount = JSON.parse(localStorage.getItem("account"));
+                const quiz = quizByName(userAccount, props.currentName);
+                localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+
+                props.history.push("/marketForm");
+              }}
+            >
+              {`Send ${props.currentName} to the market`}
+            </MenuItem>
+            <MenuItem
               onClick={() => {
                 props.history.push("/analytics");
               }}
-            >{`See Analytics for ${props.currentName}`}</Button>
+            >
+              {`See Analytics for ${props.currentName}`}
+            </MenuItem>
           </StyledMenu>
         </React.Fragment>
       ) : (
