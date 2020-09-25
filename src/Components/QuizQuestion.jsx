@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import TextEditor from "./TextEditor";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
+import "../Styling/QuizQuestion.css";
 import Avatar from "@material-ui/core/Avatar";
 import { answerSave, updateAndSave } from "../Services/answerSave";
 import Dialog from "@material-ui/core/Dialog";
@@ -12,36 +12,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Upload from "./Upload";
-const useStyles = makeStyles((theme) => ({
-  buttonGroup: {
-    display: "flex",
-    justifyContent: "space-between",
-    width: "30%",
-    marginTop: theme.spacing(5),
-  },
-  questionNumber: {
-    display: "flex",
-    alignContent: "column",
-    flexDirection: "row",
-    alignItems: "center",
-    margin: "3em",
-    minHeight: "20vh",
-  },
-  questionPaper: {
-    width: "70%",
-    borderRadius: 70,
-    display: "flex",
-    flexDirection: "column",
-
-    marginBottom: theme.spacing(5),
-
-    // alignItems: "center",
-  },
-  textField: { display: "flex", flexDirection: "column", alignItems: "center" },
-}));
 
 export default function QuizQuestion(props) {
-  const classes = useStyles();
   const clickCount = props.clickCount;
 
   const changeQuestion = (content) => {
@@ -52,7 +24,6 @@ export default function QuizQuestion(props) {
     const payload = { name: props.name, questions: props.payload };
     props.setObjectShowAnswer(false, clickCount);
     props.setObjectRenderEdit(true, clickCount);
-    console.log(payload, "this is the paychode");
     const saved = await answerSave(payload);
   }; //corrected
 
@@ -196,10 +167,10 @@ export default function QuizQuestion(props) {
   return (
     <React.Fragment>
       {props.question !== "" && (
-        <Paper className={classes.questionPaper} elevation={3}>
+        <Paper className={"questionPaper"} elevation={3}>
           <div
             // style={{ backgroundColor: "pink" }}
-            className={classes.questionNumber}
+            className={"questionNumber"}
           >
             <div>
               <b>{`# ${props.number}`}</b>
@@ -218,7 +189,7 @@ export default function QuizQuestion(props) {
         </Paper>
       )}
       {props.showAnswer ? (
-        <div className={classes.textField}>
+        <div className={"textField"}>
           {props.answerType === "multiple"
             ? mappedInputs
             : singleInput(clickCount)}
@@ -233,7 +204,7 @@ export default function QuizQuestion(props) {
         <Upload imgName={props.imgName} indexVal={clickCount} />
       )}
       {props.question !== "" && (
-        <div className={classes.buttonGroup}>
+        <div className={"buttonGroup"}>
           {!props.showAnswer ? (
             !props.renderEdit ? (
               <Button onClick={showAnswers} variant="outlined" color="primary">

@@ -12,6 +12,7 @@
     "@tinymce/tinymce-react": "^3.6.0",
     "axios": "^0.19.2",
     "emailjs-com": "^2.4.1",
+    "fontsource-roboto": "^3.0.3",
     "joi": "^14.3.1",
     "jwt-decode": "^2.2.0",
     "moment": "^2.27.0",
@@ -20,7 +21,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.1",
     "recharts": "^1.8.5",
-    "sinon": "^9.0.2"
+    "sinon": "^9.0.2",
+    "styled-components": "^5.2.0"
   },
   "scripts": {
     "start": "react-scripts start",

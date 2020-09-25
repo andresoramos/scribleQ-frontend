@@ -1,0 +1,21 @@
+.questionContainer {
+  margin-top: 5em;
+}
+.questionPaper {
+  width: 70%;
+  border-radius: 100px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+.questionNumber {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 3em;
+  min-height: 20vh;
+}
+html,
+body {
+  height: 100%;
+}

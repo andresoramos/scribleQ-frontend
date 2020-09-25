@@ -15,6 +15,8 @@ import SeeScore from "./Components/SeeScore";
 import Analytics from "./Components/Analytics";
 import Upload from "./Components/Upload";
 import MarketForm from "./Components/marketForm";
+import NewMakeQuiz from "./Components/newMakeQuiz";
+import DndTest from "./Components/DnDTestGround";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -106,6 +108,20 @@ function App() {
           path="/makeQuiz"
           render={(props) => {
             return <MakeQuiz signedInName={signedInName} {...props} />;
+          }}
+        />
+        <Route
+          path="/newMakeQuiz"
+          exact
+          render={(props) => {
+            return <NewMakeQuiz signedInName={signedInName} {...props} />;
+          }}
+        />
+        <Route
+          path="/testDnd"
+          exact
+          render={(props) => {
+            return <DndTest signedInName={signedInName} {...props} />;
           }}
         />
         <Route

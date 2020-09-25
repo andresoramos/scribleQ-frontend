@@ -1,0 +1,52 @@
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  width: 30%;
+  margin-top: 10px;
+}
+.questionNumber {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 3em;
+  min-height: 20vh;
+}
+.questionPaper {
+  width: 70%;
+  border-radius: 100px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+.textField {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* const useStyles = makeStyles((theme) => ({
+    buttonGroup: {
+      display: "flex",
+      justifyContent: "space-between",
+      width: "30%",
+      marginTop: theme.spacing(5),
+    },
+    questionNumber: {
+      display: "flex",
+      alignContent: "column",
+      flexDirection: "row",
+      alignItems: "center",
+      margin: "3em",
+      minHeight: "20vh",
+    },
+    questionPaper: {
+      width: "70%",
+      borderRadius: 70,
+      display: "flex",
+      flexDirection: "column",
+  
+      marginBottom: theme.spacing(5),
+  
+      // alignItems: "center",
+    },
+    textField: { display: "flex", flexDirection: "column", alignItems: "center" },
+  })); */

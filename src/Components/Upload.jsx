@@ -39,7 +39,8 @@ function Upload(props) {
     const fileName = postTest.data.filename;
 
     setImgAddress(fileName);
-    props.imgName(fileName, props.indexVal);
+    // props.imgName(fileName, props.indexVal);
+    props.imgName("imgName", fileName);
   };
 
   return (

@@ -13,59 +13,60 @@ import { answerSave } from "../Services/answerSave";
 import decode from "jwt-decode";
 import getQuizzes from "./../Services/getQuizzes";
 import authenticateUserToken from "./../Services/authenticateUserToken";
+import "../Styling/MakeQuiz.css";
 
 const useStyles = makeStyles((theme) => ({
-  addIcon: { marginLeft: ".5em" },
-  container: {
-    marginTop: theme.spacing(2),
-    width: "80%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  button: {
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-  },
-  ButtonGroup: { marginBottom: theme.spacing(3) },
-  paper: {
-    marginTop: theme.spacing(12),
-    width: "80%",
-    borderRadius: 20,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  name: { display: "flex", flexDirection: "column", marginTop: 10 },
-  questionPaper: {
-    marginBottom: theme.spacing(5),
-    width: "70%",
-    borderRadius: 70,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-  styleAdd: {
-    display: "flex",
-    alignItems: "center",
-    width: "60%",
-    justifyContent: "space-between",
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
+  // addIcon: { marginLeft: ".5em" },
+  // container: {
+  //   marginTop: theme.spacing(2),
+  //   width: "80%",
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   alignItems: "center",
+  // },
+  // button: {
+  //   marginTop: theme.spacing(3),
+  //   marginBottom: theme.spacing(3),
+  // },
+  // ButtonGroup: { marginBottom: theme.spacing(3) },
+  // paper: {
+  //   marginTop: theme.spacing(12),
+  //   width: "80%",
+  //   borderRadius: 20,
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   alignItems: "center",
+  // },
+  // avatar: {
+  //   margin: theme.spacing(1),
+  //   backgroundColor: theme.palette.secondary.main,
+  // },
+  // form: {
+  //   width: "100%", // Fix IE 11 issue.
+  //   marginTop: theme.spacing(1),
+  // },
+  // name: { display: "flex", flexDirection: "column", marginTop: 10 },
+  // questionPaper: {
+  //   marginBottom: theme.spacing(5),
+  //   width: "70%",
+  //   borderRadius: 70,
+  //   display: "flex",
+  //   flexDirection: "column",
+  //   alignItems: "center",
+  // },
+  // styleAdd: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   width: "60%",
+  //   justifyContent: "space-between",
+  // },
+  // submit: {
+  //   margin: theme.spacing(3, 0, 2),
+  // },
 }));
 
 export const MakeQuiz = (props) => {
-  const classes = useStyles();
+  // const classes = useStyles();
   const [slide, setSlide] = useState(false);
   const [questionOut, setQuestionOut] = useState(false);
   const [name, setName] = useState("");
@@ -348,32 +349,32 @@ export const MakeQuiz = (props) => {
     return (
       <React.Fragment>
         {name !== "" ? (
-          <div className={classes.styleAdd}>
+          <div className={"styleAdd"}>
             <Button
               color="primary"
               variant="outlined"
-              className={classes.button}
+              className={"button"}
               onClick={() => {
                 bringSlide(i);
               }}
             >
               Add Question
-              <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
+              <AddCircleIcon className={"addIcon"}></AddCircleIcon>
             </Button>
             <Button
               color="primary"
               variant="outlined"
-              className={classes.button}
+              className={"button"}
               onClick={() => {
                 handleDelete(item.trackNumber, name, newDisplayArray);
               }}
             >
               Delete question
-              <AddCircleIcon className={classes.addIcon}></AddCircleIcon>
+              <AddCircleIcon className={"addIcon"}></AddCircleIcon>
             </Button>
           </div>
         ) : (
-          <div className={classes.name}>
+          <div className={"name"}>
             <TextField
               defaultValue="Enter quiz name"
               id="name"
@@ -381,14 +382,15 @@ export const MakeQuiz = (props) => {
               variant="outlined"
             />
             <div
-              style={{
-                display: "flex",
-                marginTop: 10,
-                justifyContent: "center",
-              }}
+              className={"saveStyle"}
+              // style={{
+              //   display: "flex",
+              //   marginTop: 10,
+              //   justifyContent: "center",
+              // }}
             >
               <Button
-                style={{ width: "20%" }}
+                className={"saveButton"}
                 color="primary"
                 onClick={handleNameSave}
                 variant="outlined"
@@ -400,7 +402,7 @@ export const MakeQuiz = (props) => {
         )}
         <Slide direction={"up"} in={shouldBringSlide(i)}>
           <ButtonGroup
-            className={classes.ButtonGroup}
+            className={"ButtonGroup"}
             color="primary"
             aria-label="outlined primary button group"
           >
@@ -481,35 +483,37 @@ export const MakeQuiz = (props) => {
   });
 
   return (
-    <Container className={classes.container}>
-      {authState === true ? (
-        <React.Fragment>
-          <Paper className={classes.paper} elevation={3}>
-            <h1>It's time to put your quiz-making skills to the test!</h1>
-            <p>
-              Use the form below to create a quiz that drills the material you
-              need to learn!
-            </p>
-            <p>
-              Remember: Sharing is caring, so don't forget to make your quiz
-              downloadable by others!
-            </p>
-            <br></br>
-          </Paper>
-          {mappedDisplayArray}
-          {newDisplayArray[0].question !== "" && (
-            <Button
-              style={{ marginTop: 20 }}
-              variant="outlined"
-              onClick={handleQuizSave}
-            >
-              Save Quiz
-            </Button>
-          )}
-        </React.Fragment>
-      ) : (
-        <div>You need to login to make a quiz.</div>
-      )}
+    <Container>
+      <div className="makeQuizContainer">
+        {authState === true ? (
+          <React.Fragment>
+            <Paper className={"paper"} elevation={3}>
+              <h1>It's time to put your quiz-making skills to the test!</h1>
+              <p>
+                Use the form below to create a quiz that drills the material you
+                need to learn!
+              </p>
+              <p>
+                Remember: Sharing is caring, so don't forget to make your quiz
+                downloadable by others!
+              </p>
+              <br></br>
+            </Paper>
+            {mappedDisplayArray}
+            {newDisplayArray[0].question !== "" && (
+              <Button
+                style={{ marginTop: 20 }}
+                variant="outlined"
+                onClick={handleQuizSave}
+              >
+                Save Quiz
+              </Button>
+            )}
+          </React.Fragment>
+        ) : (
+          <div>You need to login to make a quiz.</div>
+        )}
+      </div>
     </Container>
   );
 };
