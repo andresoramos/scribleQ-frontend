@@ -9,6 +9,7 @@ export default function TextEditor(props) {
   return (
     <Editor
       apiKey="azhtw07duepqjg6pkppxh0hxrmna7jrezo4jws3e47kklf24"
+      className="quiz-question-text"
       outputFormat="html"
       initialValue={props.initialValue}
       init={{

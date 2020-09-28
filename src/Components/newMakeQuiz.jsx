@@ -158,19 +158,7 @@ function NewMakeQuiz(props) {
           </Typography>
         </div>
       </div>
-      <div
-        style={{
-          width: "80%",
-          borderRight: "3px solid blue",
-          borderColor: "black",
-          backgroundColor: "pink",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          //   justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <div className="question-content">
         <Paper className={"paper"} elevation={3}>
           <h1>It's time to put your quiz-making skills to the test!</h1>
           <p>
@@ -220,7 +208,7 @@ function NewMakeQuiz(props) {
         ) : (
           <div className={"name"}>
             <TextField
-              defaultValue="Enter quiz name"
+              placeholder="Enter quiz name"
               id="name"
               onChange={(e) => {
                 handleNameChangeOrSave(e);
