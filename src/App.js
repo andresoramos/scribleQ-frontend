@@ -16,7 +16,6 @@ import Analytics from "./Components/Analytics";
 import Upload from "./Components/Upload";
 import MarketForm from "./Components/marketForm";
 import NewMakeQuiz from "./Components/newMakeQuiz";
-import DndTest from "./Components/DnDTestGround";
 
 function App() {
   const [signedInName, setSignedInName] = useState(
@@ -117,13 +116,7 @@ function App() {
             return <NewMakeQuiz signedInName={signedInName} {...props} />;
           }}
         />
-        <Route
-          path="/testDnd"
-          exact
-          render={(props) => {
-            return <DndTest signedInName={signedInName} {...props} />;
-          }}
-        />
+
         <Route
           path="/newPassword/:token"
           render={(props) => {

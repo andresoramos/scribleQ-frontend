@@ -1,24 +1,19 @@
 import React, { useState } from "react";
-import AppBar from "@material-ui/core/AppBar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import axios from "axios";
 import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
 import Slide from "@material-ui/core/Slide";
 import { Button } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import ButtonGroup from "@material-ui/core/ButtonGroup";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import QuizQuestion from "./QuizQuestion";
-import { answerSave } from "../Services/answerSave";
-import decode from "jwt-decode";
-import getQuizzes from "./../Services/getQuizzes";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import NewQuestion from "../Components/newQuestion";
-import authenticateUserToken from "./../Services/authenticateUserToken";
+import QuizQuestion from "../Components/QuestionSlot";
 import "../Styling/MakeQuiz.css";
-
 import "fontsource-roboto";
+import QuestionSlot from "../Components/QuestionSlot";
+import PreviewContainer from "../Components/PreviewContainer";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -63,6 +58,23 @@ function NewMakeQuiz(props) {
       pointWorth: null,
     },
   ]);
+  const dropHappened = (selected, landed) => {
+    const fixedArray = [...newDisplayArray];
+    const moved = { ...fixedArray[selected] };
+    fixedArray.splice(landed + 1, 0, moved);
+    let finalArray = [];
+    for (var i = 0; i < fixedArray.length; i++) {
+      if (JSON.stringify(fixedArray[i]) !== JSON.stringify(moved)) {
+        finalArray.push(fixedArray[i]);
+      } else {
+        if (i === landed + 1) {
+          finalArray.push(fixedArray[i]);
+        }
+      }
+    }
+    setNewDisplayArray(finalArray);
+  };
+
   const handleModal = (openOrClose) => {
     if (openOrClose === "open") {
       return setModalOpened(true);
@@ -106,9 +118,9 @@ function NewMakeQuiz(props) {
     setNewDisplayArray(arrCopy);
   };
   const handleAddQuestion = () => {
-    if (newDisplayArray.length === 1 && newDisplayArray[0].question !== "") {
+    if (newDisplayArray.length >= 1 && newDisplayArray[0].question !== "") {
       const newQuestion = {
-        i: 0,
+        i: newDisplayArray.length,
         question: "",
         showAnswer: false,
         Q1: "",
@@ -135,6 +147,51 @@ function NewMakeQuiz(props) {
     setQuestionOut(false);
   };
 
+  const insertQuestion = (item) => {
+    const existing = [...newDisplayArray];
+    let newI = 0;
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].i > newI) {
+        newI = existing[i].i;
+      }
+    }
+    let newQuestion = {
+      i: newI + 1,
+      question: "",
+      showAnswer: false,
+      Q1: "",
+      Q2: "",
+      Q3: "",
+      Q4: "",
+      imgName: "",
+      Q1Correct: false,
+      Q2Correct: false,
+      Q3Correct: false,
+      Q4Correct: false,
+      renderEdit: false,
+      answerType: "",
+      singleAnswer: "",
+      selected: "",
+      correctAnswer: null,
+      modalOpen: false,
+      pointWorth: null,
+    };
+    let index;
+    for (var i = 0; i < existing.length; i++) {
+      if (existing[i].i === item) {
+        index = i;
+      }
+    }
+    existing.splice(index + 1, 0, newQuestion);
+    setNewDisplayArray(existing);
+  };
+  const setIndex = (index) => {
+    const switchView = localStorage.getItem("divPressed");
+    if (JSON.parse(switchView)) {
+      return setCurrentIndex(index);
+    }
+    console.log("should only now show up with the plus button");
+  };
   return (
     <div className="mainContainer">
       <div
@@ -149,6 +206,7 @@ function NewMakeQuiz(props) {
             width: "100%",
             display: "flex",
             justifyContent: "flex-start",
+            flexDirection: "column",
             backgroundColor: "white",
             borderBottom: "3px solid black",
           }}
@@ -157,6 +215,20 @@ function NewMakeQuiz(props) {
             My Questions...
           </Typography>
         </div>
+        <DndProvider backend={HTML5Backend}>
+          {newDisplayArray.map((item, i) => {
+            return (
+              <PreviewContainer
+                setIndex={setIndex}
+                dropHappened={dropHappened}
+                containerIndex={i}
+                question={item.question}
+                item={item}
+                addQuestion={insertQuestion}
+              />
+            );
+          })}
+        </DndProvider>
       </div>
       <div className="question-content">
         <Paper className={"paper"} elevation={3}>

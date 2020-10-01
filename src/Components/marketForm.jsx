@@ -10,6 +10,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import htmlToText from "../Services/htmlToText";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -238,9 +239,6 @@ function MarketForm(props) {
     );
   });
   const mappedPremium = questionArray().map((item, i) => {
-    var xmlString = item.question;
-    var doc = new DOMParser().parseFromString(xmlString, "text/xml");
-    const questionText = doc.firstChild.innerHTML;
     return (
       <FormControlLabel
         key={i}
@@ -254,7 +252,7 @@ function MarketForm(props) {
             color="primary"
           />
         }
-        label={`${i + 1}) Question Text: ${questionText}`}
+        label={`${i + 1}) Question Text: ${htmlToText(item.question)}`}
       />
     );
   });
