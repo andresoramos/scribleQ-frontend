@@ -31,9 +31,10 @@ function QuestionSlot(props) {
   return (
     <div
       onClick={() => {
-        // localStorage.setItem("divPressed", "true");
-        console.log("The outer div ran");
-        props.setIndex(props.item.i);
+        localStorage.setItem("divPressed", "true");
+        setTimeout(() => {
+          props.setIndex(props.item.i);
+        }, 500);
       }}
       ref={drag}
       style={{ minHeight: "25px", width: "100%", background: "red" }}
@@ -42,9 +43,8 @@ function QuestionSlot(props) {
       {props.question === "" ? null : (
         <Button
           onClick={() => {
-            // localStorage.setItem("divPressed", "false");
             setTimeout(() => {
-              console.log("The button ran");
+              localStorage.setItem("divPressed", "false");
             }, 0);
             props.addQuestion(props.item.i);
           }}

@@ -9,11 +9,12 @@ import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import NewQuestion from "../Components/newQuestion";
-import QuizQuestion from "../Components/QuestionSlot";
 import "../Styling/MakeQuiz.css";
 import "fontsource-roboto";
-import QuestionSlot from "../Components/QuestionSlot";
 import PreviewContainer from "../Components/PreviewContainer";
+import Trashcan from "./Trashcan";
+import AlertMessage from "./AlertMessage";
+import { UsbOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -34,6 +35,7 @@ function NewMakeQuiz(props) {
   const [mcArray, setMcArray] = useState([]);
   const [firstOut, setFirstOut] = useState(false);
   const [authState, setAuthState] = useState(false);
+  const [cantDelete, setCantDelete] = useState(false);
   const [modalOpened, setModalOpened] = useState(false);
   const [newDisplayArray, setNewDisplayArray] = useState([
     {
@@ -72,7 +74,16 @@ function NewMakeQuiz(props) {
         }
       }
     }
+    let newIndex;
+    for (i = 0; i < finalArray.length; i++) {
+      if (finalArray[i].i === moved.i) {
+        finalArray[i].showAnswer = true;
+        newIndex = i;
+      }
+    }
+    setCurrentIndex(newIndex);
     setNewDisplayArray(finalArray);
+    setQuestionOut(false);
   };
 
   const handleModal = (openOrClose) => {
@@ -103,11 +114,16 @@ function NewMakeQuiz(props) {
   };
   const findQuestion = () => {
     const arrayCopy = [...newDisplayArray];
+    console.log(arrayCopy, "This is array copy in find question");
 
     if (currentIndex === null) {
+      console.log("current index equals null in find question");
       const questionInfo = arrayCopy[arrayCopy.length - 1];
+      console.log(questionInfo, "question info is not undefined");
       return questionInfo;
     }
+    console.log("got to the end of find question");
+    console.log(currentIndex, "this is the current index");
     return arrayCopy[currentIndex];
   };
   const changeItem = (key, change) => {
@@ -146,6 +162,35 @@ function NewMakeQuiz(props) {
     }
     setQuestionOut(false);
   };
+  const deleteQuestion = (index) => {
+    console.log(`Your current index is ${index}`);
+    let id = findQuestion().i;
+    let actualCurrentIndex;
+    let updatedArray = [...newDisplayArray];
+    for (var i = 0; i < updatedArray.length; i++) {
+      if (updatedArray[i].i === id) {
+        actualCurrentIndex = i;
+      }
+    }
+
+    console.log(`Actual current is ${actualCurrentIndex}`);
+    const testArray = [...updatedArray];
+    updatedArray.splice(index, 1);
+    if (actualCurrentIndex === index) {
+      console.log("actualcurr vs index is working correctly");
+      //Checks to see if question being viewed got deleted
+      if (updatedArray.length === 0) {
+        setCantDelete(true);
+      }
+      if (updatedArray[index - 1] !== undefined) {
+        updatedArray[index - 1].showAnswer = true;
+        setNewDisplayArray(updatedArray);
+        setCurrentIndex(index - 1);
+        return setQuestionOut(false);
+      }
+      return console.log("you'd have to go to the one before");
+    }
+  };
 
   const insertQuestion = (item) => {
     const existing = [...newDisplayArray];
@@ -177,7 +222,7 @@ function NewMakeQuiz(props) {
       pointWorth: null,
     };
     let index;
-    for (var i = 0; i < existing.length; i++) {
+    for (i = 0; i < existing.length; i++) {
       if (existing[i].i === item) {
         index = i;
       }
@@ -186,9 +231,20 @@ function NewMakeQuiz(props) {
     setNewDisplayArray(existing);
   };
   const setIndex = (index) => {
+    const arrayCopy = [...newDisplayArray];
     const switchView = localStorage.getItem("divPressed");
-    if (JSON.parse(switchView)) {
-      return setCurrentIndex(index);
+    console.log(switchView, "this is switch view");
+    if (switchView !== "false") {
+      let newIndex;
+      for (var i = 0; i < arrayCopy.length; i++) {
+        if (arrayCopy[i].i === index) {
+          newIndex = i;
+        }
+      }
+      arrayCopy[newIndex].showAnswer = true;
+      setNewDisplayArray(arrayCopy);
+      setCurrentIndex(newIndex);
+      return setQuestionOut(false);
     }
     console.log("should only now show up with the plus button");
   };
@@ -201,6 +257,14 @@ function NewMakeQuiz(props) {
           borderColor: "black",
         }}
       >
+        <AlertMessage
+          cantDelete={cantDelete}
+          title={"Your quiz must contain at least one question"}
+          setCantDelete={setCantDelete}
+          contentText={
+            "If you'd like to change this question, please use the editing options available."
+          }
+        />
         <div
           style={{
             width: "100%",
@@ -219,6 +283,7 @@ function NewMakeQuiz(props) {
           {newDisplayArray.map((item, i) => {
             return (
               <PreviewContainer
+                key={i}
                 setIndex={setIndex}
                 dropHappened={dropHappened}
                 containerIndex={i}
@@ -228,6 +293,7 @@ function NewMakeQuiz(props) {
               />
             );
           })}
+          <Trashcan deleteQuestion={deleteQuestion} />
         </DndProvider>
       </div>
       <div className="question-content">
