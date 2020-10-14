@@ -21,8 +21,18 @@ function AlertMessage(props) {
           }}
           color="primary"
         >
-          Accept
+          {props.buttonMessage}
         </Button>
+        {props.backButton && (
+          <Button
+            onClick={() => {
+              props.backButtonFunc();
+            }}
+            color="primary"
+          >
+            {props.backButtonMessage}
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

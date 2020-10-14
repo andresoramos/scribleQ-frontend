@@ -175,12 +175,16 @@ function Analytics(props) {
         >
           <DialogContent>
             <DialogTitle>
-              {`These are the questions that have stumped you the most, with ${low} out of ${high}
+              {low === 0
+                ? `You haven't made a mistake once.  Keep up the great work!`
+                : `These are the questions that have stumped you the most, with ${low} out of ${high}
             attempts being incorrect.`}
             </DialogTitle>
-            <DialogContentText id="where-mistakes-lie">
-              {mistakes !== null && findQuestions(mistakes)}
-            </DialogContentText>
+            {low === 0 ? null : (
+              <DialogContentText id="where-mistakes-lie">
+                {mistakes !== null && findQuestions(mistakes)}
+              </DialogContentText>
+            )}
           </DialogContent>
         </Dialog>
       </div>

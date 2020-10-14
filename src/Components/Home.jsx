@@ -126,12 +126,16 @@ export const Home = (props) => {
     const quizArray = [...quizInfo.quizzes];
     const finalArray = [];
     for (var i = 0; i < quizArray.length; i++) {
-      const newObj = {};
-      newObj.name = quizArray[i].quiz.name;
-      newObj.dateCreated = createDate(quizArray[i].dateCreated);
-      newObj.likes = "TBD";
-      newObj.dislikes = "TBD";
-      finalArray.push(newObj);
+      if (quizArray[i].quiz === null) {
+        continue;
+      } else {
+        const newObj = {};
+        newObj.name = quizArray[i].quiz.name;
+        newObj.dateCreated = createDate(quizArray[i].dateCreated);
+        newObj.likes = "TBD";
+        newObj.dislikes = "TBD";
+        finalArray.push(newObj);
+      }
     }
     const stringData = JSON.stringify(finalArray);
     return setQuizArray(stringData);

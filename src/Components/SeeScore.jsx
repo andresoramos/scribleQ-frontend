@@ -47,6 +47,7 @@ function SeeScore(props) {
   const scoreScreen = localStorage.getItem("scoreScreen");
 
   const scoreScreentoObject = JSON.parse(scoreScreen);
+  console.log(scoreScreentoObject, "this is the score screen to obj");
 
   const showIncorrect = () => {
     setShowWrong(!showWrong);
@@ -122,6 +123,7 @@ function SeeScore(props) {
     checkIfLoggedIn(token);
   }
   const fixFinalNumber = (string) => {
+    console.log(string, "this is the string from the final number");
     let compounder = "";
     for (var i = 0; i < string.length; i++) {
       if (string[i] !== "%") {

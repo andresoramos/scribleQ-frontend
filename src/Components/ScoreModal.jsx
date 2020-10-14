@@ -32,9 +32,9 @@ function ScoreModal(props) {
         <TextField
           autoFocus
           margin="dense"
-          //   onChange={(e) => {
-          //     handlePointChange(e.target.value);
-          //   }}
+          onChange={(e) => {
+            props.changeItem("pointWorth", e.target.value);
+          }}
           id="name"
           label="Question worth..."
           type="email"

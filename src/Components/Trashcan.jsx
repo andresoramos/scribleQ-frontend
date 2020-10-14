@@ -2,11 +2,31 @@ import React from "react";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import { useDrop } from "react-dnd";
 
-function Trashcan(props) {
+function Trashcan({
+  findQuestion,
+  newDisplayArray,
+  setCantDelete,
+  setCurrentIndex,
+  setQuestionOut,
+  setNewDisplayArray,
+  questionOut,
+  name,
+  ...props
+}) {
   const [{ isOver, canDrop }, drop] = useDrop({
     accept: "question",
     drop: (item) => {
-      props.deleteQuestion(item.id);
+      props.deleteQuestion(
+        item.id,
+        findQuestion,
+        newDisplayArray,
+        setCantDelete,
+        setCurrentIndex,
+        setQuestionOut,
+        setNewDisplayArray,
+        questionOut,
+        name
+      );
     },
   });
   return (

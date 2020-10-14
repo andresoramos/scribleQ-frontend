@@ -6,11 +6,11 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import htmlToText from "../Services/htmlToText";
+import DropDownMenu from "./dropDownMenu";
+import { marketSave } from "../Services/answerSave";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,7 +55,19 @@ function MarketForm(props) {
   const [hide, setHide] = useState(false);
   const [hiddenCheck, setHiddenCheck] = useState({});
   const [form, setForm] = useState("");
-
+  const [premiumCost, setPremiumCost] = useState({});
+  const [hideQuestions, setHideQuestions] = useState({});
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [options, setOptions] = useState([
+    "Click here to select a topic",
+    "Science",
+    "Math",
+    "History",
+    "Social Studies",
+    "Music/Art",
+    "Psychology",
+    "Other",
+  ]);
   const auth = async () => {
     const checked = await authenticateUserToken(localStorage.getItem("token"));
     setAllowed(checked ? true : false);
@@ -64,11 +76,11 @@ function MarketForm(props) {
   const handleCheck = () => {
     setCheckBox(!checkBox);
   };
+
   const prepareTags = (tagString) => {
     let resultsArr = [];
     let tag = "";
     for (var i = 0; i < tagString.length; i++) {
-      console.log(tag);
       if (tagString[i] !== "," && i !== tagString.length - 1) {
         tag += tagString[i];
       } else {
@@ -116,7 +128,6 @@ function MarketForm(props) {
       let checkFlag = false;
       for (var j = finalReturn[i].length - 1; j >= 0; j--) {
         if (finalReturn[i][j] === " ") {
-          console.log("flag worked");
           checkFlag = true;
         }
       }
@@ -129,7 +140,16 @@ function MarketForm(props) {
     }
     return cleanUp;
   };
-
+  const firstClick = () => {
+    const newOptions = [...options];
+    newOptions.shift();
+    setOptions(newOptions);
+  };
+  const changePremiumCost = (e, i) => {
+    const newPremiumCost = { ...premiumCost };
+    newPremiumCost[i + 1] = e.target.value;
+    setPremiumCost(newPremiumCost);
+  };
   const removeSpace = (word) => {
     let stopPoint;
     for (var i = word.length - 1; i >= 0; i--) {
@@ -176,9 +196,22 @@ function MarketForm(props) {
     setPremium(!premium);
   };
   const handleDialogClose = () => {
+    const newChosenPremium = { ...chosenPremium };
+    let finalChosenPremium = {};
+    for (var key in newChosenPremium) {
+      if (newChosenPremium[key] !== false) {
+        finalChosenPremium[key] = newChosenPremium[key];
+      }
+    }
+    setChosenPremium(finalChosenPremium);
+    if (Object.keys(finalChosenPremium).length === 0) {
+      setPremium(false);
+    }
     setQuestions(false);
   };
-
+  const handleHiddenClose = () => {
+    setHidden(!hidden);
+  };
   const questionArray = () => {
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const questions = quiz.quiz.questions;
@@ -203,59 +236,105 @@ function MarketForm(props) {
     const fixed = { ...chosenPremium };
     if (fixed[index] === undefined) {
       fixed[index] = true;
-      console.log(fixed, "this is the fixed");
       return setChosenPremium(fixed);
     }
     fixed[index] = !fixed[index];
     return setChosenPremium(fixed);
   };
-  const handleHiddenClose = () => {
-    setHidden(!hidden);
-  };
-  const handleSubmit = () => {
+
+  const handleSubmit = async () => {
+    const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const finalObj = {};
     const searchTags = prepareTags(tags);
     finalObj.searchTags = searchTags;
+    finalObj._id = quiz.quiz._id;
+    finalObj.nsfw = checkBox;
+    finalObj.description = form;
+    finalObj.hiddenQuestions = hide
+      ? JSON.stringify(hideQuestions) !== JSON.stringify({})
+        ? hideQuestions
+        : null
+      : null;
+    finalObj.premiumQuestions = premium ? premiumCost : null;
+    finalObj.expirationDate = date ? dateObj : null;
+    finalObj.cost = charge ? number : null;
+    finalObj.subject =
+      options[selectedIndex] === "Click here to select a topic"
+        ? null
+        : options[selectedIndex];
+    const saved = await marketSave(finalObj);
+    console.log(saved, "This is what saved got us");
   };
-  const mappedHidden = questionArray().map((item, i) => {
-    var xmlString = item.question;
-    var doc = new DOMParser().parseFromString(xmlString, "text/xml");
-    const questionText = doc.firstChild.innerHTML;
-    return (
-      <FormControlLabel
-        key={i}
-        control={
-          <Checkbox
-            checked={hiddenCheck[i] !== undefined ? hiddenCheck[i] : false}
-            onChange={() => {
-              setHiddenCheck(i);
-            }}
-            name="premiumCheck"
-            color="primary"
+
+  // const mappedHidden = questionArray().map((item, i) => {
+  //   var xmlString = item.question;
+  //   var doc = new DOMParser().parseFromString(xmlString, "text/xml");
+  //   const questionText = doc.firstChild.innerHTML;
+  //   return (
+  //     <FormControlLabel
+  //       key={i}
+  //       control={
+  //         <Checkbox
+  //           checked={hiddenCheck[i] !== undefined ? hiddenCheck[i] : false}
+  //           onChange={() => {
+  //             setHiddenCheck(i);
+  //           }}
+  //           name="premiumCheck"
+  //           color="primary"
+  //         />
+  //       }
+  //       label={`${i + 1}) Question Text: ${questionText}`}
+  //     />
+  //   );
+  // });
+  const mappedPremium = (string) => {
+    return questionArray().map((item, i) => {
+      const premium = chosenPremium[i] !== undefined ? chosenPremium[i] : false;
+      const hide =
+        hideQuestions[i + 1] !== undefined ? hideQuestions[i + 1] : false;
+      return (
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <FormControlLabel
+            key={i}
+            control={
+              <Checkbox
+                checked={string === "hide" ? hide : premium}
+                onChange={() => {
+                  if (string === "hide") {
+                    const newHideQuestions = { ...hideQuestions };
+
+                    newHideQuestions[i + 1] === undefined
+                      ? (newHideQuestions[i + 1] = true)
+                      : (newHideQuestions[i + 1] = !newHideQuestions[i + 1]);
+                    return setHideQuestions(newHideQuestions);
+                  }
+
+                  handleChosenPremium(i);
+                }}
+                name="premiumCheck"
+                color="primary"
+              />
+            }
+            label={`${i + 1}) Question Text: ${htmlToText(item.question)}`}
           />
-        }
-        label={`${i + 1}) Question Text: ${questionText}`}
-      />
-    );
-  });
-  const mappedPremium = questionArray().map((item, i) => {
-    return (
-      <FormControlLabel
-        key={i}
-        control={
-          <Checkbox
-            checked={chosenPremium[i] !== undefined ? chosenPremium[i] : false}
-            onChange={() => {
-              handleChosenPremium(i);
-            }}
-            name="premiumCheck"
-            color="primary"
-          />
-        }
-        label={`${i + 1}) Question Text: ${htmlToText(item.question)}`}
-      />
-    );
-  });
+          {chosenPremium[i] && string === undefined ? (
+            <TextField
+              label="Price in Scribloons"
+              value={premiumCost[i + 1]}
+              type="number"
+              onChange={(e) => {
+                changePremiumCost(e, i);
+              }}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              variant="outlined"
+            />
+          ) : null}
+        </div>
+      );
+    });
+  };
 
   return allowed === null ? null : allowed === true ? (
     <div className={classes.root}>
@@ -357,32 +436,46 @@ function MarketForm(props) {
               helperText={`Expiration Date`}
             />
           )}
+          <div style={{ width: "30%" }}>
+            <DropDownMenu
+              firstClick={firstClick}
+              setSelectedIndex={setSelectedIndex}
+              selectedIndex={selectedIndex}
+              options={options}
+            />
+          </div>
           <Button onClick={handleSubmit}>Submit</Button>
         </div>
       </form>
-      <Dialog
-        aria-describedby="choose-premiums"
-        onClose={handleDialogClose}
-        open={questions}
-      >
+      <Dialog aria-describedby="choose-premiums" open={questions}>
         <DialogContent>
           <DialogTitle>
             {`Select which questions you'd like offer as premium upgrades, and designate a price for each one.`}
           </DialogTitle>
-          {mappedPremium}
+          {mappedPremium()}
         </DialogContent>
+        <Button
+          onClick={() => {
+            handleDialogClose();
+          }}
+        >
+          Save
+        </Button>
       </Dialog>
-      <Dialog
-        aria-describedby="choose-premiums"
-        onClose={handleHiddenClose}
-        open={hidden}
-      >
+      <Dialog aria-describedby="choose-premiums" open={hidden}>
         <DialogContent>
           <DialogTitle>
-            {`Select which questions you'd like offer as premium upgrades, and designate a price for each one.`}
+            {`Select which questions below you'd like to hide`}
           </DialogTitle>
-          {mappedPremium}
+          {mappedPremium("hide")}
         </DialogContent>
+        <Button
+          onClick={() => {
+            handleHiddenClose();
+          }}
+        >
+          Save
+        </Button>
       </Dialog>
     </div>
   ) : null;

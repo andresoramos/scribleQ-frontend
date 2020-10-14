@@ -218,7 +218,7 @@ export default function NavBar(props) {
               </Typography>
             </Link>
           )}
-          <Link to="/makeQuiz" style={{ textDecoration: "none" }}>
+          <Link to="/newMakeQuiz" style={{ textDecoration: "none" }}>
             <Typography className={classes.menuItem} variant="h6" noWrap>
               Make a Quiz
             </Typography>

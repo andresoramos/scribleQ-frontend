@@ -39,8 +39,10 @@ function QuestionSlot(props) {
       ref={drag}
       style={{ minHeight: "25px", width: "100%", background: "red" }}
     >
-      {props.question === "" ? null : cutQuestion(props.question)}
-      {props.question === "" ? null : (
+      {props.question === ""
+        ? null
+        : `${props.questionNumber}) ${cutQuestion(props.question)}`}
+      {props.question === "" || props.name === "" ? null : (
         <Button
           onClick={() => {
             setTimeout(() => {

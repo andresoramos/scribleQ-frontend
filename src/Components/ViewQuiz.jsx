@@ -11,6 +11,7 @@ import saveScoredObject from "./../Services/saveScoredObject";
 import TextField from "@material-ui/core/TextField";
 import getEditDistance from "./../Services/levensteinDistance";
 import PictureCard from "./PictureCard";
+import AlertMessage from "./AlertMessage";
 
 const useStyles = makeStyles((theme) => ({
   addIcon: { marginLeft: ".5em" },
@@ -91,11 +92,16 @@ function ViewQuiz(props) {
   const classes = useStyles();
   const [presentQuiz, setPresentQuiz] = useState([]);
   const [quizSuccess, setQuizSuccess] = useState({});
-  const [quizScore, setQuizScore] = useState({});
+  const [filled, setFilled] = useState({});
   const [singleAnswer, setSingleAnswer] = useState("");
+  const [openAlert, setOpenAlert] = useState(false);
+  const [allowPass, setAllowPass] = useState(false);
 
   const iValue = localStorage.getItem("i");
-  useState(() => {
+  useEffect(() => {
+    if (allowPass === true) {
+      handleSave();
+    }
     if (iValue === null) {
       return;
     }
@@ -118,6 +124,27 @@ function ViewQuiz(props) {
     }
     setQuizSuccess(resetObj);
   };
+  const compareFilled = () => {
+    const presentArr = returnQuestionsArray(presentQuiz).length;
+    const filledAmount = Object.keys(filled).length;
+    if (presentArr === filledAmount) {
+      return true;
+    }
+    return false;
+  };
+  const addFilled = (i) => {
+    const newFilled = { ...filled };
+    newFilled[i] = true;
+    setFilled(newFilled);
+  };
+  const findTotalPoints = () => {
+    const presentArr = returnQuestionsArray(presentQuiz);
+    let total = 0;
+    for (var i = 0; i < presentArr.length; i++) {
+      total += Number(presentArr[i].pointWorth);
+    }
+    return total;
+  };
   const handleMultipleAnswer = (e, index) => {
     if (quizSuccess[index + 1] !== undefined) {
       return;
@@ -135,6 +162,7 @@ function ViewQuiz(props) {
     const quizQuestion = returnQuestionsArray(presentQuiz);
 
     const specificQuestion = quizQuestion[index];
+
     const points = specificQuestion["pointWorth"];
     const passOrFail = specificQuestion[lookUpKey];
     const seeSpecifics = findSpecifics(
@@ -197,6 +225,7 @@ function ViewQuiz(props) {
         >
           <Button
             onClick={(e) => {
+              addFilled(i + 1);
               handleMultipleAnswer(e, index);
             }}
             component={Avatar}
@@ -264,6 +293,7 @@ function ViewQuiz(props) {
         singleAnswerFlag: true,
       },
     };
+
     setQuizSuccess(successes);
     // const correctAnswer =
   };
@@ -342,6 +372,7 @@ function ViewQuiz(props) {
             />
             <Button
               onClick={() => {
+                addFilled(i + 1);
                 handleSingleAnswerSave(i);
               }}
             >
@@ -352,20 +383,56 @@ function ViewQuiz(props) {
       </Container>
     );
   });
+  const findCorrectAnswer = (question) => {
+    let answerCorrect;
+    if (question.selected === "multiple") {
+      const correctAnswerObj = {
+        Q1Correct: "Q1",
+        Q2Correct: "Q2",
+        Q3Correct: "Q3",
+        Q4Correct: "Q4",
+      };
+      for (var key in correctAnswerObj) {
+        if (question[key] === true) {
+          answerCorrect = correctAnswerObj[key];
+        }
+      }
+      return answerCorrect;
+    }
+    answerCorrect = question.singleAnswer;
+    return answerCorrect;
+  };
+  const correctSpecifics = (obj) => {
+    const specObj = { ...obj };
+    const quizNow = returnQuestionsArray(presentQuiz);
+    for (var i = 0; i < quizNow.length; i++) {
+      if (specObj[i + 1] === undefined) {
+        specObj[i + 1] = {
+          answerSelected: "",
+          correctAnswer: findCorrectAnswer(quizNow[i]),
+        };
+      }
+    }
+    return specObj;
+  };
   const handleSave = async () => {
+    const compared = compareFilled();
+    if (!compared && !allowPass) {
+      return setOpenAlert(true);
+    }
     const successObject = { ...quizSuccess };
     let earned = 0;
-    let possible = 0;
+    let possible = findTotalPoints();
     let specifics = {};
 
     for (var key in successObject) {
-      possible += Number(successObject[key].points);
+      // possible += Number(successObject[key].points);
       specifics[key] = successObject[key].specifics;
       if (successObject[key].correct === true) {
         earned += Number(successObject[key].points);
-      } else {
       }
     }
+    specifics = correctSpecifics(specifics);
     const actualScore = (earned / possible) * 100;
     const scoreInString = JSON.stringify(actualScore) + "%";
     const scoreObj = {
@@ -387,7 +454,9 @@ function ViewQuiz(props) {
   Give each specific's object a number and everytime you save a try, update a 
   tracking number on the quiz itself.  That way, you'll know that the last try is
   the specs object that has the same number as the quiz's tracking number. */
-
+  const closeOpenAlert = () => {
+    setOpenAlert(false);
+  };
   const returnName = (string) => {
     if (typeof string === "string") {
       const nameObject = JSON.parse(string);
@@ -396,6 +465,9 @@ function ViewQuiz(props) {
     return "No quizzes to display.";
   };
 
+  const continueIncomplete = (needlessBool) => {
+    setAllowPass(true);
+  };
   return (
     <div className={classes.container}>
       <Paper
@@ -408,6 +480,16 @@ function ViewQuiz(props) {
 
       {mappedQuestions}
       <Button onClick={handleSave}>Save and view score</Button>
+      <AlertMessage
+        cantDelete={openAlert}
+        title="You haven't answered all of the questions!"
+        contentText={`If you are okay with submitting an incomplete quiz, press "Continue."  Otherwise, click "Back" to return to the quiz.`}
+        setCantDelete={continueIncomplete}
+        buttonMessage="continue"
+        backButton={true}
+        backButtonMessage="Back"
+        backButtonFunc={closeOpenAlert}
+      />
     </div>
   );
 }

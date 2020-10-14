@@ -23,6 +23,8 @@ function PreviewContainer(props) {
     >
       <QuestionSlot
         item={props.item}
+        name={props.name}
+        questionNumber={props.questionNumber}
         setIndex={props.setIndex}
         addQuestion={props.addQuestion}
         dragIndex={props.containerIndex}

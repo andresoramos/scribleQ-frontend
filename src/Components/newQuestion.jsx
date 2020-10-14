@@ -88,13 +88,26 @@ function NewQuestion(props) {
             changeQuestion={changeQuestion}
           />
           <Upload imgName={props.changeItem} />
-          <Button
-            onClick={() => {
-              props.changeItem("showAnswer", true);
-            }}
-          >
-            Input Answers
-          </Button>
+          <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                props.changeItem("selected", "multiple");
+                props.changeItem("showAnswer", true);
+              }}
+            >
+              Multiple Choice Answer
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                props.changeItem("selected", "open");
+                props.changeItem("showAnswer", true);
+              }}
+            >
+              Fill in the blank
+            </Button>
+          </div>
         </div>
       ) : (
         <div>
@@ -129,7 +142,24 @@ function NewQuestion(props) {
               Edit Question
             </Button>
           </div>
-          {mappedInputs}
+          {props.selected === "multiple" ? (
+            mappedInputs
+          ) : (
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <TextField
+                size="small"
+                style={{
+                  marginLeft: 5,
+                  marginBottom: 20,
+                }}
+                onChange={(e) => {
+                  props.changeItem("singleAnswer", e.target.value);
+                }}
+                value={props.singleAnswer}
+                variant="outlined"
+              />
+            </div>
+          )}
           <Button
             onClick={() => {
               props.handleModalClose("open");
@@ -140,6 +170,7 @@ function NewQuestion(props) {
         </div>
       )}
       <ScoreModal
+        changeItem={props.changeItem}
         modalOpened={props.modalOpened}
         handleModalClose={props.handleModalClose}
         name={props.name}

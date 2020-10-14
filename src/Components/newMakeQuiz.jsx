@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,7 +14,7 @@ import "fontsource-roboto";
 import PreviewContainer from "../Components/PreviewContainer";
 import Trashcan from "./Trashcan";
 import AlertMessage from "./AlertMessage";
-import { UsbOutlined } from "@material-ui/icons";
+import { deleteQuestion, quizSave } from "../Services/questionServices";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -25,16 +25,10 @@ const useStyles = makeStyles((theme) => ({
 
 function NewMakeQuiz(props) {
   const classes = useStyles();
-  const [slide, setSlide] = useState(false);
   const [questionOut, setQuestionOut] = useState(false);
   const [name, setName] = useState("");
-  const [addQuestion, setAddQuestion] = useState(false);
   const [hideName, setHideName] = useState("");
   const [currentIndex, setCurrentIndex] = useState(null);
-  const [tempName, setTempName] = useState("");
-  const [mcArray, setMcArray] = useState([]);
-  const [firstOut, setFirstOut] = useState(false);
-  const [authState, setAuthState] = useState(false);
   const [cantDelete, setCantDelete] = useState(false);
   const [modalOpened, setModalOpened] = useState(false);
   const [newDisplayArray, setNewDisplayArray] = useState([
@@ -60,6 +54,7 @@ function NewMakeQuiz(props) {
       pointWorth: null,
     },
   ]);
+
   const dropHappened = (selected, landed) => {
     const fixedArray = [...newDisplayArray];
     const moved = { ...fixedArray[selected] };
@@ -114,16 +109,11 @@ function NewMakeQuiz(props) {
   };
   const findQuestion = () => {
     const arrayCopy = [...newDisplayArray];
-    console.log(arrayCopy, "This is array copy in find question");
 
     if (currentIndex === null) {
-      console.log("current index equals null in find question");
       const questionInfo = arrayCopy[arrayCopy.length - 1];
-      console.log(questionInfo, "question info is not undefined");
       return questionInfo;
     }
-    console.log("got to the end of find question");
-    console.log(currentIndex, "this is the current index");
     return arrayCopy[currentIndex];
   };
   const changeItem = (key, change) => {
@@ -161,35 +151,6 @@ function NewMakeQuiz(props) {
       setNewDisplayArray(displayUpdate);
     }
     setQuestionOut(false);
-  };
-  const deleteQuestion = (index) => {
-    console.log(`Your current index is ${index}`);
-    let id = findQuestion().i;
-    let actualCurrentIndex;
-    let updatedArray = [...newDisplayArray];
-    for (var i = 0; i < updatedArray.length; i++) {
-      if (updatedArray[i].i === id) {
-        actualCurrentIndex = i;
-      }
-    }
-
-    console.log(`Actual current is ${actualCurrentIndex}`);
-    const testArray = [...updatedArray];
-    updatedArray.splice(index, 1);
-    if (actualCurrentIndex === index) {
-      console.log("actualcurr vs index is working correctly");
-      //Checks to see if question being viewed got deleted
-      if (updatedArray.length === 0) {
-        setCantDelete(true);
-      }
-      if (updatedArray[index - 1] !== undefined) {
-        updatedArray[index - 1].showAnswer = true;
-        setNewDisplayArray(updatedArray);
-        setCurrentIndex(index - 1);
-        return setQuestionOut(false);
-      }
-      return console.log("you'd have to go to the one before");
-    }
   };
 
   const insertQuestion = (item) => {
@@ -264,6 +225,7 @@ function NewMakeQuiz(props) {
           contentText={
             "If you'd like to change this question, please use the editing options available."
           }
+          buttonMessage="Accept"
         />
         <div
           style={{
@@ -284,6 +246,8 @@ function NewMakeQuiz(props) {
             return (
               <PreviewContainer
                 key={i}
+                name={name}
+                questionNumber={i + 1}
                 setIndex={setIndex}
                 dropHappened={dropHappened}
                 containerIndex={i}
@@ -293,7 +257,33 @@ function NewMakeQuiz(props) {
               />
             );
           })}
-          <Trashcan deleteQuestion={deleteQuestion} />
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Trashcan
+              deleteQuestion={deleteQuestion}
+              findQuestion={findQuestion}
+              newDisplayArray={newDisplayArray}
+              setCantDelete={setCantDelete}
+              setCurrentIndex={setCurrentIndex}
+              setQuestionOut={setQuestionOut}
+              setNewDisplayArray={setNewDisplayArray}
+              questionOut={questionOut}
+              name={name}
+            />
+            <Button
+              onClick={() => {
+                quizSave(props.signedInName, name, props);
+              }}
+              style={{ marginTop: "25em" }}
+            >
+              Save Quiz
+            </Button>
+          </div>
         </DndProvider>
       </div>
       <div className="question-content">
@@ -312,8 +302,10 @@ function NewMakeQuiz(props) {
         {hideName !== "" ? (
           questionOut === false ? (
             <NewQuestion
+              singleAnswer={findQuestion().singleAnswer}
               handleModalClose={handleModal}
               name={name}
+              selected={findQuestion().selected}
               payload={newDisplayArray}
               modalOpened={modalOpened}
               currentQuestion={findQuestion().question}
