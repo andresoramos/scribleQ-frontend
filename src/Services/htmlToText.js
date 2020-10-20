@@ -1,4 +1,7 @@
 export default function htmlToText(question) {
+  if(question === ""){
+    return null
+  }
   var xmlString = addSpace(question);
   var doc = new DOMParser().parseFromString(xmlString, "text/xml");
   const questionText = doc.firstChild.innerHTML;

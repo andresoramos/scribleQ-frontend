@@ -10,7 +10,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import htmlToText from "../Services/htmlToText";
 import DropDownMenu from "./dropDownMenu";
-import { marketSave } from "../Services/answerSave";
+import { marketSave, showMakers } from "../Services/answerSave";
+import DatePicker from "./DatePicker";
+import MyMarketQuizzes from './MyMarketQuizzes';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,7 +48,7 @@ function MarketForm(props) {
   const [charge, setCharge] = useState(false);
   const [tags, setTags] = useState("");
   const [number, setNumber] = useState(null);
-  const [dateObj, setDateObj] = useState("");
+  const [dateObj, setDateObj] = useState(new Date(Date.now()));
   const [date, setDate] = useState(false);
   const [questions, setQuestions] = useState(false);
   const [premium, setPremium] = useState(false);
@@ -68,6 +70,8 @@ function MarketForm(props) {
     "Psychology",
     "Other",
   ]);
+  const [submitted, setSubmitted] = useState(true)
+  const [duplicate, setDuplicate] = useState(false)
   const auth = async () => {
     const checked = await authenticateUserToken(localStorage.getItem("token"));
     setAllowed(checked ? true : false);
@@ -145,9 +149,11 @@ function MarketForm(props) {
     newOptions.shift();
     setOptions(newOptions);
   };
-  const changePremiumCost = (e, i) => {
+  const changePremiumCost = (e, index) => {
     const newPremiumCost = { ...premiumCost };
-    newPremiumCost[i + 1] = e.target.value;
+    //if you have to change this back, it was originally
+    // newPremiumCost[i + i], and index was i
+    newPremiumCost[index] = e.target.value;
     setPremiumCost(newPremiumCost);
   };
   const removeSpace = (word) => {
@@ -215,9 +221,29 @@ function MarketForm(props) {
   const questionArray = () => {
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const questions = quiz.quiz.questions;
+    for(var i = 0; i < questions.length; i++){
+      questions[i].order = i + 1;
+    }
     return questions;
   };
-
+  const hiddenOrPremium = (premCost, hideQuest, string)=>{
+    console.log(premCost, hideQuest, 'here are premcost and hidequest respectively')
+    let offLimits = []
+    if(string === 'hide'){
+      for(var key in premCost){
+        if(premCost[key]){
+          offLimits.push(Number(key) - 1)
+        }
+      }
+      return offLimits;
+    }
+    for(var key in hideQuest){
+      if(hideQuest[key] === true){
+        offLimits.push(Number(key) - 1)
+      }
+    }
+    return offLimits
+  }
   const handleFormChange = (e) => {
     const text = e.target.value;
     if (text.length < 201) {
@@ -228,17 +254,27 @@ function MarketForm(props) {
   const handleDate = () => {
     setDate(!date);
   };
-  const changeDateObj = (e) => {
-    const expDate = e.target.value;
-    setDateObj(expDate);
+  const changeDateObj = (date) => {
+    setDateObj(date);
   };
   const handleChosenPremium = (index) => {
+
     const fixed = { ...chosenPremium };
     if (fixed[index] === undefined) {
       fixed[index] = true;
       return setChosenPremium(fixed);
     }
     fixed[index] = !fixed[index];
+    if(fixed[index] === false && premiumCost[index] !== undefined){
+      const newPremCost = {...premiumCost};
+      for(var key in newPremCost){
+
+        if(Number(key) === index){
+          delete newPremCost[key];
+        }
+      }
+      setPremiumCost(newPremCost);
+    }
     return setChosenPremium(fixed);
   };
 
@@ -247,7 +283,7 @@ function MarketForm(props) {
     const finalObj = {};
     const searchTags = prepareTags(tags);
     finalObj.searchTags = searchTags;
-    finalObj._id = quiz.quiz._id;
+    finalObj.makerId = quiz.quiz._id;
     finalObj.nsfw = checkBox;
     finalObj.description = form;
     finalObj.hiddenQuestions = hide
@@ -262,36 +298,39 @@ function MarketForm(props) {
       options[selectedIndex] === "Click here to select a topic"
         ? null
         : options[selectedIndex];
+        console.log(finalObj, "this is your final obj")
+
     const saved = await marketSave(finalObj);
-    console.log(saved, "This is what saved got us");
+    setSubmitted(true)
+    if(saved.data === "This quiz already exists."){
+      setDuplicate(true);
+      setTimeout(()=>{
+        props.history.push("/")
+      },2000)
+
+    }
+
   };
 
-  // const mappedHidden = questionArray().map((item, i) => {
-  //   var xmlString = item.question;
-  //   var doc = new DOMParser().parseFromString(xmlString, "text/xml");
-  //   const questionText = doc.firstChild.innerHTML;
-  //   return (
-  //     <FormControlLabel
-  //       key={i}
-  //       control={
-  //         <Checkbox
-  //           checked={hiddenCheck[i] !== undefined ? hiddenCheck[i] : false}
-  //           onChange={() => {
-  //             setHiddenCheck(i);
-  //           }}
-  //           name="premiumCheck"
-  //           color="primary"
-  //         />
-  //       }
-  //       label={`${i + 1}) Question Text: ${questionText}`}
-  //     />
-  //   );
-  // });
+  
   const mappedPremium = (string) => {
-    return questionArray().map((item, i) => {
-      const premium = chosenPremium[i] !== undefined ? chosenPremium[i] : false;
+    const offLimits = hiddenOrPremium(premiumCost, hideQuestions, string);
+
+    const questions = questionArray();
+    
+    let clearedQuestions = [];
+    for(var i = 0; i < questions.length; i++){
+      if(offLimits.includes(i) === false){
+        clearedQuestions.push(questions[i])
+      }
+    }
+    // console.log(`THE LENGTH OF CLEARED QUESTIONS IS ${clearedQuestions.length}`)
+    return clearedQuestions.map((item, i) => {
+      // console.log(item, i, 'this is chosen premium followed by i')
+      // console.log(hideQuestions, i, 'this is hidden followed by i')
+      const premium = chosenPremium[item.order] !== undefined ? chosenPremium[item.order] : false;
       const hide =
-        hideQuestions[i + 1] !== undefined ? hideQuestions[i + 1] : false;
+        hideQuestions[item.order] !== undefined ? hideQuestions[item.order] : false;
       return (
         <div style={{ display: "flex", flexDirection: "row" }}>
           <FormControlLabel
@@ -303,27 +342,28 @@ function MarketForm(props) {
                   if (string === "hide") {
                     const newHideQuestions = { ...hideQuestions };
 
-                    newHideQuestions[i + 1] === undefined
-                      ? (newHideQuestions[i + 1] = true)
-                      : (newHideQuestions[i + 1] = !newHideQuestions[i + 1]);
+                    newHideQuestions[item.order] === undefined
+                      ? (newHideQuestions[item.order] = true)
+                      : (newHideQuestions[item.order] = !newHideQuestions[item.order]);
                     return setHideQuestions(newHideQuestions);
                   }
 
-                  handleChosenPremium(i);
+                  handleChosenPremium(item.order);
                 }}
                 name="premiumCheck"
                 color="primary"
               />
             }
-            label={`${i + 1}) Question Text: ${htmlToText(item.question)}`}
+            
+          label={htmlToText(item.question) !== null ? `${item.order}) Question Text: ${htmlToText(item.question)}`: <span style={{ fontStyle: 'italic' }}>{`${item.order}) No question text provided.`}</span>}
           />
-          {chosenPremium[i] && string === undefined ? (
+          {chosenPremium[item.order] && string === undefined ? (
             <TextField
               label="Price in Scribloons"
-              value={premiumCost[i + 1]}
+              value={premiumCost[item.order]}
               type="number"
               onChange={(e) => {
-                changePremiumCost(e, i);
+                changePremiumCost(e, item.order);
               }}
               InputLabelProps={{
                 shrink: true,
@@ -335,8 +375,10 @@ function MarketForm(props) {
       );
     });
   };
+  
 
-  return allowed === null ? null : allowed === true ? (
+  return allowed === null ? null : allowed === true ? submitted ? duplicate === true ? <div>This Quiz has already been sent to the market</div> : 
+  <MyMarketQuizzes description="Select from the menu below to view the quizzes you've contributed to the marketplace." title="Quizzes on the market"/> :(
     <div className={classes.root}>
       <h1>Prepare your quiz for the marketplace</h1>
       <form className={classes.form} noValidate autoComplete="off">
@@ -429,12 +471,13 @@ function MarketForm(props) {
             label="Add expiration date"
           />
           {date && (
-            <TextField
-              id="standard-helperText"
-              onChange={changeDateObj}
-              type="date"
-              helperText={`Expiration Date`}
-            />
+            <DatePicker selectedDate={dateObj} setSelectedDate={changeDateObj} />
+            // <TextField
+            //   id="standard-helperText"
+            //   onChange={changeDateObj}
+            //   type="date"
+            //   helperText={`Expiration Date`}
+            // />
           )}
           <div style={{ width: "30%" }}>
             <DropDownMenu
@@ -477,6 +520,7 @@ function MarketForm(props) {
           Save
         </Button>
       </Dialog>
+      <Button onClick={showMakers} >Format Database</Button>
     </div>
   ) : null;
 }

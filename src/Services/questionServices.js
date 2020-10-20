@@ -72,7 +72,8 @@ export const deleteQuestion = (
 };
 
 export const quizSave = async (signedInName, name, props) => {
-  const email = decode(localStorage.getItem("token")).email;
+  const {email} = decode(localStorage.getItem("token"))
+  const user = decode(localStorage.getItem('token'))
   const payload = { user: signedInName, name: name, email };
   await saveQuiz(payload, props);
 };
