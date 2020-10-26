@@ -1,10 +1,10 @@
 import axios from "axios";
 import getQuizzes from "./getQuizzes";
-import decode from 'jwt-decode'
+import decode from "jwt-decode";
 
 export async function answerSave(payload) {
   try {
-    const correctedPayload = {...payload};
+    const correctedPayload = { ...payload };
     const creatorId = decode(localStorage.getItem("token"))._id;
     correctedPayload.creatorId = creatorId;
     const saved = await axios.post(
@@ -28,8 +28,8 @@ export async function checkEdit(index) {
 }
 export async function showMakers() {
   const quizArray = await axios.get("http://localhost:5000/api/market");
-  console.log(quizArray.data)
-  return quizArray.data
+  console.log(quizArray.data);
+  return quizArray.data;
 }
 export async function marketSave(payload) {
   try {
@@ -38,10 +38,21 @@ export async function marketSave(payload) {
   } catch (error) {
     console.log(
       `You had the following error in marketSave from answerSave in services: ${error}`
-      );
-      return error.response
+    );
+    return error.response;
   }
 }
+export const marketUpdate = async (payload) => {
+  try {
+    const marketItem = await axios.post("/api/market/updateMarket", {
+      payload,
+    });
+  } catch (error) {
+    console.log(
+      `Your error in marketUpdate from answerSave.js is the following: ${error.response}`
+    );
+  }
+};
 
 export async function saveQuiz(payload, props) {
   try {

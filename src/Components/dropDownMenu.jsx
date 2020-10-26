@@ -12,41 +12,33 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// const options = [
-//   "Science",
-//   "Math",
-//   "History",
-//   "Social Studies",
-//   "Music/Art",
-//   "Psychology",
-//   "Other",
-// ];
-
 //Finish making it so that once the user picks a topic for their quiz,
 //They're able to then send it off to the market place.
 export default function DropDownMenu(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(1);
+  // const [selectedIndex, setSelectedIndex] = useState(1);
 
   const handleClickListItem = (event) => {
-    if (props.options[0] !== "Science") {
-      props.firstClick();
+    if (props.firstClick) {
+      if (props.options[0] !== "Science") {
+        props.firstClick();
+      }
     }
     setAnchorEl(event.currentTarget);
   };
 
   const handleMenuItemClick = (event, index) => {
-    console.log("2 ran");
     props.setSelectedIndex(index);
+    if (props.createRow) {
+      props.createRow(index);
+    }
     setAnchorEl(null);
   };
 
   const handleClose = () => {
-    console.log("3 ran");
     setAnchorEl(null);
   };
-
   return (
     <div className={classes.root}>
       <List component="nav" aria-label="Device settings">
@@ -54,11 +46,19 @@ export default function DropDownMenu(props) {
           button
           aria-haspopup="true"
           aria-controls="lock-menu"
-          aria-label="Which category best matches your quiz?"
+          aria-label={
+            props.general === true
+              ? props.message
+              : "Which category best matches your quiz?"
+          }
           onClick={handleClickListItem}
         >
           <ListItemText
-            primary="Which category best matches your quiz?"
+            primary={
+              props.general === true
+                ? props.message
+                : "Which category best matches your quiz?"
+            }
             secondary={props.options[props.selectedIndex]}
           />
         </ListItem>
