@@ -29,7 +29,7 @@ export default function DropDownMenu(props) {
   };
 
   const handleMenuItemClick = (event, index) => {
-    props.setSelectedIndex(index);
+    props.setSelectedIndex("selectedIndex", index);
     if (props.createRow) {
       props.createRow(index);
     }

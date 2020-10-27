@@ -10,38 +10,12 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import htmlToText from "../Services/htmlToText";
 import DropDownMenu from "./dropDownMenu";
-import { showMakers, marketUpdate } from "../Services/answerSave";
+import { marketSave, showMakers, marketUpdate } from "../Services/answerSave";
 import DatePicker from "./DatePicker";
 import MyMarketQuizzes from "./MyMarketQuizzes";
 
-// const emptyForm = {
-//   edit: "",
-//   allowed: "",
-//   checkBox: "",
-//   charge: "",
-//   tags: "",
-//   number: "",
-//   dateObj: "",
-//   date: "",
-//   questions: "",
-//   premium: "",
-//   chosenPremium: "",
-//   hidden: "",
-//   hide: "",
-//   hiddenCheck: "",
-//   form: "",
-//   premiumCost: "",
-//   hideQuestions: "",
-//   selectedIndex: "",
-//   options: "",
-// };
-
 const useStyles = makeStyles((theme) => ({
   root: {
-    // "& .MuiTextField-root": {
-    //   margin: theme.spacing(1),
-    //   width: "25ch",
-    // },
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -97,36 +71,7 @@ function MarketForm(props) {
     submitted: false,
     duplicate: false,
   });
-  // const [edit, setEdit] = useState(false);
   const [allowed, setAllowed] = useState(null);
-  const [checkBox, setCheckBox] = useState(false);
-  // const [charge, setCharge] = useState(false);
-  // const [tags, setTags] = useState("");
-  // const [number, setNumber] = useState(null);
-  const [dateObj, setDateObj] = useState(new Date(Date.now()));
-  const [date, setDate] = useState(false);
-  // const [questions, setQuestions] = useState(false);
-  // const [premium, setPremium] = useState(false);
-  // const [chosenPremium, setChosenPremium] = useState({});
-  // const [hidden, setHidden] = useState(false);
-  // const [hide, setHide] = useState(false);
-  const [hiddenCheck, setHiddenCheck] = useState({});
-  const [form, setForm] = useState("");
-  // const [premiumCost, setPremiumCost] = useState({});
-  const [hideQuestions, setHideQuestions] = useState({});
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  // const [options, setOptions] = useState([
-  //   "Click here to select a topic",
-  //   "Science",
-  //   "Math",
-  //   "History",
-  //   "Social Studies",
-  //   "Music/Art",
-  //   "Psychology",
-  //   "Other",
-  // ]);
-  const [submitted, setSubmitted] = useState(false);
-  const [duplicate, setDuplicate] = useState(false);
 
   useEffect(() => {
     authenticateUserToken(localStorage.getItem("token"))
@@ -139,10 +84,11 @@ function MarketForm(props) {
   }, []);
 
   const handleCheck = () => {
-    setCheckBox(!checkBox);
+    updateFormStateProperty("checkBox", !formState.checkBox);
   };
 
   const updateFormStateProperties = (keys, values) => {
+    console.log("updating properties is running");
     if (keys.length !== values.length) {
       new Error(
         "there was an error in updateFormStateProperties. Array lengths did not match."
@@ -228,15 +174,12 @@ function MarketForm(props) {
     const newOptions = [...formState.options];
     newOptions.shift();
     updateFormStateProperty("options", newOptions);
-    // setOptions(newOptions);
   };
   const changePremiumCost = (e, index) => {
     const newPremiumCost = { ...formState.premiumCost };
-    //if you have to change this back, it was originally
-    // newPremiumCost[i + i], and index was i
+
     newPremiumCost[index] = e.target.value;
     updateFormStateProperty("premiumCost", newPremiumCost);
-    // setPremiumCost(newPremiumCost);
   };
   const removeSpace = (word) => {
     let stopPoint;
@@ -256,39 +199,30 @@ function MarketForm(props) {
   const changeTags = (e) => {
     const value = e.target.value;
     updateFormStateProperty("tags", value);
-    // setTags(value);
   };
   const changeNumber = (e) => {
     const value = e.target.value;
     updateFormStateProperty("number", value);
-    // setNumber(value);
   };
   const handleHide = () => {
-    if (formState.hide && formState.hidden) {
+    console.log("hadle hide is running");
+    if (!formState.hide && !formState.hidden) {
       return updateFormStateProperties(
         ["hide", "hidden"],
         [!formState.hide, !formState.hidden]
       );
-      // setHide(!hide);
-      // return setHidden(!hidden);
     }
     if (formState.hide && formState.hidden) {
       return updateFormStateProperties(
         ["hide", "hidden"],
         [!formState.hide, !formState.hidden]
       );
-      // setHide(!hide);
-      // return setHidden(!hidden);
     }
     if (formState.hide && !formState.hidden) {
       return updateFormStateProperty("hide", !formState.hide);
-      // return setHide(!hide);
     }
   };
-  // const changeCharge = () => {
-  //   updateFormStateProperty("charge", !formState.charge);
-  //   // setCharge(!charge);
-  // };
+
   const changePremium = () => {
     if (!formState.premium) {
       return updateFormStateProperties(
@@ -297,7 +231,6 @@ function MarketForm(props) {
       );
     }
     updateFormStateProperty("premium", !formState.premium);
-    // setPremium(!premium);
   };
   const handleDialogClose = () => {
     const newChosenPremium = { ...formState.chosenPremium };
@@ -313,19 +246,14 @@ function MarketForm(props) {
         ["premium", "setChosenPremium", "questions"],
         [false, finalChosenPremium, false]
       );
-      // setPremium(false);
     }
     return updateFormStateProperties(
       ["chosenPremium", "questions"],
       [finalChosenPremium, false]
     );
-    // setChosenPremium(finalChosenPremium);
-    // setQuestions(false);
-    //FIX QUESTIONS AND CHOSEN PREMIUM!!!!
   };
   const handleHiddenClose = () => {
     updateFormStateProperty("hidden", !formState.hidden);
-    // setHidden(!hidden);
   };
   const questionArray = () => {
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
@@ -356,15 +284,15 @@ function MarketForm(props) {
   const handleFormChange = (e) => {
     const text = e.target.value;
     if (text.length < 201) {
-      return setForm(text);
+      return updateFormStateProperty("form", text);
     }
     return;
   };
   const handleDate = () => {
-    setDate(!date);
+    updateFormStateProperty("date", !formState.date);
   };
   const changeDateObj = (date) => {
-    setDateObj(date);
+    updateFormStateProperty("dateObj", date);
   };
   const handleChosenPremium = (index) => {
     const fixed = { ...formState.chosenPremium };
@@ -384,7 +312,6 @@ function MarketForm(props) {
         ["premiumCost", "chosenPremium"],
         [newPremCost, fixed]
       );
-      // setPremiumCost(newPremCost);
     }
     return updateFormStateProperty("chosenPremium", fixed);
   };
@@ -395,118 +322,73 @@ function MarketForm(props) {
     const searchTags = prepareTags(formState.tags);
     finalObj.searchTags = searchTags;
     finalObj.makerId = quiz.quiz._id;
-    finalObj.nsfw = checkBox;
-    finalObj.description = form;
+    finalObj.nsfw = formState.checkBox;
+    finalObj.description = formState.form;
     finalObj.hiddenQuestions = formState.hide
-      ? JSON.stringify(hideQuestions) !== JSON.stringify({})
-        ? hideQuestions
+      ? JSON.stringify(formState.hideQuestions) !== JSON.stringify({})
+        ? formState.hideQuestions
         : null
       : null;
     finalObj.premiumQuestions = formState.premium
       ? formState.premiumCost
       : null;
-    finalObj.expirationDate = date ? dateObj : null;
+    finalObj.expirationDate = formState.date ? formState.dateObj : null;
     finalObj.cost = formState.charge ? formState.number : null;
     finalObj.subject =
-      formState.options[selectedIndex] === "Click here to select a topic"
+      formState.options[formState.selectedIndex] ===
+      "Click here to select a topic"
         ? null
-        : formState.options[selectedIndex];
+        : formState.options[formState.selectedIndex];
     finalObj.history = {
       allowed: allowed,
-      checkBox,
+      checkBox: formState.checkBox,
       charge: formState.charge,
       tags: formState.tags,
       number: formState.number,
-      dateObj,
-      date,
+      dateObj: formState.dateObj,
+      date: formState.date,
       questions: formState.questions,
       premium: formState.premium,
       chosenPremium: formState.chosenPremium,
       hidden: formState.hidden,
       hide: formState.hide,
-      hiddenCheck,
-      form,
+      hiddenCheck: formState.hiddenCheck,
+      form: formState.form,
       premiumCost: formState.premiumCost,
-      hideQuestions,
-      selectedIndex,
+      hideQuestions: formState.hideQuestions,
+      selectedIndex: formState.selectedIndex,
       options: formState.options,
-      submitted,
-      duplicate,
+      submitted: formState.submitted,
+      duplicate: formState.duplicate,
     };
-    console.log(finalObj, "this is your final obj");
+    console.log(finalObj, "this was the final object sent out");
     if (formState.edit) {
+      //When you get back to this, make it so it can finally save the edits and
+      //the deletes
       const updated = await marketUpdate(finalObj);
       console.log("DELETE ME", updated);
       return;
     }
-    // const saved = await marketSave(finalObj);
-    // setSubmitted(true);
-    // setEdit(false);
-    // if (saved.data === "This quiz already exists.") {
-    //   setDuplicate(true);
-    //   setTimeout(() => {
-    //     props.history.push("/");
-    //   }, 2000);
-    // }
+    const saved = await marketSave(finalObj);
+    updateFormStateProperties(["submitted", "edit"], [true, false]);
+
+    if (saved.data === "This quiz already exists.") {
+      updateFormStateProperty("duplicate", true);
+      // setDuplicate(true);
+      setTimeout(() => {
+        props.history.push("/");
+      }, 2000);
+    }
   };
 
   const restoreHistory = (histObj) => {
-    console.log("we've entered restore history");
-    // setAllowed(histObj.allowed);
-    setCheckBox(histObj.checkBox);
-    // setCharge(histObj.charge);
-    // setTags(histObj.tags);
-    // setNumber(histObj.number);
-    setDateObj(histObj.dateObj);
-    setDate(histObj.date);
-    // setQuestions(histObj.questions);
-    // setPremium(histObj.premium);
-    // setChosenPremium(histObj.chosenPremium);
-    // setHidden(histObj.hidden);
-    // setHide(histObj.hide);
-    setHiddenCheck(histObj.hiddenCheck);
-    setForm(histObj.form);
-    // setPremiumCost(histObj.premiumCost);
-    setHideQuestions(histObj.hideQuestions);
-    setSelectedIndex(histObj.selectedIndex);
-    // setOptions(histObj.options);
-    setSubmitted(histObj.submitted);
-    setDuplicate(histObj.duplicate);
+    setFormState(histObj);
   };
-  // const [allowed, setAllowed] = useState(null);
-  // const [checkBox, setCheckBox] = useState(false);
-  // const [charge, setCharge] = useState(false);
-  // const [tags, setTags] = useState("");
-  // const [number, setNumber] = useState(null);
-  // const [dateObj, setDateObj] = useState(new Date(Date.now()));
-  // const [date, setDate] = useState(false);
-  // const [questions, setQuestions] = useState(false);
-  // const [premium, setPremium] = useState(false);
-  // const [chosenPremium, setChosenPremium] = useState({});
-  // const [hidden, setHidden] = useState(false);
-  // const [hide, setHide] = useState(false);
-  // const [hiddenCheck, setHiddenCheck] = useState({});
-  // const [form, setForm] = useState("");
-  // const [premiumCost, setPremiumCost] = useState({});
-  // const [hideQuestions, setHideQuestions] = useState({});
-  // const [selectedIndex, setSelectedIndex] = useState(0);
-  // const [options, setOptions] = useState([
-  //   "Click here to select a topic",
-  //   "Science",
-  //   "Math",
-  //   "History",
-  //   "Social Studies",
-  //   "Music/Art",
-  //   "Psychology",
-  //   "Other",
-  // ]);
-  // const [submitted, setSubmitted] = useState(true);
-  // const [duplicate, setDuplicate] = useState(false);
 
   const mappedPremium = (string) => {
     const offLimits = hiddenOrPremium(
       formState.premiumCost,
-      hideQuestions,
+      formState.hideQuestions,
       string
     );
 
@@ -518,17 +400,23 @@ function MarketForm(props) {
         clearedQuestions.push(questions[i]);
       }
     }
-    // console.log(`THE LENGTH OF CLEARED QUESTIONS IS ${clearedQuestions.length}`)
     return clearedQuestions.map((item, i) => {
-      // console.log(item, i, 'this is chosen premium followed by i')
-      // console.log(hideQuestions, i, 'this is hidden followed by i')
+      if (
+        formState.chosenPremium === undefined ||
+        formState.hideQuestions === undefined
+      ) {
+        console.log(
+          "We found a point in which the form state is undefined somehow"
+        );
+        return null;
+      }
       const premium =
         formState.chosenPremium[item.order] !== undefined
           ? formState.chosenPremium[item.order]
           : false;
       const hide =
-        hideQuestions[item.order] !== undefined
-          ? hideQuestions[item.order]
+        formState.hideQuestions[item.order] !== undefined
+          ? formState.hideQuestions[item.order]
           : false;
       return (
         <div key={i} style={{ display: "flex", flexDirection: "row" }}>
@@ -538,14 +426,17 @@ function MarketForm(props) {
                 checked={string === "hide" ? hide : premium}
                 onChange={() => {
                   if (string === "hide") {
-                    const newHideQuestions = { ...hideQuestions };
+                    const newHideQuestions = { ...formState.hideQuestions };
 
                     newHideQuestions[item.order] === undefined
                       ? (newHideQuestions[item.order] = true)
                       : (newHideQuestions[item.order] = !newHideQuestions[
                           item.order
                         ]);
-                    return setHideQuestions(newHideQuestions);
+                    return updateFormStateProperty(
+                      "hideQuestions",
+                      newHideQuestions
+                    );
                   }
 
                   handleChosenPremium(item.order);
@@ -591,8 +482,8 @@ function MarketForm(props) {
     return null;
   }
 
-  return submitted ? (
-    duplicate === true ? (
+  return formState.submitted ? (
+    formState.duplicate === true ? (
       <div>This Quiz has already been sent to the market</div>
     ) : (
       <MyMarketQuizzes
@@ -600,7 +491,7 @@ function MarketForm(props) {
         restoreHistory={restoreHistory}
         description="Select from the menu below to view the quizzes you've contributed to the marketplace."
         title="Quizzes on the market"
-        setSubmitted={setSubmitted}
+        updateFormStateProperties={updateFormStateProperties}
         setEdit={updateFormStateProperty}
       />
     )
@@ -612,7 +503,7 @@ function MarketForm(props) {
           <FormControlLabel
             control={
               <Checkbox
-                checked={checkBox}
+                checked={formState.checkBox}
                 onChange={handleCheck}
                 name="checkedB"
                 color="primary"
@@ -672,7 +563,7 @@ function MarketForm(props) {
             multiline
             rows={4}
             variant="outlined"
-            value={form}
+            value={formState.form}
             onChange={handleFormChange}
           />
           <FormControlLabel
@@ -689,7 +580,7 @@ function MarketForm(props) {
           <FormControlLabel
             control={
               <Checkbox
-                checked={date}
+                checked={formState.date}
                 onChange={handleDate}
                 name="dateCheck"
                 color="primary"
@@ -697,9 +588,9 @@ function MarketForm(props) {
             }
             label="Add expiration date"
           />
-          {date && (
+          {formState.date && (
             <DatePicker
-              selectedDate={dateObj}
+              selectedDate={formState.dateObj}
               setSelectedDate={changeDateObj}
             />
             // <TextField
@@ -712,8 +603,8 @@ function MarketForm(props) {
           <div style={{ width: "30%" }}>
             <DropDownMenu
               firstClick={firstClick}
-              setSelectedIndex={setSelectedIndex}
-              selectedIndex={selectedIndex}
+              setSelectedIndex={updateFormStateProperty}
+              selectedIndex={formState.selectedIndex}
               options={formState.options}
             />
           </div>

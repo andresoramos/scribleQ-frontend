@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import decode from "jwt-decode";
 export function findQuiz(str, i) {
   const obj = JSON.parse(str);
   const iParsed = JSON.parse(i);
@@ -23,13 +23,20 @@ export const findAllMarkets = async (userId) => {
   return marketObjArray.data;
 };
 
-export const findMarketHistory = async () => {
+const findMarketObjByName = async (name, userId) => {
+  const marketByName = await axios.post("/api/market/findMarketByName", {
+    name,
+    userId,
+  });
+  return marketByName.data;
+};
+
+export const findMarketHistory = async (name) => {
   try {
-    console.log("entering findMarketHistory");
-    const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
-    const marketObj = await findMarketObj(quiz.quiz._id);
-    const history = { ...marketObj.history };
-    return history;
+    const user = decode(localStorage.getItem("token"));
+
+    const marketObj = await findMarketObjByName(name, user._id);
+    return marketObj;
   } catch (error) {
     console.log(
       `This is the error from FindMarketHistory in findQuiz.js: ${error.response}`

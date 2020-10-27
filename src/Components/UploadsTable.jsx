@@ -102,9 +102,9 @@ const useStyles = makeStyles((theme) => ({
 export default function UploadsTable(props) {
   const classes = useStyles();
 
-  if (props.rows.length === 0) {
-    props.createRow(0);
-  }
+  // if (props.rows.length === 0) {
+  //   props.createRow(0);
+  // }
 
   return (
     <div className={classes.root}>
@@ -137,14 +137,25 @@ export default function UploadsTable(props) {
                     <TableCell align="right">
                       {row.edit ? (
                         <Checkbox
-                          onClick={() => {
-                            props.setEdit("edit", true);
-                            props.setSubmitted(false);
-                            // const history = await findMarketHistory();
-                            // props.restoreHistory(history);
+                          onClick={async () => {
+                            const historyObj = await findMarketHistory(
+                              row.name
+                            );
+                            if (!historyObj) {
+                              return;
+                            }
+                            const history = { ...historyObj.history };
+                            history.edit = true;
+                            history.submitted = false;
+                            console.log(history, "this is the history object");
+
+                            // props.updateFormStateProperties(
+                            //   ["edit", "submitted"],
+                            //   [true, false]
+                            // );
+
+                            props.restoreHistory(history);
                           }}
-                          // checked={isItemSelected}
-                          // inputProps={{ "aria-labelledby": labelId }}
                         />
                       ) : null}
                     </TableCell>

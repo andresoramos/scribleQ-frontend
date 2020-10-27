@@ -158,12 +158,12 @@ export default function MyMarketQuizzes(props) {
       </div>
       <div>
         <UploadsTable
-          setSubmitted={props.setSubmitted}
           quizArray={JSON.parse(localStorage.getItem("marketQuizzes"))}
           currentQuiz={allMarkets[selectedIndex]}
           createRow={createRow}
           restoreHistory={props.restoreHistory}
           setEdit={props.setEdit}
+          updateFormStateProperties={props.updateFormStateProperties}
           rows={row}
           selectedIndex={selectedIndex}
           currentName={
