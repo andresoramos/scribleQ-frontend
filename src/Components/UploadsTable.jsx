@@ -141,13 +141,16 @@ export default function UploadsTable(props) {
                             const historyObj = await findMarketHistory(
                               row.name
                             );
+
                             if (!historyObj) {
                               return;
                             }
-                            const history = { ...historyObj.history };
+                            const history = {
+                              ...historyObj.history,
+                              _id: historyObj._id,
+                            };
                             history.edit = true;
                             history.submitted = false;
-                            console.log(history, "this is the history object");
 
                             // props.updateFormStateProperties(
                             //   ["edit", "submitted"],

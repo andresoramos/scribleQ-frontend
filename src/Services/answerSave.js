@@ -42,10 +42,11 @@ export async function marketSave(payload) {
     return error.response;
   }
 }
-export const marketUpdate = async (payload) => {
+export const marketUpdate = async (payload, quizId) => {
+  const newPayload = { ...payload, quizId };
   try {
     const marketItem = await axios.post("/api/market/updateMarket", {
-      payload,
+      newPayload,
     });
   } catch (error) {
     console.log(

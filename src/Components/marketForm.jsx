@@ -68,7 +68,7 @@ function MarketForm(props) {
       "Psychology",
       "Other",
     ],
-    submitted: false,
+    submitted: true,
     duplicate: false,
   });
   const [allowed, setAllowed] = useState(null);
@@ -361,12 +361,12 @@ function MarketForm(props) {
       submitted: formState.submitted,
       duplicate: formState.duplicate,
     };
-    console.log(finalObj, "this was the final object sent out");
     if (formState.edit) {
       //When you get back to this, make it so it can finally save the edits and
       //the deletes
-      const updated = await marketUpdate(finalObj);
-      console.log("DELETE ME", updated);
+
+      const updated = await marketUpdate(finalObj, formState._id);
+      // console.log("DELETE ME", updated);
       return;
     }
     const saved = await marketSave(finalObj);
