@@ -16,8 +16,10 @@ import Analytics from "./Components/Analytics";
 import Upload from "./Components/Upload";
 import MarketForm from "./Components/marketForm";
 import NewMakeQuiz from "./Components/newMakeQuiz";
+import ProtectedRoute from "./Components/ProtectedRoute";
+import MarketPerformance from "./Components/MarketPerformance";
 
-function App() {
+function App(props) {
   const [signedInName, setSignedInName] = useState(
     localStorage.getItem("name")
   );
@@ -25,7 +27,6 @@ function App() {
   const [location, setLocation] = useState("");
   const [quizScore, setQuizScore] = useState({});
   const [currentName, setCurrentName] = useState("");
-
   const setName = (name) => {
     const token = localStorage.getItem("token");
 
@@ -79,6 +80,10 @@ function App() {
             );
           }}
         />
+        <ProtectedRoute
+          path="/marketPerformance"
+          component={(props) => <MarketPerformance {...props} />}
+        />
         <Route
           path="/seeScore"
           render={(props) => {
@@ -91,6 +96,7 @@ function App() {
             );
           }}
         />
+
         <Route
           path="/analytics"
           render={(props) => {

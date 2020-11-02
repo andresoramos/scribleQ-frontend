@@ -36,6 +36,7 @@ export const findMarketHistory = async (name) => {
     const user = decode(localStorage.getItem("token"));
 
     const marketObj = await findMarketObjByName(name, user._id);
+    console.log(name, marketObj, "THIS IS THE MARKET OBJ FINDMARKETHISTORY");
     return marketObj;
   } catch (error) {
     console.log(

@@ -382,6 +382,7 @@ function MarketForm(props) {
   };
 
   const restoreHistory = (histObj) => {
+    console.log(histObj, "RESTORE HISTORY IS BEING RUN WITH THIS OBJECT");
     setFormState(histObj);
   };
 

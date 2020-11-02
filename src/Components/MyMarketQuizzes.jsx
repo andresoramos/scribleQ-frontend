@@ -54,7 +54,7 @@ export default function MyMarketQuizzes(props) {
         createRow(0);
       }, 0);
     }
-  });
+  }, []);
   // const assignCurrentQuiz = async () => {
   //   const quizzes = JSON.parse(localStorage.getItem("marketQuizzes"));
   //   const selectedMatch = quizzes[selectedIndex]._id;

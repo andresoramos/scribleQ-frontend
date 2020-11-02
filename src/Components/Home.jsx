@@ -11,14 +11,13 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
-import ListItem from "@material-ui/core/ListItem";
-import SendIcon from "@material-ui/icons/Send";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import getQuizzes from "./../Services/getQuizzes";
 import MenuIcon from "@material-ui/icons/Menu";
 import { createDate } from "./../Services/createDate";
 import deleteArrayItem from "./../Services/deleteArrayItem";
 import quizByName from "../Services/quizByName";
+import { findMarketHistory } from "./../Services/findQuiz";
 
 const useStyles = makeStyles((theme) => ({
   menu: { position: "absolute", marginTop: 7, cursor: "pointer" },
@@ -46,6 +45,7 @@ export const Home = (props) => {
   const classes = useStyles();
   const [quizArray, setQuizArray] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [currentMarket, setCurrentMarket] = useState(false);
 
   useEffect(() => {
     async function populateQuizArray() {
@@ -85,6 +85,7 @@ export const Home = (props) => {
     window.location = "/";
   };
   const handleStatClose = () => {
+    setCurrentMarket(false);
     setAnchorEl(null);
   };
 
@@ -166,10 +167,13 @@ export const Home = (props) => {
             <Button
               aria-controls="customized-menu"
               aria-haspopup="true"
-              onClick={(e) => {
+              onClick={async (e) => {
                 props.iValueIs(i);
-
                 handleStatClick(e, item.name);
+                const currentMarket = await findMarketHistory(item.name);
+                if (currentMarket) {
+                  setCurrentMarket(true);
+                }
               }}
               component={MenuIcon}
             />
@@ -233,17 +237,67 @@ export const Home = (props) => {
               flexDirection: "column",
             }}
           >
-            <MenuItem
-              onClick={() => {
-                const userAccount = JSON.parse(localStorage.getItem("account"));
-                const quiz = quizByName(userAccount, props.currentName);
-                localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+            {!currentMarket ? (
+              <MenuItem
+                onClick={async () => {
+                  const userAccount = JSON.parse(
+                    localStorage.getItem("account")
+                  );
+                  const quiz = quizByName(userAccount, props.currentName);
+                  // const currentMarket = await findMarketHistory(
+                  //   props.currentName
+                  // );
 
-                props.history.push("/marketForm");
-              }}
-            >
-              {`Send ${props.currentName} to the market`}
-            </MenuItem>
+                  localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+
+                  // props.history.push("/marketForm");
+                }}
+              >
+                {`Send ${props.currentName} to the market`}
+              </MenuItem>
+            ) : (
+              <div>
+                <MenuItem
+                  onClick={async () => {
+                    const currentMarket = await findMarketHistory(
+                      props.currentName
+                    );
+
+                    localStorage.setItem(
+                      "marketObj",
+                      JSON.stringify(currentMarket)
+                    );
+
+                    props.history.push("/marketPerformance");
+                  }}
+                >
+                  {`See ${props.currentName}${
+                    props.currentName[
+                      props.currentName.length - 1
+                    ].toLowerCase() === "s"
+                      ? "'"
+                      : "'s"
+                  } performance in the marketplace.`}
+                </MenuItem>
+                <MenuItem
+                  onClick={async () => {
+                    const userAccount = JSON.parse(
+                      localStorage.getItem("account")
+                    );
+                    const quiz = quizByName(userAccount, props.currentName);
+                    // const currentMarket = await findMarketHistory(
+                    //   props.currentName
+                    // );
+
+                    localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+
+                    // props.history.push("/marketForm");
+                  }}
+                >
+                  {`Edit market properties for ${props.currentName}.`}
+                </MenuItem>
+              </div>
+            )}
             <MenuItem
               onClick={() => {
                 props.history.push("/analytics");
