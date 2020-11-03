@@ -10,4 +10,9 @@ async function getSelectedQuiz(id, index, email) {
   }
 }
 
+export const getQuizById = async (quizId) => {
+  const returnedQuiz = await axios.post("/api/quizzes/quizById", { quizId });
+
+  return returnedQuiz.data;
+};
 export default getSelectedQuiz;

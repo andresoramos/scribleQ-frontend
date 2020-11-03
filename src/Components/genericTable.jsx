@@ -31,7 +31,7 @@ export default function GenericTable(props) {
       );
     });
   };
-
+  console.log(props.rows, "this is props.rows");
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
@@ -39,17 +39,15 @@ export default function GenericTable(props) {
           <TableRow>{headRows(props.categories)}</TableRow>
         </TableHead>
         <TableBody>
-          {props.rows.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
-            </TableRow>
-          ))}
+          {props.rows === null
+            ? null
+            : props.rows.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell component="th" scope="row">
+                    {row}
+                  </TableCell>
+                </TableRow>
+              ))}
         </TableBody>
       </Table>
     </TableContainer>
