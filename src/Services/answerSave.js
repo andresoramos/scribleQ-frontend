@@ -48,6 +48,7 @@ export const marketUpdate = async (payload, quizId) => {
     const marketItem = await axios.post("/api/market/updateMarket", {
       newPayload,
     });
+    return marketItem.data;
   } catch (error) {
     console.log(
       `Your error in marketUpdate from answerSave.js is the following: ${error.response}`

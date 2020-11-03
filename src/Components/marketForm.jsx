@@ -68,7 +68,7 @@ function MarketForm(props) {
       "Psychology",
       "Other",
     ],
-    submitted: true,
+    submitted: false,
     duplicate: false,
   });
   const [allowed, setAllowed] = useState(null);
@@ -368,6 +368,7 @@ function MarketForm(props) {
       const updated = await marketUpdate(finalObj, formState._id);
       // console.log("DELETE ME", updated);
       return;
+      // props.history.push("/");
     }
     const saved = await marketSave(finalObj);
     updateFormStateProperties(["submitted", "edit"], [true, false]);

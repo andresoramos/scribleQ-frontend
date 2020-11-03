@@ -239,7 +239,7 @@ export const Home = (props) => {
           >
             {!currentMarket ? (
               <MenuItem
-                onClick={async () => {
+                onClick={() => {
                   const userAccount = JSON.parse(
                     localStorage.getItem("account")
                   );
@@ -250,7 +250,7 @@ export const Home = (props) => {
 
                   localStorage.setItem("currentQuiz", JSON.stringify(quiz));
 
-                  // props.history.push("/marketForm");
+                  props.history.push("/marketForm");
                 }}
               >
                 {`Send ${props.currentName} to the market`}

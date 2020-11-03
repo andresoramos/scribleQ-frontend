@@ -43,7 +43,7 @@ function MarketPerformance(props) {
       finalObj.likes = marketObj.likes.likes;
       finalObj.dislikes = marketObj.likes.dislikes;
       finalObj.totalDownloads = Object.keys(marketObj.downloadedBy).length;
-      finalObj.totalRevenue = Object.keys(marketObj.downloadedBy).length;
+      finalObj.totalRevenue = marketObj.revenue.total;
       //Make it so that when you finish this, it's able to tell you total revenue even if when quiz was inititially uploaded,
       //it was free.
 
