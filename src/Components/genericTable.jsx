@@ -14,16 +14,12 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
 export default function GenericTable(props) {
   const classes = useStyles();
   const headRows = (arr) => {
     return arr.map((item, i) => {
       return i === 0 ? (
-        <TableCell>{item.category}</TableCell>
+        <TableCell key={i}>{item.category}</TableCell>
       ) : (
         <TableCell key={i} align="right">
           {item.category}
@@ -44,7 +40,31 @@ export default function GenericTable(props) {
             : props.rows.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell component="th" scope="row">
-                    {row}
+                    {row.quizName}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.dateUploaded}
+                  </TableCell>
+                  {!row.validUntil ? (
+                    <TableCell component="th" scope="row">
+                      This quiz is permanently available.
+                    </TableCell>
+                  ) : (
+                    <TableCell component="th" scope="row">
+                      {row.validUntil}
+                    </TableCell>
+                  )}
+                  <TableCell component="th" scope="row">
+                    {row.likes}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.dislikes}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.totalDownloads}
+                  </TableCell>
+                  <TableCell component="th" scope="row">
+                    {row.totalRevenue}
                   </TableCell>
                 </TableRow>
               ))}

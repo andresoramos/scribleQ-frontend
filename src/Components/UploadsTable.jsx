@@ -11,6 +11,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import RemoveIcon from "@material-ui/icons/Remove";
 import Button from "@material-ui/core/Button";
 import { findMarketHistory } from "./../Services/findQuiz";
+import { createDate } from "./../Services/createDate";
 
 const headCells = [
   {
@@ -105,6 +106,7 @@ export default function UploadsTable(props) {
   // if (props.rows.length === 0) {
   //   props.createRow(0);
   // }
+  console.log(props.rows.length, "THIS IS THE LENGTH OF YOUR ROWS");
 
   return (
     <div className={classes.root}>
@@ -120,6 +122,7 @@ export default function UploadsTable(props) {
             <EnhancedTableHead classes={classes} />
             <TableBody>
               {props.rows.map((row, index) => {
+                console.log(row, "THIS IS THE ROW COMING INTO MAPPEDROWS");
                 return (
                   <TableRow hover key={row.name}>
                     <TableCell padding="checkbox"></TableCell>

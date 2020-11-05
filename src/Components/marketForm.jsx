@@ -367,8 +367,7 @@ function MarketForm(props) {
 
       const updated = await marketUpdate(finalObj, formState._id);
       // console.log("DELETE ME", updated);
-      return;
-      // props.history.push("/");
+      return props.history.push("/");
     }
     const saved = await marketSave(finalObj);
     updateFormStateProperties(["submitted", "edit"], [true, false]);
@@ -383,7 +382,6 @@ function MarketForm(props) {
   };
 
   const restoreHistory = (histObj) => {
-    console.log(histObj, "RESTORE HISTORY IS BEING RUN WITH THIS OBJECT");
     setFormState(histObj);
   };
 

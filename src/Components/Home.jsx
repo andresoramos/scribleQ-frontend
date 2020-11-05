@@ -17,7 +17,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import { createDate } from "./../Services/createDate";
 import deleteArrayItem from "./../Services/deleteArrayItem";
 import quizByName from "../Services/quizByName";
-import { findMarketHistory } from "./../Services/findQuiz";
+import { findMarketHistory, dropMarket } from "./../Services/findQuiz";
 
 const useStyles = makeStyles((theme) => ({
   menu: { position: "absolute", marginTop: 7, cursor: "pointer" },
@@ -49,6 +49,7 @@ export const Home = (props) => {
 
   useEffect(() => {
     async function populateQuizArray() {
+      await dropMarket();
       const quizzes = await getQuizzes();
       if (!quizzes) {
         console.log("we're going to the not quizzes");

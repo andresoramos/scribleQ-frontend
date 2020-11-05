@@ -30,6 +30,10 @@ const findMarketObjByName = async (name, userId) => {
   });
   return marketByName.data;
 };
+export const dropMarket = async () => {
+  const dropped = await axios.get("/api/market/drop");
+  return dropped.data;
+};
 
 export const findMarketHistory = async (name) => {
   try {

@@ -3,8 +3,7 @@ import "../Styling/MarketPerformance.css";
 import Paper from "@material-ui/core/Paper";
 import GenericTable from "./genericTable";
 import { getQuizById } from "./../Services/getSelectedQuiz";
-import decode from "jwt-decode";
-
+import { createDate } from "../Services/createDate";
 function MarketPerformance(props) {
   const [currentQuiz, setCurrentQuiz] = useState(null);
   const categories = [
@@ -16,6 +15,7 @@ function MarketPerformance(props) {
     { category: "Total downloads" },
     { category: "Total revenue" },
   ];
+
   useEffect(() => {
     getQuizById(JSON.parse(localStorage.getItem("marketObj")).makerId)
       .then((quiz) => {
@@ -35,7 +35,7 @@ function MarketPerformance(props) {
       const finalObj = {};
       finalObj.quizName = currentQuiz.name;
       finalObj.dateUploaded = marketObj.uploadDate
-        ? marketObj.uploadDate
+        ? createDate(marketObj.uploadDate)
         : undefined;
       finalObj.validUntil = marketObj.expirationDate
         ? marketObj.expirationDate
@@ -44,10 +44,8 @@ function MarketPerformance(props) {
       finalObj.dislikes = marketObj.likes.dislikes;
       finalObj.totalDownloads = Object.keys(marketObj.downloadedBy).length;
       finalObj.totalRevenue = marketObj.revenue.total;
-      //Make it so that when you finish this, it's able to tell you total revenue even if when quiz was inititially uploaded,
-      //it was free.
-
-      return ["butt"];
+      finalArr.push(finalObj);
+      return finalArr;
     }
   };
   return (

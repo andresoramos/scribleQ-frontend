@@ -29,32 +29,40 @@ export default function MyMarketQuizzes(props) {
   const [allMarkets, setAllMarkets] = useState([]);
   const [row, setRow] = useState([]);
 
-  useEffect(() => {
-    async function populateQuizzes() {
-      const quiz = await getQuizzes(true);
-      if (quiz.length === 0) {
-        return props.history.push("/");
-      }
-      if (allMarkets.length === 0) {
-        const all = await findAllMarkets(quiz[selectedIndex].creatorId);
-        localStorage.setItem("allMarketObjs", JSON.stringify(all));
-        setAllMarkets(all);
-      }
-      let nameOptions = [];
-      for (var i = 0; i < quiz.length; i++) {
-        nameOptions.push(quiz[i].name);
-      }
-      localStorage.setItem("marketQuizzes", JSON.stringify(quiz));
-
-      setOptions(JSON.stringify(nameOptions));
+  async function populateQuizzes() {
+    const quiz = await getQuizzes(true);
+    if (quiz.length === 0) {
+      return props.history.push("/");
     }
+    if (allMarkets.length === 0) {
+      const all = await findAllMarkets(quiz[selectedIndex].creatorId);
+      console.log(all, "THIS IS ALL AND SHOULD HAVE ONE MARKET");
+      localStorage.setItem("allMarketObjs", JSON.stringify(all));
+      setAllMarkets(all);
+    }
+    let nameOptions = [];
+    for (var i = 0; i < quiz.length; i++) {
+      nameOptions.push(quiz[i].name);
+    }
+    localStorage.setItem("marketQuizzes", JSON.stringify(quiz));
+
+    setOptions(JSON.stringify(nameOptions));
+  }
+  useEffect(() => {
     if (options.length === 0) {
       populateQuizzes();
-      setTimeout(() => {
-        createRow(0);
-      }, 0);
+      // setTimeout(() => {
+      //   createRow(0);
+      // }, 20000);
+    } else {
+      createRow(0);
     }
-  }, []);
+  }, [allMarkets]);
+  // useEffect(() => {
+  //   createRow(0);
+  // }, [allMarkets]);
+  //When things in the dependency array change, this will run again.
+
   // const assignCurrentQuiz = async () => {
   //   const quizzes = JSON.parse(localStorage.getItem("marketQuizzes"));
   //   const selectedMatch = quizzes[selectedIndex]._id;
@@ -75,6 +83,13 @@ export default function MyMarketQuizzes(props) {
     //   typeof options !== "string" ? "" : JSON.parse(options)[index];
     const quiz = JSON.parse(localStorage.getItem("marketQuizzes"))[index];
     const copyAllMarkets = [...allMarkets];
+    console.log(
+      quiz,
+      "THIS IS THE QUIZ",
+      copyAllMarkets,
+      `these are the markets and your index: ${index}`
+    );
+
     const currentMarket = copyAllMarkets[index];
 
     const finalRow = [
@@ -113,6 +128,9 @@ export default function MyMarketQuizzes(props) {
         // backgroundColor: "pink",
       }}
     >
+      {allMarkets.map((item, i) => {
+        return <p>{item.uploadDate}</p>;
+      })}
       <div
         style={{
           width: "40%",
