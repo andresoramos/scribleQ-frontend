@@ -28,10 +28,10 @@ export default function DropDownMenu(props) {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuItemClick = (event, index) => {
+  const handleMenuItemClick = (event, index, name) => {
     props.setSelectedIndex("selectedIndex", index);
     if (props.createRow) {
-      props.createRow(index);
+      props.createRow(index, name);
     }
     setAnchorEl(null);
   };
@@ -75,7 +75,7 @@ export default function DropDownMenu(props) {
             key={option}
             // disabled={index === 0}
             selected={index === props.selectedIndex}
-            onClick={(event) => handleMenuItemClick(event, index)}
+            onClick={(event) => handleMenuItemClick(event, index, option)}
           >
             {option}
           </MenuItem>

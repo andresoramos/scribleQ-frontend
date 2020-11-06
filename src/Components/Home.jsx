@@ -49,7 +49,7 @@ export const Home = (props) => {
 
   useEffect(() => {
     async function populateQuizArray() {
-      await dropMarket();
+      // await dropMarket();
       const quizzes = await getQuizzes();
       if (!quizzes) {
         console.log("we're going to the not quizzes");
@@ -286,19 +286,28 @@ export const Home = (props) => {
                       localStorage.getItem("account")
                     );
                     const quiz = quizByName(userAccount, props.currentName);
+                    localStorage.setItem("editMarket", true);
+                    localStorage.setItem("quizName", quiz.quiz.name);
                     // const currentMarket = await findMarketHistory(
                     //   props.currentName
                     // );
 
-                    localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+                    // localStorage.setItem("currentQuiz", JSON.stringify(quiz));
 
-                    // props.history.push("/marketForm");
+                    props.history.push("/marketForm");
                   }}
                 >
                   {`Edit market properties for ${props.currentName}.`}
                 </MenuItem>
               </div>
             )}
+            <MenuItem
+              onClick={() => {
+                props.history.push("/analytics");
+              }}
+            >
+              {`Edit ${props.currentName}.`}
+            </MenuItem>
             <MenuItem
               onClick={() => {
                 props.history.push("/analytics");

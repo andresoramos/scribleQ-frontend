@@ -8,7 +8,12 @@ import CardContent from "@material-ui/core/CardContent";
 import DropDownMenu from "./dropDownMenu";
 import getQuizzes from "./../Services/getQuizzes";
 import UploadsTable from "./UploadsTable";
-import { findMarketObj, findAllMarkets } from "./../Services/findQuiz";
+import {
+  findMarketObj,
+  findAllMarkets,
+  updateCurrentQuiz,
+} from "./../Services/findQuiz";
+import { createDate } from "./../Services/createDate";
 
 const useStyles = makeStyles({
   card: {
@@ -54,13 +59,14 @@ export default function MyMarketQuizzes(props) {
       // setTimeout(() => {
       //   createRow(0);
       // }, 20000);
-    } else {
-      createRow(0);
     }
+    // else {
+    //   createRow(0);
+    // }
+  }, []);
+  useEffect(() => {
+    createRow(0);
   }, [allMarkets]);
-  // useEffect(() => {
-  //   createRow(0);
-  // }, [allMarkets]);
   //When things in the dependency array change, this will run again.
 
   // const assignCurrentQuiz = async () => {
@@ -78,9 +84,11 @@ export default function MyMarketQuizzes(props) {
   // downloadCount,
   // totalEarnings,
   // remove,
-  const createRow = (index) => {
+  const createRow = async (index, name) => {
     // const currentName =
     //   typeof options !== "string" ? "" : JSON.parse(options)[index];
+    updateCurrentQuiz(name);
+
     const quiz = JSON.parse(localStorage.getItem("marketQuizzes"))[index];
     const copyAllMarkets = [...allMarkets];
     console.log(
@@ -96,7 +104,9 @@ export default function MyMarketQuizzes(props) {
       {
         name: quiz.name,
         uploadDate:
-          currentMarket !== undefined ? currentMarket.uploadDate : null,
+          currentMarket !== undefined
+            ? createDate(currentMarket.uploadDate)
+            : null,
         likes: currentMarket !== undefined ? currentMarket.likes.likes : null,
         dislikes:
           currentMarket !== undefined ? currentMarket.likes.dislikes : null,
@@ -128,9 +138,6 @@ export default function MyMarketQuizzes(props) {
         // backgroundColor: "pink",
       }}
     >
-      {allMarkets.map((item, i) => {
-        return <p>{item.uploadDate}</p>;
-      })}
       <div
         style={{
           width: "40%",

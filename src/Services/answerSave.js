@@ -44,6 +44,10 @@ export async function marketSave(payload) {
 }
 export const marketUpdate = async (payload, quizId) => {
   const newPayload = { ...payload, quizId };
+  console.log(
+    newPayload,
+    "this is the new payload, which should have whatever is causing the maker id to change.  Don't give up."
+  );
   try {
     const marketItem = await axios.post("/api/market/updateMarket", {
       newPayload,

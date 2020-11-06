@@ -10,7 +10,7 @@ import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import RemoveIcon from "@material-ui/icons/Remove";
 import Button from "@material-ui/core/Button";
-import { findMarketHistory } from "./../Services/findQuiz";
+import { findMarketHistory, updateCurrentQuiz } from "./../Services/findQuiz";
 import { createDate } from "./../Services/createDate";
 
 const headCells = [
@@ -141,6 +141,12 @@ export default function UploadsTable(props) {
                       {row.edit ? (
                         <Checkbox
                           onClick={async () => {
+                            // const currentQuiz = localStorage.getItem(
+                            //   "currentQuiz"
+                            // );
+                            // if (currentQuiz === undefined) {
+                            //   updateCurrentQuiz(row.name);
+                            // }
                             const historyObj = await findMarketHistory(
                               row.name
                             );

@@ -1,5 +1,7 @@
 import axios from "axios";
 import decode from "jwt-decode";
+import quizByName from "./quizByName";
+
 export function findQuiz(str, i) {
   const obj = JSON.parse(str);
   const iParsed = JSON.parse(i);
@@ -35,12 +37,17 @@ export const dropMarket = async () => {
   return dropped.data;
 };
 
+export const updateCurrentQuiz = (name) => {
+  const account = JSON.parse(localStorage.getItem("account"));
+  const quiz = quizByName(account, name);
+  localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+};
+
 export const findMarketHistory = async (name) => {
   try {
     const user = decode(localStorage.getItem("token"));
 
     const marketObj = await findMarketObjByName(name, user._id);
-    console.log(name, marketObj, "THIS IS THE MARKET OBJ FINDMARKETHISTORY");
     return marketObj;
   } catch (error) {
     console.log(

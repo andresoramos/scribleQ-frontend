@@ -13,6 +13,7 @@ import DropDownMenu from "./dropDownMenu";
 import { marketSave, showMakers, marketUpdate } from "../Services/answerSave";
 import DatePicker from "./DatePicker";
 import MyMarketQuizzes from "./MyMarketQuizzes";
+import { findMarketHistory } from "./../Services/findQuiz";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -77,6 +78,9 @@ function MarketForm(props) {
     authenticateUserToken(localStorage.getItem("token"))
       .then((checked) => {
         setAllowed(checked);
+        if (localStorage.getItem("editMarket")) {
+          restoreEdit();
+        }
       })
       .catch((error) => {
         console.log(`Error fetching user data: ${error}`);
@@ -85,6 +89,12 @@ function MarketForm(props) {
 
   const handleCheck = () => {
     updateFormStateProperty("checkBox", !formState.checkBox);
+  };
+
+  const restoreEdit = async () => {
+    const history = await findMarketHistory(localStorage.getItem("quizName"));
+    setFormState({ ...history.history, edit: true, _id: history._id });
+    localStorage.removeItem("editMarket");
   };
 
   const updateFormStateProperties = (keys, values) => {
@@ -366,6 +376,7 @@ function MarketForm(props) {
       //the deletes
 
       const updated = await marketUpdate(finalObj, formState._id);
+      console.log("we're getting past updated");
       // console.log("DELETE ME", updated);
       return props.history.push("/");
     }

@@ -9,9 +9,17 @@
   height: 100%;
   width: 50%;
   background-color: beige;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
 }
 .right {
-  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  height: 60%;
   width: 50%;
   background-color: chartreuse;
 }
