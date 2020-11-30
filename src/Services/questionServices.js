@@ -15,6 +15,9 @@ export const deleteQuestion = (
   name
 ) => {
   // console.log(`Your current index is ${index}`);
+  if (findQuestion() === undefined) {
+    return console.log("THERE'S AN ERROR IN FINDING QUESTION");
+  }
   let id = findQuestion().i;
   let actualCurrentIndex;
   let updatedArray = [...newDisplayArray];
@@ -72,8 +75,8 @@ export const deleteQuestion = (
 };
 
 export const quizSave = async (signedInName, name, props) => {
-  const {email} = decode(localStorage.getItem("token"))
-  const user = decode(localStorage.getItem('token'))
+  const { email } = decode(localStorage.getItem("token"));
+  const user = decode(localStorage.getItem("token"));
   const payload = { user: signedInName, name: name, email };
   await saveQuiz(payload, props);
 };

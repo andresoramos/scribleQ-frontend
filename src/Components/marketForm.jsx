@@ -327,6 +327,7 @@ function MarketForm(props) {
   };
 
   const handleSubmit = async () => {
+    console.log("handle submit is actually being clicked on");
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const finalObj = {};
     const searchTags = prepareTags(formState.tags);

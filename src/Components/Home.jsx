@@ -172,6 +172,7 @@ export const Home = (props) => {
                 props.iValueIs(i);
                 handleStatClick(e, item.name);
                 const currentMarket = await findMarketHistory(item.name);
+                console.log(item.name, "let's see what this isn't turning up");
                 if (currentMarket) {
                   setCurrentMarket(true);
                 }

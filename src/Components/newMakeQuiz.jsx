@@ -109,11 +109,14 @@ function NewMakeQuiz(props) {
   };
   const findQuestion = () => {
     const arrayCopy = [...newDisplayArray];
-
     if (currentIndex === null) {
       const questionInfo = arrayCopy[arrayCopy.length - 1];
       return questionInfo;
     }
+    console.log(
+      `your index should be between 0 - ${arrayCopy.length - 1}`,
+      currentIndex
+    );
     return arrayCopy[currentIndex];
   };
   const changeItem = (key, change) => {
@@ -191,6 +194,9 @@ function NewMakeQuiz(props) {
     existing.splice(index + 1, 0, newQuestion);
     setNewDisplayArray(existing);
   };
+
+  //here what you can try is setting up a new set index
+  //that only sets index but doesn't mess with the array
   const setIndex = (index) => {
     const arrayCopy = [...newDisplayArray];
     const switchView = localStorage.getItem("divPressed");
@@ -207,7 +213,6 @@ function NewMakeQuiz(props) {
       setCurrentIndex(newIndex);
       return setQuestionOut(false);
     }
-    console.log("should only now show up with the plus button");
   };
   return (
     <div className="mainContainer">

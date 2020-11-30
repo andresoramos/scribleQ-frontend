@@ -4,13 +4,16 @@ import decode from "jwt-decode";
 
 export async function answerSave(payload) {
   try {
+    console.log("Answer save is running");
     const correctedPayload = { ...payload };
     const creatorId = decode(localStorage.getItem("token"))._id;
     correctedPayload.creatorId = creatorId;
+    console.log("Answer save is running");
     const saved = await axios.post(
       "http://localhost:5000/api/quizzes",
       correctedPayload
     );
+    console.log("answersaved ran with no issues");
     return saved.data;
   } catch (err) {
     console.log(err, "this is your error from answerSave.js in services");

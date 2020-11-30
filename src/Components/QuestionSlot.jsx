@@ -7,10 +7,12 @@ import Button from "@material-ui/core/Button";
 function QuestionSlot(props) {
   const [{ isDragging }, drag, preview] = useDrag({
     item: { type: "question", id: props.dragIndex },
+    begin: () => {
+      console.log(props.dragIndex, "this is the drag index at present");
+      props.setIndex(props.dragIndex);
+    },
     collect: (monitor) => ({
-      isDragging: () => {
-        console.log("dragging");
-      },
+      isDragging: () => {},
     }),
   });
 

@@ -310,6 +310,7 @@ export const MakeQuiz = (props) => {
     setName(tempName);
   };
   const handleQuizSave = async () => {
+    console.log("You're trying to handle saving the quiz");
     const email = decode(localStorage.getItem("token")).email;
     const payload = { user: props.signedInName, name: name, email };
     try {
@@ -317,6 +318,7 @@ export const MakeQuiz = (props) => {
         "http://localhost:5000/api/quizzes/saveQuiz",
         payload
       );
+      console.log(saved, "saved has happened");
       const quizzes = await getQuizzes();
       localStorage.setItem("account", JSON.stringify(quizzes));
       window.location = "/";

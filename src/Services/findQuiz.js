@@ -46,7 +46,6 @@ export const updateCurrentQuiz = (name) => {
 export const findMarketHistory = async (name) => {
   try {
     const user = decode(localStorage.getItem("token"));
-
     const marketObj = await findMarketObjByName(name, user._id);
     return marketObj;
   } catch (error) {
