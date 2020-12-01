@@ -3,7 +3,7 @@ import decode from "jwt-decode";
 // const savePayload = { name: name, questions: newArray };
 // await answerSave(savePayload);
 
-export const deleteQuestion = (
+export const deleteQuestion = async (
   index,
   findQuestion,
   newDisplayArray,
@@ -27,11 +27,9 @@ export const deleteQuestion = (
     }
   }
 
-  // console.log(`Actual current is ${actualCurrentIndex}`);
   updatedArray.splice(index, 1);
   const payload = { name: name, questions: updatedArray };
   if (actualCurrentIndex === index && questionOut === false) {
-    //Checks to see if question being viewed got deleted
     if (updatedArray.length === 0) {
       return setCantDelete(true);
     }
@@ -62,7 +60,6 @@ export const deleteQuestion = (
       }
       if (actualCurrentIndex !== index && questionOut === false) {
         if (actualCurrentIndex > index) {
-          // updatedArray[actualCurrentIndex - 1].showAnswer = true;
           setCurrentIndex(actualCurrentIndex - 1);
           setNewDisplayArray(updatedArray);
           return answerSave(payload);

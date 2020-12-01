@@ -256,6 +256,7 @@ function NewMakeQuiz(props) {
                 setIndex={setIndex}
                 dropHappened={dropHappened}
                 containerIndex={i}
+                setCurrentIndex={setCurrentIndex}
                 question={item.question}
                 item={item}
                 addQuestion={insertQuestion}

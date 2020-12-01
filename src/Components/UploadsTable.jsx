@@ -102,12 +102,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UploadsTable(props) {
   const classes = useStyles();
-
-  // if (props.rows.length === 0) {
-  //   props.createRow(0);
-  // }
-  console.log(props.rows.length, "THIS IS THE LENGTH OF YOUR ROWS");
-
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
@@ -122,7 +116,6 @@ export default function UploadsTable(props) {
             <EnhancedTableHead classes={classes} />
             <TableBody>
               {props.rows.map((row, index) => {
-                console.log(row, "THIS IS THE ROW COMING INTO MAPPEDROWS");
                 return (
                   <TableRow hover key={row.name}>
                     <TableCell padding="checkbox"></TableCell>

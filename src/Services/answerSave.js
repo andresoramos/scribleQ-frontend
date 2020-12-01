@@ -20,6 +20,10 @@ export async function answerSave(payload) {
     return err;
   }
 }
+export const updateMakers = async (quizId) => {
+  const updatedMakers = await axios.put(`/api/quizzes/updateMakers/${quizId}`);
+  return updateMakers.data;
+};
 
 export async function updateAndSave(index, quiz) {
   const newQuizQuestions = { ...quiz.questions };

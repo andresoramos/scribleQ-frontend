@@ -17,6 +17,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 import { createDate } from "./../Services/createDate";
 import deleteArrayItem from "./../Services/deleteArrayItem";
 import quizByName from "../Services/quizByName";
+import { updateMakers } from "../Services/answerSave";
 import { findMarketHistory, dropMarket } from "./../Services/findQuiz";
 
 const useStyles = makeStyles((theme) => ({
@@ -52,7 +53,6 @@ export const Home = (props) => {
       // await dropMarket();
       const quizzes = await getQuizzes();
       if (!quizzes) {
-        console.log("we're going to the not quizzes");
         return;
       } else {
         localStorage.setItem("account", JSON.stringify(quizzes));
@@ -74,6 +74,7 @@ export const Home = (props) => {
     const localInfo = localStorage.getItem("account");
     const parsedInfo = JSON.parse(localInfo);
     const newQuizzes = [...parsedInfo.quizzes];
+    await updateMakers(newQuizzes[i].quiz._id);
     newQuizzes.splice(i, 1);
     parsedInfo.quizzes = newQuizzes;
     const inString = JSON.stringify(parsedInfo);
@@ -172,7 +173,6 @@ export const Home = (props) => {
                 props.iValueIs(i);
                 handleStatClick(e, item.name);
                 const currentMarket = await findMarketHistory(item.name);
-                console.log(item.name, "let's see what this isn't turning up");
                 if (currentMarket) {
                   setCurrentMarket(true);
                 }
@@ -246,10 +246,6 @@ export const Home = (props) => {
                     localStorage.getItem("account")
                   );
                   const quiz = quizByName(userAccount, props.currentName);
-                  // const currentMarket = await findMarketHistory(
-                  //   props.currentName
-                  // );
-
                   localStorage.setItem("currentQuiz", JSON.stringify(quiz));
 
                   props.history.push("/marketForm");

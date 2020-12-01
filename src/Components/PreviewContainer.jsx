@@ -26,6 +26,7 @@ function PreviewContainer(props) {
         name={props.name}
         questionNumber={props.questionNumber}
         setIndex={props.setIndex}
+        setCurrentIndex={props.setCurrentIndex}
         addQuestion={props.addQuestion}
         dragIndex={props.containerIndex}
         question={props.question}

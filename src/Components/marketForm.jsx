@@ -266,6 +266,9 @@ function MarketForm(props) {
     updateFormStateProperty("hidden", !formState.hidden);
   };
   const questionArray = () => {
+    if (localStorage.getItem("currentQuiz") === undefined) {
+      return [];
+    }
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const questions = quiz.quiz.questions;
     for (let i = 0; i < questions.length; i++) {
@@ -373,14 +376,12 @@ function MarketForm(props) {
       duplicate: formState.duplicate,
     };
     if (formState.edit) {
-      //When you get back to this, make it so it can finally save the edits and
-      //the deletes
-
       const updated = await marketUpdate(finalObj, formState._id);
       console.log("we're getting past updated");
       // console.log("DELETE ME", updated);
       return props.history.push("/");
     }
+    console.log("THE ISSUE YOU'RE HAVING STARTS WITH MARKET SAVE");
     const saved = await marketSave(finalObj);
     updateFormStateProperties(["submitted", "edit"], [true, false]);
 
@@ -417,9 +418,6 @@ function MarketForm(props) {
         formState.chosenPremium === undefined ||
         formState.hideQuestions === undefined
       ) {
-        console.log(
-          "We found a point in which the form state is undefined somehow"
-        );
         return null;
       }
       const premium =

@@ -41,7 +41,6 @@ export default function MyMarketQuizzes(props) {
     }
     if (allMarkets.length === 0) {
       const all = await findAllMarkets(quiz[selectedIndex].creatorId);
-      console.log(all, "THIS IS ALL AND SHOULD HAVE ONE MARKET");
       localStorage.setItem("allMarketObjs", JSON.stringify(all));
       setAllMarkets(all);
     }
@@ -50,56 +49,46 @@ export default function MyMarketQuizzes(props) {
       nameOptions.push(quiz[i].name);
     }
     localStorage.setItem("marketQuizzes", JSON.stringify(quiz));
-
     setOptions(JSON.stringify(nameOptions));
   }
   useEffect(() => {
     if (options.length === 0) {
       populateQuizzes();
-      // setTimeout(() => {
-      //   createRow(0);
-      // }, 20000);
     }
-    // else {
-    //   createRow(0);
-    // }
   }, []);
   useEffect(() => {
-    createRow(0);
+    const index = findQuizIndex(
+      JSON.parse(localStorage.getItem("currentQuiz")).quiz.name
+    );
+    setSelectedIndex(index);
+    createRow(index, JSON.parse(localStorage.getItem("currentQuiz")).quiz.name);
   }, [allMarkets]);
   //When things in the dependency array change, this will run again.
 
-  // const assignCurrentQuiz = async () => {
-  //   const quizzes = JSON.parse(localStorage.getItem("marketQuizzes"));
-  //   const selectedMatch = quizzes[selectedIndex]._id;
-  //   const marketObject = await findMarketObj(selectedMatch);
-  //   setCurrentQuiz(marketObject);
-  // };
+  const findQuizIndex = (name) => {
+    const quizzes = JSON.parse(localStorage.getItem("marketQuizzes"));
+    let index;
+    for (var i = 0; i < quizzes.length; i++) {
+      if (quizzes[i].name === name) {
+        index = i;
+        return index;
+      }
+    }
+    return 0;
+  };
 
-  // name,
-  // uploadDate,
-  // likes,
-  // dislikes,
-  // edit,
-  // downloadCount,
-  // totalEarnings,
-  // remove,
   const createRow = async (index, name) => {
-    // const currentName =
-    //   typeof options !== "string" ? "" : JSON.parse(options)[index];
-    updateCurrentQuiz(name);
-
-    const quiz = JSON.parse(localStorage.getItem("marketQuizzes"))[index];
-    const copyAllMarkets = [...allMarkets];
     console.log(
-      quiz,
-      "THIS IS THE QUIZ",
-      copyAllMarkets,
-      `these are the markets and your index: ${index}`
+      "CREATEROW IS RUNNING AND YOUR INDEX IS: ",
+      index,
+      "THE NAME IS: ",
+      name
     );
+    updateCurrentQuiz(name);
+    const quiz = JSON.parse(localStorage.getItem("marketQuizzes"))[index];
 
+    const copyAllMarkets = [...allMarkets];
     const currentMarket = copyAllMarkets[index];
-
     const finalRow = [
       {
         name: quiz.name,
