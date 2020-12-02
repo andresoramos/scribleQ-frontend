@@ -98,7 +98,6 @@ function MarketForm(props) {
   };
 
   const updateFormStateProperties = (keys, values) => {
-    console.log("updating properties is running");
     if (keys.length !== values.length) {
       new Error(
         "there was an error in updateFormStateProperties. Array lengths did not match."
@@ -215,7 +214,6 @@ function MarketForm(props) {
     updateFormStateProperty("number", value);
   };
   const handleHide = () => {
-    console.log("hadle hide is running");
     if (!formState.hide && !formState.hidden) {
       return updateFormStateProperties(
         ["hide", "hidden"],
@@ -330,7 +328,6 @@ function MarketForm(props) {
   };
 
   const handleSubmit = async () => {
-    console.log("handle submit is actually being clicked on");
     const quiz = JSON.parse(localStorage.getItem("currentQuiz"));
     const finalObj = {};
     const searchTags = prepareTags(formState.tags);
@@ -377,8 +374,6 @@ function MarketForm(props) {
     };
     if (formState.edit) {
       const updated = await marketUpdate(finalObj, formState._id);
-      console.log("we're getting past updated");
-      // console.log("DELETE ME", updated);
       return props.history.push("/");
     }
     console.log("THE ISSUE YOU'RE HAVING STARTS WITH MARKET SAVE");

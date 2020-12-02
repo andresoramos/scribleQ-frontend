@@ -46,7 +46,8 @@ function ScoreModal(props) {
           onClick={() => {
             handleSave();
             props.handleModalClose("close");
-            props.reopenQuestion(true);
+
+            props.fixProperties([["questionOut", true]]);
           }}
           color="primary"
         >

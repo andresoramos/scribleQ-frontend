@@ -8,8 +8,7 @@ export const deleteQuestion = async (
   findQuestion,
   newDisplayArray,
   setCantDelete,
-  setCurrentIndex,
-  setQuestionOut,
+  fixProperties,
   setNewDisplayArray,
   questionOut,
   name
@@ -34,12 +33,14 @@ export const deleteQuestion = async (
       return setCantDelete(true);
     }
     if (updatedArray[index - 1] !== undefined) {
-      setCurrentIndex(index - 1);
-      setQuestionOut(false);
+      fixProperties([
+        ["questionOut", false],
+        ["currentIndex", index - 1],
+      ]);
       setNewDisplayArray(updatedArray);
       return answerSave(payload);
     }
-    setQuestionOut(false);
+    fixProperties([["questionOut", false]]);
     setNewDisplayArray(updatedArray);
     return answerSave(payload);
   } else {
@@ -48,8 +49,7 @@ export const deleteQuestion = async (
         return setCantDelete(true);
       }
       if (updatedArray[index - 1] !== undefined) {
-        // updatedArray[index - 1].showAnswer = true;
-        setCurrentIndex(index - 1);
+        fixProperties([["currentIndex", index - 1]]);
         setNewDisplayArray(updatedArray);
         return answerSave(payload);
       }
@@ -60,7 +60,7 @@ export const deleteQuestion = async (
       }
       if (actualCurrentIndex !== index && questionOut === false) {
         if (actualCurrentIndex > index) {
-          setCurrentIndex(actualCurrentIndex - 1);
+          fixProperties([["currentIndex", actualCurrentIndex - 1]]);
           setNewDisplayArray(updatedArray);
           return answerSave(payload);
         }

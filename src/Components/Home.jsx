@@ -285,11 +285,7 @@ export const Home = (props) => {
                     const quiz = quizByName(userAccount, props.currentName);
                     localStorage.setItem("editMarket", true);
                     localStorage.setItem("quizName", quiz.quiz.name);
-                    // const currentMarket = await findMarketHistory(
-                    //   props.currentName
-                    // );
-
-                    // localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+                    localStorage.setItem("currentQuiz", JSON.stringify(quiz));
 
                     props.history.push("/marketForm");
                   }}
@@ -300,7 +296,11 @@ export const Home = (props) => {
             )}
             <MenuItem
               onClick={() => {
-                props.history.push("/analytics");
+                const userAccount = JSON.parse(localStorage.getItem("account"));
+                const quiz = quizByName(userAccount, props.currentName);
+                localStorage.setItem("currentQuiz", JSON.stringify(quiz));
+                localStorage.setItem("editHistory", true);
+                // props.history.push("/newMakeQuiz");
               }}
             >
               {`Edit ${props.currentName}.`}

@@ -174,7 +174,7 @@ function NewQuestion(props) {
         modalOpened={props.modalOpened}
         handleModalClose={props.handleModalClose}
         name={props.name}
-        reopenQuestion={props.reopenQuestion}
+        fixProperties={props.fixProperties}
         payload={props.payload}
       />
     </div>

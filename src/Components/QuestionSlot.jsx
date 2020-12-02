@@ -8,7 +8,7 @@ function QuestionSlot(props) {
   const [{ isDragging }, drag, preview] = useDrag({
     item: { type: "question", id: props.dragIndex },
     begin: () => {
-      props.setCurrentIndex(props.dragIndex);
+      props.fixProperties([["currentIndex", props.dragIndex]]);
     },
     collect: (monitor) => ({
       isDragging: () => {},

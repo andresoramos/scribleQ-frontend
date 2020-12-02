@@ -4,16 +4,14 @@ import decode from "jwt-decode";
 
 export async function answerSave(payload) {
   try {
-    console.log("Answer save is running");
     const correctedPayload = { ...payload };
     const creatorId = decode(localStorage.getItem("token"))._id;
     correctedPayload.creatorId = creatorId;
-    console.log("Answer save is running");
+    console.log(correctedPayload, "this is the payload, bichacho");
     const saved = await axios.post(
       "http://localhost:5000/api/quizzes",
       correctedPayload
     );
-    console.log("answersaved ran with no issues");
     return saved.data;
   } catch (err) {
     console.log(err, "this is your error from answerSave.js in services");
@@ -27,7 +25,6 @@ export const updateMakers = async (quizId) => {
 
 export async function updateAndSave(index, quiz) {
   const newQuizQuestions = { ...quiz.questions };
-  console.log(newQuizQuestions, "these are the newQuizQuestions");
 }
 
 export async function checkEdit(index) {
@@ -53,7 +50,8 @@ export const marketUpdate = async (payload, quizId) => {
   const newPayload = { ...payload, quizId };
   console.log(
     newPayload,
-    "this is the new payload, which should have whatever is causing the maker id to change.  Don't give up."
+    quizId,
+    "this is the new payload and quizId, which should have whatever is causing the maker id to change.  Don't give up."
   );
   try {
     const marketItem = await axios.post("/api/market/updateMarket", {
