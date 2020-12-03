@@ -162,7 +162,7 @@ function NewQuestion(props) {
           )}
           <Button
             onClick={() => {
-              props.handleModalClose("open");
+              props.fixProperties([["modalOpened", true]]);
             }}
           >
             Save Question
@@ -172,7 +172,6 @@ function NewQuestion(props) {
       <ScoreModal
         changeItem={props.changeItem}
         modalOpened={props.modalOpened}
-        handleModalClose={props.handleModalClose}
         name={props.name}
         fixProperties={props.fixProperties}
         payload={props.payload}

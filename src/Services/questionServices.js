@@ -1,5 +1,6 @@
 import { answerSave, saveQuiz } from "../Services/answerSave";
 import decode from "jwt-decode";
+import { LocalConvenienceStoreOutlined } from "@material-ui/icons";
 // const savePayload = { name: name, questions: newArray };
 // await answerSave(savePayload);
 
@@ -7,16 +8,11 @@ export const deleteQuestion = async (
   index,
   findQuestion,
   newDisplayArray,
-  setCantDelete,
   fixProperties,
-  setNewDisplayArray,
   questionOut,
   name
 ) => {
   // console.log(`Your current index is ${index}`);
-  if (findQuestion() === undefined) {
-    return console.log("THERE'S AN ERROR IN FINDING QUESTION");
-  }
   let id = findQuestion().i;
   let actualCurrentIndex;
   let updatedArray = [...newDisplayArray];
@@ -30,41 +26,53 @@ export const deleteQuestion = async (
   const payload = { name: name, questions: updatedArray };
   if (actualCurrentIndex === index && questionOut === false) {
     if (updatedArray.length === 0) {
-      return setCantDelete(true);
+      return fixProperties([["cantDelete", true]]);
     }
     if (updatedArray[index - 1] !== undefined) {
       fixProperties([
         ["questionOut", false],
         ["currentIndex", index - 1],
+        ["newDisplayArray", updatedArray],
       ]);
-      setNewDisplayArray(updatedArray);
+      // setNewDisplayArray(updatedArray);
       return answerSave(payload);
     }
-    fixProperties([["questionOut", false]]);
-    setNewDisplayArray(updatedArray);
+    fixProperties([
+      ["questionOut", false],
+      ["newDisplayArray", updatedArray],
+    ]);
+    // setNewDisplayArray(updatedArray);
     return answerSave(payload);
   } else {
     if (actualCurrentIndex === index) {
       if (updatedArray.length === 0) {
-        return setCantDelete(true);
+        return fixProperties([["cantDelete", true]]);
       }
       if (updatedArray[index - 1] !== undefined) {
-        fixProperties([["currentIndex", index - 1]]);
-        setNewDisplayArray(updatedArray);
+        fixProperties([
+          ["currentIndex", index - 1],
+          ["newDisplayArray", updatedArray],
+        ]);
+        // setNewDisplayArray(updatedArray);
         return answerSave(payload);
       }
     } else {
       if (actualCurrentIndex !== index && questionOut === true) {
-        setNewDisplayArray(updatedArray);
+        // setNewDisplayArray(updatedArray);
+        fixProperties([["newDisplayArray", updatedArray]]);
         return answerSave(payload);
       }
       if (actualCurrentIndex !== index && questionOut === false) {
         if (actualCurrentIndex > index) {
-          fixProperties([["currentIndex", actualCurrentIndex - 1]]);
-          setNewDisplayArray(updatedArray);
+          fixProperties([
+            ["currentIndex", actualCurrentIndex - 1],
+            ["newDisplayArray", updatedArray],
+          ]);
+          // setNewDisplayArray(updatedArray);
           return answerSave(payload);
         }
-        setNewDisplayArray(updatedArray);
+        fixProperties([["newDisplayArray", updatedArray]]);
+        // setNewDisplayArray(updatedArray);
         return answerSave(payload);
       }
     }

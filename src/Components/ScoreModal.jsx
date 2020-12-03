@@ -11,7 +11,7 @@ import { answerSave } from "../Services/answerSave";
 function ScoreModal(props) {
   const handleSave = async () => {
     const payload = { name: props.name, questions: props.payload };
-    props.handleModalClose("close");
+    props.fixProperties([["modalOpened", false]]);
     // props.setObjectRenderEdit(true, clickCount);
     const saved = await answerSave(payload);
   };
@@ -19,7 +19,7 @@ function ScoreModal(props) {
     <Dialog
       open={props.modalOpened}
       onClose={() => {
-        props.handleModalClose("close");
+        props.fixProperties([["modalOpened", false]]);
       }}
       aria-labelledby="form-dialog-title"
     >
@@ -45,9 +45,11 @@ function ScoreModal(props) {
         <Button
           onClick={() => {
             handleSave();
-            props.handleModalClose("close");
 
-            props.fixProperties([["questionOut", true]]);
+            props.fixProperties([
+              ["questionOut", true],
+              ["modalOpened", false],
+            ]);
           }}
           color="primary"
         >

@@ -5,9 +5,7 @@ import { useDrop } from "react-dnd";
 function Trashcan({
   findQuestion,
   newDisplayArray,
-  setCantDelete,
   fixProperties,
-  setNewDisplayArray,
   questionOut,
   name,
   ...props
@@ -19,9 +17,7 @@ function Trashcan({
         item.id,
         findQuestion,
         newDisplayArray,
-        setCantDelete,
         fixProperties,
-        setNewDisplayArray,
         questionOut,
         name
       );

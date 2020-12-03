@@ -15,6 +15,7 @@ import PreviewContainer from "../Components/PreviewContainer";
 import Trashcan from "./Trashcan";
 import AlertMessage from "./AlertMessage";
 import { deleteQuestion, quizSave } from "../Services/questionServices";
+import { answerSave } from "../Services/answerSave";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -51,47 +52,44 @@ function NewMakeQuiz(props) {
         singleAnswer: "",
         selected: "",
         correctAnswer: null,
-        modalOpen: false,
+        modalOpened: false,
         pointWorth: null,
       },
     ],
   });
-  const [cantDelete, setCantDelete] = useState(false);
-  const [modalOpened, setModalOpened] = useState(false);
-  const [newDisplayArray, setNewDisplayArray] = useState([
-    {
-      i: 0,
-      question: "",
-      showAnswer: false,
-      Q1: "",
-      Q2: "",
-      Q3: "",
-      Q4: "",
-      imgName: "",
-      Q1Correct: false,
-      Q2Correct: false,
-      Q3Correct: false,
-      Q4Correct: false,
-      renderEdit: false,
-      answerType: "",
-      singleAnswer: "",
-      selected: "",
-      correctAnswer: null,
-      modalOpen: false,
-      pointWorth: null,
-    },
-  ]);
+  // const [newDisplayArray, setNewDisplayArray] = useState([
+  //   {
+  //     i: 0,
+  //     question: "",
+  //     showAnswer: false,
+  //     Q1: "",
+  //     Q2: "",
+  //     Q3: "",
+  //     Q4: "",
+  //     imgName: "",
+  //     Q1Correct: false,
+  //     Q2Correct: false,
+  //     Q3Correct: false,
+  //     Q4Correct: false,
+  //     renderEdit: false,
+  //     answerType: "",
+  //     singleAnswer: "",
+  //     selected: "",
+  //     correctAnswer: null,
+  //     modalOpen: false,
+  //     pointWorth: null,
+  //   },
+  // ]);
 
   const fixProperties = (arr) => {
     let newFormState = { ...formState };
     for (var i = 0; i < arr.length; i++) {
       newFormState[arr[i][0]] = arr[i][1];
     }
-    console.log(newFormState, "Let's see what went wrong");
     setFormState(newFormState);
   };
   const dropHappened = (selected, landed) => {
-    const fixedArray = [...newDisplayArray];
+    const fixedArray = [...formState.newDisplayArray];
     const moved = { ...fixedArray[selected] };
     fixedArray.splice(landed + 1, 0, moved);
     let finalArray = [];
@@ -111,31 +109,34 @@ function NewMakeQuiz(props) {
         newIndex = i;
       }
     }
-    setNewDisplayArray(finalArray);
-    // setQuestionOut(false);
-    setFormState({ ...formState, currentIndex: newIndex, questionOut: false });
+    setFormState({
+      ...formState,
+      newDisplayArray: finalArray,
+      currentIndex: newIndex,
+      questionOut: false,
+    });
   };
 
   const handleModal = (openOrClose) => {
     if (openOrClose === "open") {
-      return setModalOpened(true);
+      return fixProperties([["modalOpened", true]]);
     }
-    return setModalOpened(false);
+    return fixProperties([["modalOpened", false]]);
   };
   const setObjectCorrectAnswer = (value) => {
-    const newArr = [...newDisplayArray];
+    const newArr = [...formState.newDisplayArray];
     const id =
       formState.currentIndex !== null
         ? formState.currentIndex
-        : newDisplayArray.length - 1;
+        : formState.newDisplayArray.length - 1;
 
     newArr[id].Q1Correct = false;
     newArr[id].Q2Correct = false;
     newArr[id].Q3Correct = false;
     newArr[id].Q4Correct = false;
     newArr[id][value] = true;
-
-    setNewDisplayArray(newArr);
+    fixProperties(["newDisplayArray", newArr]);
+    // setNewDisplayArray(newArr);
   };
 
   const handleNameChangeOrSave = (e, bool) => {
@@ -149,7 +150,7 @@ function NewMakeQuiz(props) {
     fixProperties([["name", e.target.value]]);
   };
   const findQuestion = () => {
-    const arrayCopy = [...newDisplayArray];
+    const arrayCopy = [...formState.newDisplayArray];
     if (formState.currentIndex === null) {
       const questionInfo = arrayCopy[arrayCopy.length - 1];
       return questionInfo;
@@ -159,16 +160,20 @@ function NewMakeQuiz(props) {
   const changeItem = (key, change) => {
     const index =
       formState.currentIndex === null
-        ? newDisplayArray.length - 1
+        ? formState.newDisplayArray.length - 1
         : formState.currentIndex;
-    const arrCopy = [...newDisplayArray];
+    const arrCopy = [...formState.newDisplayArray];
     arrCopy[index][key] = change;
-    setNewDisplayArray(arrCopy);
+    fixProperties([["newDisplayArray", arrCopy]]);
+    // setNewDisplayArray(arrCopy);
   };
   const handleAddQuestion = () => {
-    if (newDisplayArray.length >= 1 && newDisplayArray[0].question !== "") {
+    if (
+      formState.newDisplayArray.length >= 1 &&
+      formState.newDisplayArray[0].question !== ""
+    ) {
       const newQuestion = {
-        i: newDisplayArray.length,
+        i: formState.newDisplayArray.length,
         question: "",
         showAnswer: false,
         Q1: "",
@@ -188,16 +193,21 @@ function NewMakeQuiz(props) {
         modalOpen: false,
         pointWorth: null,
       };
-      const displayUpdate = [...newDisplayArray];
+      const displayUpdate = [...formState.newDisplayArray];
       displayUpdate.push(newQuestion);
-      setNewDisplayArray(displayUpdate);
+      // setNewDisplayArray(displayUpdate);
+      return setFormState({
+        ...formState,
+        newDisplayArray: displayUpdate,
+        questionOut: false,
+      });
     }
     setFormState({ ...formState, questionOut: false });
     // setQuestionOut(false);
   };
 
   const insertQuestion = (item) => {
-    const existing = [...newDisplayArray];
+    const existing = [...formState.newDisplayArray];
     let newI = 0;
     for (var i = 0; i < existing.length; i++) {
       if (existing[i].i > newI) {
@@ -232,15 +242,15 @@ function NewMakeQuiz(props) {
       }
     }
     existing.splice(index + 1, 0, newQuestion);
-    setNewDisplayArray(existing);
+    setFormState({ ...formState, newDisplayArray: existing });
+    // setNewDisplayArray(existing);
   };
 
   //here what you can try is setting up a new set index
   //that only sets index but doesn't mess with the array
   const setIndex = (index) => {
-    const arrayCopy = [...newDisplayArray];
+    const arrayCopy = [...formState.newDisplayArray];
     const switchView = localStorage.getItem("divPressed");
-    console.log(switchView, "this is switch view");
     if (switchView !== "false") {
       let newIndex;
       for (var i = 0; i < arrayCopy.length; i++) {
@@ -249,9 +259,10 @@ function NewMakeQuiz(props) {
         }
       }
       arrayCopy[newIndex].showAnswer = true;
-      setNewDisplayArray(arrayCopy);
+      // setNewDisplayArray(arrayCopy);
       return setFormState({
         ...formState,
+        newDisplayArray: arrayCopy,
         currentIndex: newIndex,
         questionOut: false,
       });
@@ -267,9 +278,9 @@ function NewMakeQuiz(props) {
         }}
       >
         <AlertMessage
-          cantDelete={cantDelete}
+          cantDelete={formState.cantDelete}
           title={"Your quiz must contain at least one question"}
-          setCantDelete={setCantDelete}
+          fixProperties={fixProperties}
           contentText={
             "If you'd like to change this question, please use the editing options available."
           }
@@ -290,7 +301,7 @@ function NewMakeQuiz(props) {
           </Typography>
         </div>
         <DndProvider backend={HTML5Backend}>
-          {newDisplayArray.map((item, i) => {
+          {formState.newDisplayArray.map((item, i) => {
             return (
               <PreviewContainer
                 key={i}
@@ -316,15 +327,26 @@ function NewMakeQuiz(props) {
             <Trashcan
               deleteQuestion={deleteQuestion}
               findQuestion={findQuestion}
-              newDisplayArray={newDisplayArray}
-              setCantDelete={setCantDelete}
+              newDisplayArray={formState.newDisplayArray}
               fixProperties={fixProperties}
-              setNewDisplayArray={setNewDisplayArray}
+              // setNewDisplayArray={setNewDisplayArray}
               questionOut={formState.questionOut}
               name={formState.name}
             />
             <Button
-              onClick={() => {
+              onClick={async () => {
+                if (
+                  formState.name === "" ||
+                  (formState.newDisplayArray.length === 1 &&
+                    formState.newDisplayArray[0].question === "")
+                ) {
+                  return props.history.push("/");
+                }
+                const payload = {
+                  name: formState.name,
+                  questions: formState.newDisplayArray,
+                };
+                const saved = await answerSave(payload);
                 quizSave(props.signedInName, formState.name, props);
               }}
               style={{ marginTop: "25em" }}
@@ -351,11 +373,10 @@ function NewMakeQuiz(props) {
           formState.questionOut === false ? (
             <NewQuestion
               singleAnswer={findQuestion().singleAnswer}
-              handleModalClose={handleModal}
               name={formState.name}
               selected={findQuestion().selected}
-              payload={newDisplayArray}
-              modalOpened={modalOpened}
+              payload={formState.newDisplayArray}
+              modalOpened={formState.modalOpened}
               currentQuestion={findQuestion().question}
               showAnswer={findQuestion().showAnswer}
               question={findQuestion()}
@@ -364,7 +385,7 @@ function NewMakeQuiz(props) {
               number={
                 formState.currentIndex !== null
                   ? formState.currentIndex + 1
-                  : newDisplayArray.length
+                  : formState.newDisplayArray.length
               }
               setObjectCorrectAnswer={setObjectCorrectAnswer}
             />

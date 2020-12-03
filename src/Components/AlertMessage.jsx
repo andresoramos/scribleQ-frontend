@@ -17,7 +17,7 @@ function AlertMessage(props) {
       <DialogActions>
         <Button
           onClick={() => {
-            props.setCantDelete(false);
+            props.fixProperties([["cantDelete", false]]);
           }}
           color="primary"
         >
