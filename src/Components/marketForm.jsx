@@ -10,7 +10,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import htmlToText from "../Services/htmlToText";
 import DropDownMenu from "./dropDownMenu";
-import { marketSave, showMakers, marketUpdate } from "../Services/answerSave";
+import { marketSave, marketUpdate } from "../Services/answerSave";
 import DatePicker from "./DatePicker";
 import MyMarketQuizzes from "./MyMarketQuizzes";
 import { findMarketHistory } from "./../Services/findQuiz";
@@ -646,7 +646,6 @@ function MarketForm(props) {
           Save
         </Button>
       </Dialog>
-      <Button onClick={showMakers}>Format Database</Button>
     </div>
   );
 }

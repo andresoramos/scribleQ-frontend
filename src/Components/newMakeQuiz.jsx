@@ -16,6 +16,8 @@ import Trashcan from "./Trashcan";
 import AlertMessage from "./AlertMessage";
 import { deleteQuestion, quizSave } from "../Services/questionServices";
 import { answerSave } from "../Services/answerSave";
+import { findCurrentUser } from "./../Services/authenticateUserToken";
+import getQuizzes from "./../Services/getQuizzes";
 
 const useStyles = makeStyles((theme) => ({
   menuButton: {
@@ -57,30 +59,23 @@ function NewMakeQuiz(props) {
       },
     ],
   });
-  // const [newDisplayArray, setNewDisplayArray] = useState([
-  //   {
-  //     i: 0,
-  //     question: "",
-  //     showAnswer: false,
-  //     Q1: "",
-  //     Q2: "",
-  //     Q3: "",
-  //     Q4: "",
-  //     imgName: "",
-  //     Q1Correct: false,
-  //     Q2Correct: false,
-  //     Q3Correct: false,
-  //     Q4Correct: false,
-  //     renderEdit: false,
-  //     answerType: "",
-  //     singleAnswer: "",
-  //     selected: "",
-  //     correctAnswer: null,
-  //     modalOpen: false,
-  //     pointWorth: null,
-  //   },
-  // ]);
 
+  useEffect(() => {
+    if (localStorage.getItem("editHistory")) {
+      restoreHistory();
+    }
+  }, []);
+  const restoreHistory = async () => {
+    const currQuiz = JSON.parse(localStorage.getItem("currentQuiz"));
+    const quizzes = await getQuizzes();
+    for (var i = 0; i < quizzes.quizzes.length; i++) {
+      if (quizzes.quizzes[i].quiz.name === currQuiz.quiz.name) {
+        const { history } = quizzes.quizzes[i].quiz;
+        localStorage.removeItem("editHistory");
+        setFormState(history);
+      }
+    }
+  };
   const fixProperties = (arr) => {
     let newFormState = { ...formState };
     for (var i = 0; i < arr.length; i++) {
@@ -116,13 +111,6 @@ function NewMakeQuiz(props) {
       questionOut: false,
     });
   };
-
-  const handleModal = (openOrClose) => {
-    if (openOrClose === "open") {
-      return fixProperties([["modalOpened", true]]);
-    }
-    return fixProperties([["modalOpened", false]]);
-  };
   const setObjectCorrectAnswer = (value) => {
     const newArr = [...formState.newDisplayArray];
     const id =
@@ -135,7 +123,8 @@ function NewMakeQuiz(props) {
     newArr[id].Q3Correct = false;
     newArr[id].Q4Correct = false;
     newArr[id][value] = true;
-    fixProperties(["newDisplayArray", newArr]);
+    console.log();
+    fixProperties([["newDisplayArray", newArr]]);
     // setNewDisplayArray(newArr);
   };
 
@@ -342,9 +331,11 @@ function NewMakeQuiz(props) {
                 ) {
                   return props.history.push("/");
                 }
+                console.log(formState, "Should not be undefined");
                 const payload = {
                   name: formState.name,
                   questions: formState.newDisplayArray,
+                  history: formState,
                 };
                 const saved = await answerSave(payload);
                 quizSave(props.signedInName, formState.name, props);
@@ -372,6 +363,7 @@ function NewMakeQuiz(props) {
         {formState.hideName !== "" ? (
           formState.questionOut === false ? (
             <NewQuestion
+              history={formState}
               singleAnswer={findQuestion().singleAnswer}
               name={formState.name}
               selected={findQuestion().selected}

@@ -57,11 +57,16 @@ export default function MyMarketQuizzes(props) {
     }
   }, []);
   useEffect(() => {
-    const index = findQuizIndex(
-      JSON.parse(localStorage.getItem("currentQuiz")).quiz.name
-    );
-    setSelectedIndex(index);
-    createRow(index, JSON.parse(localStorage.getItem("currentQuiz")).quiz.name);
+    if (localStorage.getItem("marketQuizzes")) {
+      const index = findQuizIndex(
+        JSON.parse(localStorage.getItem("currentQuiz")).quiz.name
+      );
+      setSelectedIndex(index);
+      createRow(
+        index,
+        JSON.parse(localStorage.getItem("currentQuiz")).quiz.name
+      );
+    }
   }, [allMarkets]);
   //When things in the dependency array change, this will run again.
 

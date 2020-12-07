@@ -18,6 +18,7 @@ import MarketForm from "./Components/marketForm";
 import NewMakeQuiz from "./Components/newMakeQuiz";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import MarketPerformance from "./Components/MarketPerformance";
+import Marketplace from "./Components/marketPlace";
 
 function App(props) {
   const [signedInName, setSignedInName] = useState(
@@ -83,6 +84,10 @@ function App(props) {
         <ProtectedRoute
           path="/marketPerformance"
           component={(props) => <MarketPerformance {...props} />}
+        />
+        <ProtectedRoute
+          path="/marketplace"
+          component={(props) => <Marketplace {...props} />}
         />
         <Route
           path="/seeScore"

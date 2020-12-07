@@ -31,11 +31,11 @@ export async function updateAndSave(index, quiz) {
 export async function checkEdit(index) {
   const quizArray = await axios.get("http://localhost:5000/api/quizzes");
 }
-export async function showMakers() {
-  const quizArray = await axios.get("http://localhost:5000/api/market");
-  console.log(quizArray.data);
-  return quizArray.data;
-}
+// export async function showMakers() {
+//   const quizArray = await axios.get("http://localhost:5000/api/market");
+//   return quizArray.data;
+// }
+//Use this if you ever want to create maker object instantly
 export async function marketSave(payload) {
   try {
     const marketItem = await axios.post("/api/market", payload);

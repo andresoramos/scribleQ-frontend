@@ -9,6 +9,11 @@ export function findQuiz(str, i) {
   return selectedQuiz;
 }
 
+export async function getAll() {
+  const markets = await axios.get("/api/market");
+  return markets.data;
+}
+
 export function findScoreScreen(string) {
   return JSON.parse(localStorage.getItem(string));
 }

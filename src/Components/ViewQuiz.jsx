@@ -114,7 +114,7 @@ function ViewQuiz(props) {
       setPresentQuiz(quizStrung);
     }
     populateQuiz(id, iValue);
-  });
+  }, []);
   const resetQuestion = (number) => {
     const resetObj = { ...quizSuccess };
     for (var key in resetObj) {
@@ -127,12 +127,14 @@ function ViewQuiz(props) {
   const compareFilled = () => {
     const presentArr = returnQuestionsArray(presentQuiz).length;
     const filledAmount = Object.keys(filled).length;
+    console.log(filled, "this is filled");
     if (presentArr === filledAmount) {
       return true;
     }
     return false;
   };
   const addFilled = (i) => {
+    console.log(`ADD FILLED RAN AND ITS I IS: ${i}`);
     const newFilled = { ...filled };
     newFilled[i] = true;
     setFilled(newFilled);
@@ -225,7 +227,8 @@ function ViewQuiz(props) {
         >
           <Button
             onClick={(e) => {
-              addFilled(i + 1);
+              console.log("add filled should be running");
+              addFilled(index + 1);
               handleMultipleAnswer(e, index);
             }}
             component={Avatar}
@@ -242,7 +245,7 @@ function ViewQuiz(props) {
   const mockFunctionForLDistance = (word1, word2) => {
     const newWord1 = word1.toLowerCase();
     const newWord2 = word2.toLowerCase();
-    const editDistance = getEditDistance(word1, word2);
+    const editDistance = getEditDistance(newWord1, newWord2);
     if (word2.length < 3) {
       if (editDistance > 0) {
         return false;

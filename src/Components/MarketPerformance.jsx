@@ -38,7 +38,7 @@ function MarketPerformance(props) {
         ? createDate(marketObj.uploadDate)
         : undefined;
       finalObj.validUntil = marketObj.expirationDate
-        ? marketObj.expirationDate
+        ? createDate(marketObj.expirationDate)
         : undefined;
       finalObj.likes = marketObj.likes.likes;
       finalObj.dislikes = marketObj.likes.dislikes;

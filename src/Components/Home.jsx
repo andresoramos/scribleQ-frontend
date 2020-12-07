@@ -307,7 +307,7 @@ export const Home = (props) => {
                 const quiz = quizByName(userAccount, props.currentName);
                 localStorage.setItem("currentQuiz", JSON.stringify(quiz));
                 localStorage.setItem("editHistory", true);
-                // props.history.push("/newMakeQuiz");
+                props.history.push("/newMakeQuiz");
               }}
             >
               {`Edit ${props.currentName}.`}

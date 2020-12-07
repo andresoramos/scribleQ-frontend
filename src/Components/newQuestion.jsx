@@ -170,6 +170,7 @@ function NewQuestion(props) {
         </div>
       )}
       <ScoreModal
+        history={props.history}
         changeItem={props.changeItem}
         modalOpened={props.modalOpened}
         name={props.name}

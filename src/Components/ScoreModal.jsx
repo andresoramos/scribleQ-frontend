@@ -10,7 +10,11 @@ import { answerSave } from "../Services/answerSave";
 
 function ScoreModal(props) {
   const handleSave = async () => {
-    const payload = { name: props.name, questions: props.payload };
+    const payload = {
+      name: props.name,
+      questions: props.payload,
+      history: props.history,
+    };
     props.fixProperties([["modalOpened", false]]);
     // props.setObjectRenderEdit(true, clickCount);
     const saved = await answerSave(payload);
