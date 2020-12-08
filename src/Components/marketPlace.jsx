@@ -31,8 +31,8 @@ function MarketPlace(props) {
     if (currentTime >= allData.ts + 6000) {
       await populateCache();
     }
-    const matchedBySpelling = matchBySpelling(term, allData.quizzes);
-
+    const matchedBySpelling = matchBySpelling(term, allData.quizzes, []);
+    console.log(matchedBySpelling, "This should be reading undefined for now");
     //find closest 5 by exact term
     //find closest 5 by tags
     //use a function that takes in the first 5 and the second five, and returns
