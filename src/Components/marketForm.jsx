@@ -521,6 +521,7 @@ function MarketForm(props) {
             onChange={changeTags}
             label="Search tags"
             defaultValue="Geometry, Angles, Proofs..."
+            value={formState.tags}
             helperText={`Type in keywords for your quiz seperated by commas (e.g, "Math, Algebra, Equations...")`}
           />
           {!formState.premium && (
