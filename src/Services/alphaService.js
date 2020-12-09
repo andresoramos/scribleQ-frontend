@@ -43,6 +43,9 @@ export function alphaService(arr, term) {
   if (termIndex === 0) {
     return arr[1];
   }
+  if (termIndex === arr.length - 1) {
+    return arr[arr.length - 2];
+  }
   let selected;
   for (var i = 0; i < term.length; i++) {
     let left = Math.abs(alphaObj[term[i]] - alphaObj[arr[termIndex - 1][i]]);
@@ -52,15 +55,9 @@ export function alphaService(arr, term) {
       break;
     }
   }
-  console.log(selected, "This is the selected option");
   if (selected) {
     return selected;
   }
-  let left = alphaObj[arr[termIndex - 1][term.length]];
-  let right = alphaObj[arr[termIndex + 1][term.length]];
-  console.log(
-    arr[termIndex - 1][term.length],
-    arr[termIndex + 1][term.length],
-    "this is left and right, somehow"
-  );
+  //   let left = alphaObj[arr[termIndex - 1][term.length]];
+  //   let right = alphaObj[arr[termIndex + 1][term.length]];
 }

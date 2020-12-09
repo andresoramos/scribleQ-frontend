@@ -4,7 +4,12 @@ import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 import Paper from "@material-ui/core/Paper";
 import { getAll } from "../Services/findQuiz";
-import { findSimilarities, matchBySpelling } from "./../Services/menuCreation";
+import _ from "lodash";
+import {
+  matchBySpelling,
+  matchByContains,
+  matchByTags,
+} from "./../Services/menuCreation";
 
 function MarketPlace(props) {
   const [allData, setAllData] = useState({});
@@ -31,8 +36,19 @@ function MarketPlace(props) {
     if (currentTime >= allData.ts + 6000) {
       await populateCache();
     }
-    const matchedBySpelling = matchBySpelling(term, allData.quizzes, []);
-    console.log(matchedBySpelling, "This should be reading undefined for now");
+    let clonedArr = _.cloneDeep(allData.quizzes);
+    const matchedBySpelling = matchBySpelling(term, clonedArr, []);
+    let secondClonedArr = _.cloneDeep(allData.quizzes);
+    const contains = matchByContains(term, secondClonedArr);
+    let clonedMarketArr = _.cloneDeep(allData.markets);
+    let clonedMakerArr = _.cloneDeep(allData.makers);
+    let thirdClonedArr = _.cloneDeep(allData.quizzes);
+    const matchedByTags = matchByTags(
+      term,
+      clonedMarketArr,
+      clonedMakerArr,
+      thirdClonedArr
+    );
     //find closest 5 by exact term
     //find closest 5 by tags
     //use a function that takes in the first 5 and the second five, and returns
