@@ -1,4 +1,7 @@
 export function alphaService(arr, term) {
+  // if (arr[0] === "the third") {
+  //   console.log("Please let this only run once");
+  // }
   const alphaObj = {
     a: 1,
     b: 2,
@@ -40,6 +43,7 @@ export function alphaService(arr, term) {
   const termIndex = arr.findIndex((item) => {
     return item === term;
   });
+
   if (termIndex === 0) {
     return arr[1];
   }
@@ -50,9 +54,14 @@ export function alphaService(arr, term) {
   for (var i = 0; i < term.length; i++) {
     let left = Math.abs(alphaObj[term[i]] - alphaObj[arr[termIndex - 1][i]]);
     let right = Math.abs(alphaObj[term[i]] - alphaObj[arr[termIndex + 1][i]]);
+    if (arr[0] === "the third") {
+      console.log(left, "left", right, "right");
+    }
     if (left !== right) {
       selected = left < right ? arr[termIndex - 1] : arr[termIndex + 1];
       break;
+    } else {
+      selected = arr[termIndex + 1];
     }
   }
   if (selected) {

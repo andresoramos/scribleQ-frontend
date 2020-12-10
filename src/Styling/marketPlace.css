@@ -22,6 +22,36 @@
 .paperInside {
   height: 210px;
 }
+/* .searchDropdown {
+} */
+.dropDown {
+}
+.searchTitle {
+  display: flex;
+  justify-content: center;
+}
+.subjectName {
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  background-color: grey;
+}
+.controlDivider {
+  display: flex;
+  justify-content: center;
+}
+.listItem:hover {
+  background-color: chartreuse;
+  cursor: pointer;
+}
+.listItem {
+  font-size: small;
+  padding-left: 10px;
+}
+.divider {
+  border-bottom: 0.5px solid black;
+  width: 90%;
+}
 .search {
   display: flex;
   justify-content: center;
@@ -35,4 +65,10 @@
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+}
+.subjectText {
+  padding: 0px;
+  margin: 0px;
+  margin-top: -2px;
+  color: antiquewhite;
 }
