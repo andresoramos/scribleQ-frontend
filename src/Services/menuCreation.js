@@ -3,11 +3,11 @@ import getEditDistance from "./levensteinDistance";
 import { alphaService } from "../Services/alphaService";
 import _ from "lodash";
 
-export const makeDropdown = (array, term) => {
+export const makeDropdown = (array, term, callback) => {
   const dropDownFinal = array.map((item, i) => {
     if (item === "--no_items@@$") {
       return (
-        <div key={i} className="listItem">
+        <div style={{ fontStyle: "italic" }} key={i} className="noMatch">
           No matches
         </div>
       );
@@ -34,7 +34,13 @@ export const makeDropdown = (array, term) => {
       );
     }
     return (
-      <div key={i} className="listItem">
+      <div
+        key={i}
+        onClick={() => {
+          callback(item);
+        }}
+        className="listItem"
+      >
         {item.name}
       </div>
     );
@@ -53,8 +59,31 @@ export const makeDropdown = (array, term) => {
   if (dropDownFinal[index1 + 1].props.children !== "No matches") {
     for (var i = index1 + 1; i < index2; i++) {
       const firstPart = <b>{term}</b>;
-      const remaining = dropDownFinal[i].props.children;
-      console.log(remaining, "this is remaining");
+      const remaining = dropDownFinal[i].props.children.slice(term.length);
+
+      const quizIndex = array.findIndex((item) => {
+        return item.name === term + remaining;
+      });
+      const quiz = array[quizIndex];
+
+      const final = (
+        <div>
+          {firstPart}
+          {remaining}
+        </div>
+      );
+
+      dropDownFinal[i] = (
+        <div
+          onClick={() => {
+            callback(quiz);
+          }}
+          key={i}
+          className="listItem"
+        >
+          {final}
+        </div>
+      );
     }
   }
   return dropDownFinal;

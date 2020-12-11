@@ -1,0 +1,13 @@
+.addContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 65%;
+  margin-top: 25px;
+}
+.buyContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: cadetblue;
+}

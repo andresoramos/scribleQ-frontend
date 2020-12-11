@@ -54,9 +54,7 @@ export function alphaService(arr, term) {
   for (var i = 0; i < term.length; i++) {
     let left = Math.abs(alphaObj[term[i]] - alphaObj[arr[termIndex - 1][i]]);
     let right = Math.abs(alphaObj[term[i]] - alphaObj[arr[termIndex + 1][i]]);
-    if (arr[0] === "the third") {
-      console.log(left, "left", right, "right");
-    }
+
     if (left !== right) {
       selected = left < right ? arr[termIndex - 1] : arr[termIndex + 1];
       break;

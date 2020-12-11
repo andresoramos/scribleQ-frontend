@@ -12,9 +12,20 @@ import {
   concatArray,
   makeDropdown,
 } from "./../Services/menuCreation";
+import { downloadQuiz } from "./../Services/downloadService";
+import ChargeOverlay from "../Components/chargeOverlay";
+import { balanceService } from "../Services/balanceService";
 
 function MarketPlace(props) {
-  const [allData, setAllData] = useState({});
+  const [allData, setAllData] = useState({
+    ts: Date.now(),
+    dropDown: [],
+    term: "",
+    open: false,
+    balance: 0,
+    cost: null,
+    quizName: null,
+  });
   const topics = [
     { name: "Blum" },
     { name: "Blum" },
@@ -27,11 +38,9 @@ function MarketPlace(props) {
     populateCache();
   }, []);
   const populateCache = async () => {
-    const allData = await getAll();
-    const allDataWithTs = { ...allData };
-    allDataWithTs.ts = Date.now();
-    allDataWithTs.dropDown = [];
-    allDataWithTs.term = "";
+    const getAllData = await getAll();
+    const balance = await balanceService();
+    const allDataWithTs = { ...allData, ...getAllData, balance };
     setAllData(allDataWithTs);
   };
   const handleSearch = async (term) => {
@@ -56,6 +65,47 @@ function MarketPlace(props) {
     );
     const updatedDropdown = { ...allData, dropDown: concattedArray, term };
     setAllData(updatedDropdown);
+  };
+
+  const interpretResponse = (response, item) => {
+    if (typeof response === "object") {
+      if (response.charge) {
+        const { cost } = response;
+        setAllData({ ...allData, open: true, cost, quizName: item.name });
+      }
+    }
+  };
+  const handleTextChange = (term) => {
+    //for 12/15/2020
+    const toNumber = Number(term);
+    // console.log(
+    //   JSON.stringify(toNumber) === null,
+    //   typeof JSON.stringify(toNumber),
+    //   typeof null,
+    //   "this is the number"
+    // );
+    if (JSON.stringify(toNumber) === "null") {
+      console.log("this is the letter case");
+    }
+    console.log("got to the number case");
+    //take the term and find out if its a number
+    //if its not, then change the state to reflect that error property is true
+    //otherwise, create a service that allows you to change add scribloons to
+    //your account
+  };
+  const handleClose = () => {
+    setAllData({ ...allData, open: false });
+  };
+
+  const handleOnClick = async (item) => {
+    const downloadedQuiz = await downloadQuiz(item);
+    const interpretedResponse = interpretResponse(downloadedQuiz, item);
+
+    //create service that saves quiz to both the user, and updates market performance
+    //as well as the quiz itself, if necessary.
+    //Once the quiz is downloaded, then create an overlay that informs
+    //users that their quiz has been downloaded and that they can either take it
+    //now, go to their downloads page, or simply return to the market
   };
   return (
     <div className="headerContainer">
@@ -83,7 +133,7 @@ function MarketPlace(props) {
                   <div className="controlDivider">
                     <div className="divider" />
                   </div>
-                  {makeDropdown(allData.dropDown, allData.term)}
+                  {makeDropdown(allData.dropDown, allData.term, handleOnClick)}
                 </Paper>
               ) : null
             ) : null}
@@ -99,6 +149,14 @@ function MarketPlace(props) {
           );
         })}
       </div>
+      <ChargeOverlay
+        balance={allData.balance}
+        cost={allData.cost}
+        quizName={allData.quizName}
+        open={allData.open}
+        close={handleClose}
+        handleTextChange={handleTextChange}
+      />
     </div>
   );
 }

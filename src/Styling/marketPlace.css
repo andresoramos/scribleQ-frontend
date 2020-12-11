@@ -48,6 +48,10 @@
   font-size: small;
   padding-left: 10px;
 }
+.noMatch {
+  font-size: small;
+  padding-left: 10px;
+}
 .divider {
   border-bottom: 0.5px solid black;
   width: 90%;
