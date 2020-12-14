@@ -14,7 +14,11 @@ import {
 } from "./../Services/menuCreation";
 import { downloadQuiz } from "./../Services/downloadService";
 import ChargeOverlay from "../Components/chargeOverlay";
-import { balanceService } from "../Services/balanceService";
+import {
+  balanceService,
+  tradeFunds,
+  addFunds,
+} from "../Services/balanceService";
 
 function MarketPlace(props) {
   const [allData, setAllData] = useState({
@@ -25,6 +29,11 @@ function MarketPlace(props) {
     balance: 0,
     cost: null,
     quizName: null,
+    error: false,
+    chargeTerm: null,
+    presentQuiz: null,
+    sameAlert: false,
+    owned: false,
   });
   const topics = [
     { name: "Blum" },
@@ -39,8 +48,7 @@ function MarketPlace(props) {
   }, []);
   const populateCache = async () => {
     const getAllData = await getAll();
-    const balance = await balanceService();
-    const allDataWithTs = { ...allData, ...getAllData, balance };
+    const allDataWithTs = { ...allData, ...getAllData };
     setAllData(allDataWithTs);
   };
   const handleSearch = async (term) => {
@@ -63,7 +71,13 @@ function MarketPlace(props) {
       contains,
       matchedByTags
     );
-    const updatedDropdown = { ...allData, dropDown: concattedArray, term };
+    const balance = await balanceService();
+    const updatedDropdown = {
+      ...allData,
+      dropDown: concattedArray,
+      term,
+      balance,
+    };
     setAllData(updatedDropdown);
   };
 
@@ -71,30 +85,47 @@ function MarketPlace(props) {
     if (typeof response === "object") {
       if (response.charge) {
         const { cost } = response;
-        setAllData({ ...allData, open: true, cost, quizName: item.name });
+        setAllData({
+          ...allData,
+          open: true,
+          cost,
+          quizName: item.name,
+          presentQuiz: item,
+        });
       }
     }
   };
+  const handleFund = async () => {
+    const balance = await addFunds(allData.chargeTerm, allData.presentQuiz);
+    setAllData({ ...allData, balance });
+    //service will both have to direct money to the creator's balance,
+    //as well as correctly increasing the revenue property in the market obj
+  };
   const handleTextChange = (term) => {
-    //for 12/15/2020
-    const toNumber = Number(term);
-    // console.log(
-    //   JSON.stringify(toNumber) === null,
-    //   typeof JSON.stringify(toNumber),
-    //   typeof null,
-    //   "this is the number"
-    // );
-    if (JSON.stringify(toNumber) === "null") {
-      console.log("this is the letter case");
+    if (term === "") {
+      return setAllData({ ...allData, error: false });
     }
-    console.log("got to the number case");
-    //take the term and find out if its a number
-    //if its not, then change the state to reflect that error property is true
-    //otherwise, create a service that allows you to change add scribloons to
-    //your account
+    const toNumber = Number(term);
+    if (JSON.stringify(toNumber) === "null") {
+      return setAllData({ ...allData, error: true });
+    }
+    setAllData({ ...allData, chargeTerm: term });
   };
   const handleClose = () => {
     setAllData({ ...allData, open: false });
+  };
+
+  const handleBuy = async (amount) => {
+    const bought = await tradeFunds(amount, allData.presentQuiz);
+    if (bought === 404) {
+      return setAllData({ ...allData, sameAlert: true });
+    }
+    if (bought.owned) {
+      return setAllData({ ...allData, owned: true });
+    }
+    if (bought) {
+      //create a service that handles the download of the quiz itself
+    }
   };
 
   const handleOnClick = async (item) => {
@@ -110,7 +141,7 @@ function MarketPlace(props) {
   return (
     <div className="headerContainer">
       <div className="headerTop">
-        <p className="header">Welcome to the Market Place</p>;
+        <p className="header">Welcome to the Market Place</p>
         <div className="search">
           <SearchIcon style={{ fontSize: 70 }} />
           <div className="searchDropdown">
@@ -150,11 +181,16 @@ function MarketPlace(props) {
         })}
       </div>
       <ChargeOverlay
+        error={allData.error}
         balance={allData.balance}
         cost={allData.cost}
+        handleBuy={handleBuy}
         quizName={allData.quizName}
+        handleFund={handleFund}
         open={allData.open}
+        sameAlert={allData.sameAlert}
         close={handleClose}
+        owned={allData.owned}
         handleTextChange={handleTextChange}
       />
     </div>
