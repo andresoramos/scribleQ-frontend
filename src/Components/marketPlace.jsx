@@ -4,7 +4,7 @@ import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 import Paper from "@material-ui/core/Paper";
 import { getAll, updateCurrentQuiz } from "../Services/findQuiz";
-import _ from "lodash";
+import _, { set } from "lodash";
 import {
   matchBySpelling,
   matchByContains,
@@ -19,6 +19,7 @@ import {
   tradeFunds,
   addFunds,
 } from "../Services/balanceService";
+import QuizScreenOverlay from "./quizScreenOverlay";
 
 function MarketPlace(props) {
   const [allData, setAllData] = useState({
@@ -34,6 +35,7 @@ function MarketPlace(props) {
     presentQuiz: null,
     sameAlert: false,
     owned: false,
+    quizScreenOpen: false,
   });
   const topics = [
     { name: "Blum" },
@@ -56,7 +58,7 @@ function MarketPlace(props) {
       return setAllData({ ...allData, dropDown: [] });
     }
     const currentTime = Date.now();
-    if (currentTime >= allData.ts + 6000) {
+    if (currentTime >= allData.ts + 600000) {
       await populateCache();
     }
     let clonedArr = _.cloneDeep(allData.quizzes);
@@ -71,17 +73,22 @@ function MarketPlace(props) {
       contains,
       matchedByTags
     );
-    const balance = await balanceService();
+    // const balance = await balanceService();
     const updatedDropdown = {
       ...allData,
       dropDown: concattedArray,
       term,
-      balance,
+      // balance,
     };
     setAllData(updatedDropdown);
   };
 
-  const interpretResponse = (response, item) => {
+  const handleScreenClose = () => {
+    setAllData({ ...allData, quizScreenOpen: false });
+  };
+
+  const interpretResponse = async (response, item) => {
+    const balance = await balanceService();
     if (typeof response === "object") {
       if (response.charge) {
         const { cost } = response;
@@ -91,6 +98,7 @@ function MarketPlace(props) {
           cost,
           quizName: item.name,
           presentQuiz: item,
+          balance,
         });
       }
     }
@@ -124,13 +132,15 @@ function MarketPlace(props) {
       return setAllData({ ...allData, owned: true });
     }
     if (bought) {
-      //create a service that handles the download of the quiz itself
+      setAllData({ ...allData, open: false, quizScreenOpen: true });
+      //bring up modal that gives them option to either see their quizzes that they've
+      //purchased, or to continue shopping in the market place
     }
   };
 
   const handleOnClick = async (item) => {
     const downloadedQuiz = await downloadQuiz(item);
-    const interpretedResponse = interpretResponse(downloadedQuiz, item);
+    const interpretedResponse = await interpretResponse(downloadedQuiz, item);
 
     //create service that saves quiz to both the user, and updates market performance
     //as well as the quiz itself, if necessary.
@@ -147,27 +157,26 @@ function MarketPlace(props) {
           <div className="searchDropdown">
             <TextField
               onChange={(e) => {
+                e.preventDefault();
                 handleSearch(e.target.value);
               }}
               id="outlined-basic"
               label="Outlined"
               variant="outlined"
             />
-            {allData.dropDown ? (
-              allData.dropDown.length > 0 ? (
-                <Paper className="dropDown">
-                  <div className="searchTitle">
-                    <p style={{ fontWeight: "bold", marginBottom: "-1px" }}>
-                      Search Results
-                    </p>
-                  </div>
-                  <div className="controlDivider">
-                    <div className="divider" />
-                  </div>
-                  {makeDropdown(allData.dropDown, allData.term, handleOnClick)}
-                </Paper>
-              ) : null
-            ) : null}
+            {allData.dropDown && allData.dropDown.length > 0 && (
+              <Paper className="dropDown">
+                <div className="searchTitle">
+                  <p style={{ fontWeight: "bold", marginBottom: "-1px" }}>
+                    Search Results
+                  </p>
+                </div>
+                <div className="controlDivider">
+                  <div className="divider" />
+                </div>
+                {makeDropdown(allData.dropDown, allData.term, handleOnClick)}
+              </Paper>
+            )}
           </div>
         </div>
       </div>
@@ -192,6 +201,14 @@ function MarketPlace(props) {
         close={handleClose}
         owned={allData.owned}
         handleTextChange={handleTextChange}
+      />
+      <QuizScreenOverlay
+        {...props}
+        open={allData.quizScreenOpen}
+        close={handleScreenClose}
+        title={`You may either continue browsing the marketplace, see all of your purchased quizzes, or take ${
+          allData.presentQuiz !== null ? allData.presentQuiz.name : null
+        }`}
       />
     </div>
   );

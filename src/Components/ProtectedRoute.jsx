@@ -10,7 +10,6 @@ function ProtectedRoute(props) {
       exact
       path={props.path}
       render={(props) => {
-        console.log(props, "maybe props in route works");
         return component(props);
       }}
     />

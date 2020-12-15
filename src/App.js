@@ -19,6 +19,7 @@ import NewMakeQuiz from "./Components/newMakeQuiz";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import MarketPerformance from "./Components/MarketPerformance";
 import Marketplace from "./Components/marketPlace";
+import PurchasedQuizzes from "./Components/PurchasedQuizzes";
 
 function App(props) {
   const [signedInName, setSignedInName] = useState(
@@ -84,6 +85,10 @@ function App(props) {
         <ProtectedRoute
           path="/marketPerformance"
           component={(props) => <MarketPerformance {...props} />}
+        />
+        <ProtectedRoute
+          path="/purchasedQuizzes"
+          component={(props) => <PurchasedQuizzes {...props} />}
         />
         <ProtectedRoute
           path="/marketplace"

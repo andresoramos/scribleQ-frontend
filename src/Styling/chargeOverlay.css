@@ -12,6 +12,17 @@
 }
 .buyCancel {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   width: 100%;
+}
+.postBuyButtons {
+  display: flex;
+  justify-content: center;
+  margin-right: 10px;
+  width: 30%;
+}
+.cardHolder {
+  display: flex;
+  width: 100%;
+  justify-content: center;
 }
