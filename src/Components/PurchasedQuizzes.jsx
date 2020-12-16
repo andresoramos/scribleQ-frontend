@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
 import "../Styling/PurchasedQuizzes.css";
-import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
-import CameraIcon from "@material-ui/icons/PhotoCamera";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Grid from "@material-ui/core/Grid";
-import Toolbar from "@material-ui/core/Toolbar";
+import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import { paidQuizzes } from "./../Services/paidQuizzesService";
+import Avatar from "@material-ui/core/Avatar";
+import Paper from "@material-ui/core/Paper";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -31,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     height: "50%",
-    width: "60%",
+    width: "70%",
     display: "flex",
     marginBottom: "1.5em",
     marginTop: "1.5em",
@@ -52,6 +49,10 @@ const useStyles = makeStyles((theme) => ({
 function PurchasedQuizzes(props) {
   const classes = useStyles();
   const arrTest = [1, 2, 3, 4, 5, 6];
+  const [formState, setFormState] = useState({
+    quizzes: [],
+    selectedIndex: null,
+  });
 
   useEffect(() => {
     populateQuizzes();
@@ -59,15 +60,39 @@ function PurchasedQuizzes(props) {
 
   const populateQuizzes = async () => {
     const quizzes = await paidQuizzes();
+    setFormState({ ...formState, quizzes });
+  };
+
+  const trimName = (name) => {
+    let newName = "";
+    for (var i = 0; i < 14; i++) {
+      newName += name[i];
+    }
+    newName += "...";
+    return newName;
+  };
+  const handleClick = (selectedIndex) => {
+    setFormState({ ...formState, selectedIndex });
   };
 
   return (
     <div className="container">
       <div className="sidePanel">
-        {arrTest.map((item, i) => {
+        <div className="collectionHeader">
+          <p style={{ fontWeight: "bold" }}>Your Quiz Collection</p>
+        </div>
+        <Divider light />
+        {formState.quizzes.map((item, i) => {
+          console.log(item, "name should be here");
           return (
-            <div className="cardHolder">
-              <Card className={classes.card}>
+            <div
+              key={i}
+              onClick={() => {
+                handleClick(i);
+              }}
+              className="cardHolder"
+            >
+              <Card key={i} className={classes.card}>
                 <CardMedia
                   className={classes.cardMedia}
                   image="https://source.unsplash.com/random"
@@ -80,38 +105,75 @@ function PurchasedQuizzes(props) {
                     variant="subtitle2"
                     component="h2"
                   >
-                    Butt in your dick
+                    {item.name}
                   </Typography>
-                  <Typography style={{ fontSize: "12px" }} variant="body2">
-                    This
-                  </Typography>
+                  <Divider light />
+                  <div className="profile">
+                    <Avatar
+                      style={{ width: "22px", height: "22px" }}
+                      alt="Travis Howard"
+                      src="https://i.pinimg.com/736x/83/ac/1a/83ac1a49be15d0bc75ce03b15aaab640.jpg"
+                    />
+                    {item.creatorObj && (
+                      <Typography
+                        style={{
+                          marginLeft: "1em",
+                          marginTop: "2px",
+                          display: "flex",
+                          fontSize: "12px",
+                          overflow: "auto",
+                        }}
+                        variant="body2"
+                      >
+                        {item.creatorObj.user.name.length <= 17
+                          ? item.creatorObj.user.name
+                          : trimName(item.creatorObj.user.name)}
+                      </Typography>
+                    )}
+                  </div>
                 </CardContent>
-                <CardActions>
+                {/* <CardActions>
                   <Button size="small" color="primary">
-                    View
+                  View
                   </Button>
                   <Button size="small" color="primary">
-                    Edit
+                  Edit
                   </Button>
-                </CardActions>
+                </CardActions> */}
               </Card>
             </div>
           );
         })}
       </div>
+      {formState.selectedIndex !== null && (
+        <div className="macroContainer">
+          <div className="paperContainer">
+            <Paper style={{ width: "100%", height: "70%" }}>
+              <div className="paperTitle">
+                <p style={{ fontWeight: "bold", fontSize: "40px" }}>
+                  {formState.quizzes[formState.selectedIndex].name}
+                </p>
+              </div>
+              <Divider variant="middle" />
+              <div className="createdBy">
+                <h>Created by:</h>
+              </div>
+              <div className="macroMakers">
+                <Avatar
+                  style={{ width: "45px", height: "45px" }}
+                  alt="Travis Howard"
+                  src="https://i.pinimg.com/736x/83/ac/1a/83ac1a49be15d0bc75ce03b15aaab640.jpg"
+                />
+              </div>
+            </Paper>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
+//right below avatar in line 162, make it take the name of the maker!
 export default PurchasedQuizzes;
-
-//For this, make a stack using flexbox on the left hand side that will
-//contain a column of paper selectors
-
-//Each selector will be a representation of a quiz you've bought
-
-//For visual effect, we're going to find some images, and make each
-//one get a randomly assigned image
 
 //When you click on each one, you'll see a macro of it in the center
 //This will tell you the name of the quiz, its maker, an option to like it, an option

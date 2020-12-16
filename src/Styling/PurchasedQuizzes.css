@@ -7,3 +7,41 @@
   background-color: darkseagreen;
   width: 15%;
 }
+.profile {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: row;
+}
+.createdBy {
+  display: flex;
+  justify-content: center;
+  /* width: 65%; */
+}
+.collectionHeader {
+  display: flex;
+
+  justify-content: center;
+}
+.cardHolder:hover {
+  background-color: deepskyblue;
+  cursor: pointer;
+}
+.macroContainer {
+  width: 85%;
+  display: flex;
+  justify-content: center;
+}
+.macroMakers {
+  display: flex;
+  justify-content: center;
+}
+.paperContainer {
+  padding-top: 5%;
+  display: flex;
+  justify-content: center;
+  width: 90%;
+}
+.paperTitle {
+  display: flex;
+  justify-content: center;
+}
