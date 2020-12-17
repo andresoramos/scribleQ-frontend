@@ -10,6 +10,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { paidQuizzes } from "./../Services/paidQuizzesService";
 import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
+import Chip from "@material-ui/core/Chip";
+import { likeService } from "./../Services/likeService";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -62,6 +64,7 @@ function PurchasedQuizzes(props) {
     const quizzes = await paidQuizzes();
     setFormState({ ...formState, quizzes });
   };
+  const handleChipClick = () => {};
 
   const trimName = (name) => {
     let newName = "";
@@ -71,7 +74,26 @@ function PurchasedQuizzes(props) {
     newName += "...";
     return newName;
   };
-  const handleClick = (selectedIndex) => {
+
+  const handleLike = async (quizId) => {
+    //check to see if quiz is already liked
+    //if it isn't send to liked service
+    //otherwise, send to a dislike service
+
+    const liked = await likeService(quizId);
+    if (typeof liked === "object") {
+      //create a warning that fires off when
+      //you receive this alreadyLiked Obj
+    }
+    console.log(liked, "this should be an obj");
+    //make a service that will make the quiz be liked
+    //make it so that each quiz had a property that says who its been liked by
+    //(this may already be in the attached market obj)
+    //once you receive evidence that the quiz has received a like, populate quizzes again
+    //This should update state
+  };
+
+  const handleClick = async (selectedIndex) => {
     setFormState({ ...formState, selectedIndex });
   };
 
@@ -164,6 +186,54 @@ function PurchasedQuizzes(props) {
                   alt="Travis Howard"
                   src="https://i.pinimg.com/736x/83/ac/1a/83ac1a49be15d0bc75ce03b15aaab640.jpg"
                 />
+                <div className="makerName">
+                  {
+                    formState.quizzes[formState.selectedIndex].creatorObj.user
+                      .name
+                  }
+                </div>
+              </div>
+              <div className="bottomSection">
+                <div className="bottomSectionLeft"></div>
+                <div className="bottomSectionMiddle">
+                  <div className="descriptionHeadline">
+                    <div style={{ fontWeight: "bold", fontSize: "30px" }}>
+                      Quiz description
+                    </div>
+                  </div>
+                  <div className="descriptionContainer">
+                    <div className="description">
+                      {formState.quizzes[formState.selectedIndex].description}
+                    </div>
+                  </div>
+                </div>
+                <div className="bottomSectionRight">
+                  <div className="insideBSRLeft">
+                    <Divider orientation="vertical" flexItem />
+                  </div>
+                  <div className="insideBSRRight">
+                    <div style={{ marginTop: "3em" }}>
+                      <Chip
+                        label="Like this quiz"
+                        onClick={() => {
+                          console.log(
+                            formState.quizzes[formState.selectedIndex]._id,
+                            "this should not be undefined"
+                          );
+                          handleLike(
+                            formState.quizzes[formState.selectedIndex]._id
+                          );
+                        }}
+                      />
+                    </div>
+                    <div style={{ marginTop: "3em" }}>
+                      <Chip label="Take quiz" onClick={handleChipClick} />
+                    </div>
+                    <div style={{ marginTop: "3em" }}>
+                      <Chip label="Delete quiz" onClick={handleChipClick} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </Paper>
           </div>
@@ -172,7 +242,6 @@ function PurchasedQuizzes(props) {
     </div>
   );
 }
-//right below avatar in line 162, make it take the name of the maker!
 export default PurchasedQuizzes;
 
 //When you click on each one, you'll see a macro of it in the center

@@ -11,7 +11,11 @@ export const paidQuizzes = async () => {
   for (var i = 0; i < paidQuizzes.data.length; i++) {
     const creatorObj = await addCreator(paidQuizzes.data[i].creatorId);
     if (creatorObj) {
-      const fixedQuiz = { ...paidQuizzes.data[i], creatorObj };
+      const fixedQuiz = {
+        ...paidQuizzes.data[i],
+        creatorObj,
+        description: creatorObj.description,
+      };
       finalArr.push(fixedQuiz);
     }
   }
