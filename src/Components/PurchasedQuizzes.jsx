@@ -11,7 +11,12 @@ import { paidQuizzes } from "./../Services/paidQuizzesService";
 import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
-import { likeService } from "./../Services/likeService";
+import {
+  likeService,
+  unlikeService,
+  dislikeService,
+} from "./../Services/likeService";
+import { getCurrUser } from "../Services/balanceService";
 
 const useStyles = makeStyles((theme) => ({
   icon: {
@@ -54,6 +59,7 @@ function PurchasedQuizzes(props) {
   const [formState, setFormState] = useState({
     quizzes: [],
     selectedIndex: null,
+    alreadyLiked: false,
   });
 
   useEffect(() => {
@@ -76,25 +82,44 @@ function PurchasedQuizzes(props) {
   };
 
   const handleLike = async (quizId) => {
-    //check to see if quiz is already liked
-    //if it isn't send to liked service
-    //otherwise, send to a dislike service
+    if (findColor() === "primary") {
+      const unliked = await unlikeService(quizId);
+      if (unliked) {
+        return populateQuizzes();
+      }
+    }
 
     const liked = await likeService(quizId);
     if (typeof liked === "object") {
-      //create a warning that fires off when
-      //you receive this alreadyLiked Obj
+      if (liked.alreadyLiked) {
+        return setFormState({ ...formState, alreadyLiked: true });
+      }
     }
-    console.log(liked, "this should be an obj");
-    //make a service that will make the quiz be liked
-    //make it so that each quiz had a property that says who its been liked by
-    //(this may already be in the attached market obj)
-    //once you receive evidence that the quiz has received a like, populate quizzes again
-    //This should update state
+    if (liked) {
+      populateQuizzes();
+    }
+  };
+  const handleDislike = async (quizId) => {
+    //check models and make sure they all contain a
+    //dislike object
+    const dislike = await dislikeService(quizId);
   };
 
   const handleClick = async (selectedIndex) => {
     setFormState({ ...formState, selectedIndex });
+  };
+  const findColor = () => {
+    if (formState.alreadyLiked) {
+      return "secondary";
+    }
+    const user = getCurrUser();
+    if (!formState.quizzes[formState.selectedIndex].likedBy) {
+      return "default";
+    }
+    if (formState.quizzes[formState.selectedIndex].likedBy[user._id]) {
+      return "primary";
+    }
+    return "default";
   };
 
   return (
@@ -214,13 +239,31 @@ function PurchasedQuizzes(props) {
                   <div className="insideBSRRight">
                     <div style={{ marginTop: "3em" }}>
                       <Chip
-                        label="Like this quiz"
+                        color={findColor()}
+                        label={
+                          findColor() === "default"
+                            ? "Like this quiz"
+                            : findColor() === "secondary"
+                            ? "Click to undo error message"
+                            : "Unlike this quiz"
+                        }
                         onClick={() => {
-                          console.log(
-                            formState.quizzes[formState.selectedIndex]._id,
-                            "this should not be undefined"
-                          );
                           handleLike(
+                            formState.quizzes[formState.selectedIndex]._id
+                          );
+                        }}
+                      />
+                      {formState.alreadyLiked && (
+                        <div style={{ fontSize: "12px", color: "red" }}>
+                          You've already liked this quiz
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ marginTop: "3em" }}>
+                      <Chip
+                        label="Dislike quiz"
+                        onClick={() => {
+                          handleDislike(
                             formState.quizzes[formState.selectedIndex]._id
                           );
                         }}
