@@ -20,3 +20,14 @@ export async function dislikeService(quizId) {
   );
   return unlike.data;
 }
+export async function unDislikeService(quizId) {
+  console.log(quizId, "this is quizId");
+  const userId = getCurrUser()._id;
+  const unlike = await axios.put(`/api/quizzes/unDislike/${quizId}/${userId}`);
+  return unlike.data;
+}
+export async function deleteService(quizId) {
+  const userId = getCurrUser()._id;
+  const deleted = await axios.put(`/api/quizzes/delete/${quizId}/${userId}`);
+  return deleted.data;
+}

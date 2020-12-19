@@ -15,6 +15,8 @@ import {
   likeService,
   unlikeService,
   dislikeService,
+  unDislikeService,
+  deleteService,
 } from "./../Services/likeService";
 import { getCurrUser } from "../Services/balanceService";
 
@@ -81,28 +83,54 @@ function PurchasedQuizzes(props) {
     return newName;
   };
 
+  const handleDelete = async (quizId) => {
+    const deleteQuiz = deleteService(quizId);
+  };
+
   const handleLike = async (quizId) => {
+    const dislikedColor = findDislikeColor();
     if (findColor() === "primary") {
-      const unliked = await unlikeService(quizId);
-      if (unliked) {
-        return populateQuizzes();
-      }
+      await unlikeService(quizId);
+      return populateQuizzes();
+    }
+    if (findColor() === "secondary") {
+      await unlikeService(quizId);
+      return populateQuizzes();
     }
 
-    const liked = await likeService(quizId);
-    if (typeof liked === "object") {
-      if (liked.alreadyLiked) {
-        return setFormState({ ...formState, alreadyLiked: true });
+    if (dislikedColor === "primary") {
+      await unDislikeService(quizId);
+      const liked = await likeService(quizId);
+      if (typeof liked === "object") {
+        if (liked.alreadyLiked) {
+          return setFormState({ ...formState, alreadyLiked: true });
+        }
+      }
+    } else {
+      const liked = await likeService(quizId);
+      if (typeof liked === "object") {
+        if (liked.alreadyLiked) {
+          return setFormState({ ...formState, alreadyLiked: true });
+        }
       }
     }
-    if (liked) {
-      populateQuizzes();
-    }
+    return populateQuizzes();
   };
   const handleDislike = async (quizId) => {
-    //check models and make sure they all contain a
-    //dislike object
-    const dislike = await dislikeService(quizId);
+    const likedStatus = findColor();
+    if (findDislikeColor() === "default") {
+      if (likedStatus === "default") {
+        await dislikeService(quizId);
+        return populateQuizzes();
+      } else {
+        await unlikeService(quizId);
+        await dislikeService(quizId);
+        return populateQuizzes();
+      }
+    } else {
+      await unDislikeService(quizId);
+      return populateQuizzes();
+    }
   };
 
   const handleClick = async (selectedIndex) => {
@@ -117,6 +145,16 @@ function PurchasedQuizzes(props) {
       return "default";
     }
     if (formState.quizzes[formState.selectedIndex].likedBy[user._id]) {
+      return "primary";
+    }
+    return "default";
+  };
+  const findDislikeColor = () => {
+    const user = getCurrUser();
+    if (!formState.quizzes[formState.selectedIndex].dislikedBy) {
+      return "default";
+    }
+    if (formState.quizzes[formState.selectedIndex].dislikedBy[user._id]) {
       return "primary";
     }
     return "default";
@@ -261,6 +299,7 @@ function PurchasedQuizzes(props) {
                     </div>
                     <div style={{ marginTop: "3em" }}>
                       <Chip
+                        color={findDislikeColor()}
                         label="Dislike quiz"
                         onClick={() => {
                           handleDislike(
@@ -273,7 +312,14 @@ function PurchasedQuizzes(props) {
                       <Chip label="Take quiz" onClick={handleChipClick} />
                     </div>
                     <div style={{ marginTop: "3em" }}>
-                      <Chip label="Delete quiz" onClick={handleChipClick} />
+                      <Chip
+                        label="Delete quiz"
+                        onClick={() => {
+                          handleDelete(
+                            formState.quizzes[formState.selectedIndex]._id
+                          );
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
