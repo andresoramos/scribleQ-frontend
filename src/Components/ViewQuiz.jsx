@@ -99,12 +99,18 @@ function ViewQuiz(props) {
 
   const iValue = localStorage.getItem("i");
   useEffect(() => {
+    if (localStorage.getItem("boughtQuiz")) {
+      console.log("entering the correct bit");
+      const boughtQuiz = localStorage.getItem("boughtQuiz");
+      return setPresentQuiz(boughtQuiz);
+    }
     if (allowPass === true) {
       handleSave();
     }
     if (iValue === null) {
       return;
     }
+
     const quizArray = JSON.parse(localStorage.getItem("account"));
     const email = quizArray.user.email;
     const id = quizArray.user._id;
@@ -447,7 +453,13 @@ function ViewQuiz(props) {
     // props.setQuizScore(scoreScreen);
     const stringScoreScreen = JSON.stringify(scoreScreen);
     localStorage.setItem("scoreScreen", stringScoreScreen);
-    const backendId = returnAccountId(localStorage.getItem("account"), iValue);
+    const backendId = returnAccountId(
+      localStorage.getItem("account"),
+      iValue,
+      localStorage.getItem("boughtQuiz")
+        ? localStorage.getItem("boughtQuiz")
+        : false
+    );
     const savedScore = await saveScoredObject(scoreObj, backendId);
     props.history.push("/seeScore");
   };

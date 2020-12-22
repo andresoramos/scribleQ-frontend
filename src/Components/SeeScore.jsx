@@ -166,10 +166,15 @@ function SeeScore(props) {
         </Button>
         <Button
           onClick={() => {
+            if (localStorage.getItem("boughtQuiz")) {
+              return props.history.push("/purchasedQuizzes");
+            }
             buttomButtons("/");
           }}
         >
-          Profile overview
+          {localStorage.getItem("boughtQuiz")
+            ? "Return to Purchased Quizzes"
+            : "Profile overview"}
         </Button>
       </div>
     </div>

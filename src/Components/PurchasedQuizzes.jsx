@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../Styling/PurchasedQuizzes.css";
 import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -11,6 +12,7 @@ import { paidQuizzes } from "./../Services/paidQuizzesService";
 import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
+import DeleteAlert from "./DeleteAlert";
 import {
   likeService,
   unlikeService,
@@ -57,22 +59,30 @@ const useStyles = makeStyles((theme) => ({
 
 function PurchasedQuizzes(props) {
   const classes = useStyles();
-  const arrTest = [1, 2, 3, 4, 5, 6];
   const [formState, setFormState] = useState({
     quizzes: [],
     selectedIndex: null,
     alreadyLiked: false,
+    deleteAlert: false,
   });
 
   useEffect(() => {
     populateQuizzes();
   }, []);
 
-  const populateQuizzes = async () => {
+  const populateQuizzes = async (shouldDelete) => {
     const quizzes = await paidQuizzes();
-    setFormState({ ...formState, quizzes });
+    if (shouldDelete) {
+      setFormState({
+        ...formState,
+        quizzes,
+        selectedIndex: null,
+        deleteAlert: false,
+      });
+    } else {
+      setFormState({ ...formState, quizzes });
+    }
   };
-  const handleChipClick = () => {};
 
   const trimName = (name) => {
     let newName = "";
@@ -83,14 +93,33 @@ function PurchasedQuizzes(props) {
     return newName;
   };
 
-  const handleDelete = async (quizId) => {
-    const deleteQuiz = deleteService(quizId);
+  const handleDelete = async () => {
+    const quizId = formState.quizzes[formState.selectedIndex]._id;
+    const deleteQuiz = await deleteService(quizId);
+    if (deleteQuiz) {
+      return populateQuizzes(true);
+    }
+  };
+  const handleCancelAlert = () => {
+    setFormState({ ...formState, deleteAlert: false });
+  };
+  const handleTakeQuiz = () => {
+    const presentQuiz = JSON.stringify(
+      formState.quizzes[formState.selectedIndex]
+    );
+    localStorage.setItem("boughtQuiz", presentQuiz);
+    props.history.push("/viewQuiz");
+
+    //also, create a check in viewQuiz that ensures
+    //that you didn't just navigate directly to that part
+    //of the site.  If they did, send em home
   };
 
   const handleLike = async (quizId) => {
     const dislikedColor = findDislikeColor();
     if (findColor() === "primary") {
-      await unlikeService(quizId);
+      const unliked = await unlikeService(quizId);
+      console.log(unliked, "this is unliked");
       return populateQuizzes();
     }
     if (findColor() === "secondary") {
@@ -168,7 +197,6 @@ function PurchasedQuizzes(props) {
         </div>
         <Divider light />
         {formState.quizzes.map((item, i) => {
-          console.log(item, "name should be here");
           return (
             <div
               key={i}
@@ -257,7 +285,26 @@ function PurchasedQuizzes(props) {
                 </div>
               </div>
               <div className="bottomSection">
-                <div className="bottomSectionLeft"></div>
+                <div className="bottomSectionLeft">
+                  <div className="insideBSLLeft">
+                    <div className="link">
+                      <Link
+                        onClick={() => {
+                          props.updatePaidQuizAnalytics(
+                            formState.quizzes[formState.selectedIndex].name
+                          );
+                          props.history.push("/analytics");
+                        }}
+                        // href="/analytics"
+                      >
+                        See Performance Analytics
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="insideBSLRight">
+                    <Divider orientation="vertical" flexItem />
+                  </div>
+                </div>
                 <div className="bottomSectionMiddle">
                   <div className="descriptionHeadline">
                     <div style={{ fontWeight: "bold", fontSize: "30px" }}>
@@ -309,15 +356,13 @@ function PurchasedQuizzes(props) {
                       />
                     </div>
                     <div style={{ marginTop: "3em" }}>
-                      <Chip label="Take quiz" onClick={handleChipClick} />
+                      <Chip label="Take quiz" onClick={handleTakeQuiz} />
                     </div>
                     <div style={{ marginTop: "3em" }}>
                       <Chip
                         label="Delete quiz"
                         onClick={() => {
-                          handleDelete(
-                            formState.quizzes[formState.selectedIndex]._id
-                          );
+                          setFormState({ ...formState, deleteAlert: true });
                         }}
                       />
                     </div>
@@ -328,6 +373,13 @@ function PurchasedQuizzes(props) {
           </div>
         </div>
       )}
+      <DeleteAlert
+        contentText="Once you delete this quiz, it will vanish forever and you'll have to pay once more if you wish to take it again."
+        title={"Are you sure you want to delete this quiz?"}
+        open={formState.deleteAlert}
+        deleteQuiz={handleDelete}
+        cancel={handleCancelAlert}
+      />
     </div>
   );
 }

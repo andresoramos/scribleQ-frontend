@@ -9,7 +9,10 @@ export const paidQuizzes = async () => {
   });
   let finalArr = [];
   for (var i = 0; i < paidQuizzes.data.length; i++) {
-    const creatorObj = await addCreator(paidQuizzes.data[i].creatorId);
+    const creatorObj = await addCreator(
+      paidQuizzes.data[i].creatorId,
+      paidQuizzes.data[i]._id
+    );
     if (creatorObj) {
       const fixedQuiz = {
         ...paidQuizzes.data[i],
@@ -22,7 +25,7 @@ export const paidQuizzes = async () => {
   return finalArr;
 };
 
-const addCreator = async (id) => {
-  const creatorObj = await axios.put(`/api/users/addCreator/${id}`);
+const addCreator = async (id, quizId) => {
+  const creatorObj = await axios.put(`/api/users/addCreator/${id}/${quizId}`);
   return creatorObj.data;
 };

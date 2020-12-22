@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import loggedIn from "./../Services/loggedIn";
 import {
   quizzesWithName,
   findAverages,
   findTroubled,
+  paidQuizArr,
 } from "./../Services/quizzesWithName";
 import { Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -34,26 +35,33 @@ function Analytics(props) {
   const [NaNFlag, setNaNFlag] = useState(false);
 
   loggedIn(setApproved);
-
-  const findSuccessHistory = async () => {
-    const findAllQuizzes = await quizzesWithName(
-      props.currentName,
-      localStorage.getItem("account")
-    );
-    if (findAllQuizzes === false) {
-      return setApproved(false);
-    }
-    if (JSON.stringify(findAllQuizzes) === "[]") {
-      setNaNFlag(true);
-    }
-    console.log(findAllQuizzes, "this might be true");
-    const average = findAverages(findAllQuizzes);
-    const troubled = findTroubled(findAllQuizzes, setLow);
-    setHigh(findAllQuizzes.length);
-    setEarned(average);
-    setMistakes(JSON.stringify(troubled));
-  };
-  findSuccessHistory();
+  useEffect(() => {
+    const findSuccessHistory = async () => {
+      const findAllQuizzes = await quizzesWithName(
+        props.paidAnalytics
+          ? props.paidAnalytics.currentName
+          : props.currentName,
+        localStorage.getItem("account"),
+        props.paidAnalytics ? true : null
+      );
+      if (findAllQuizzes === false) {
+        return setApproved(false);
+      }
+      if (JSON.stringify(findAllQuizzes) === "[]") {
+        setNaNFlag(true);
+      }
+      const average = findAverages(findAllQuizzes);
+      const troubled = findTroubled(
+        findAllQuizzes,
+        setLow,
+        props.paidAnalytics ? true : null
+      );
+      setHigh(findAllQuizzes.length);
+      setEarned(average);
+      setMistakes(JSON.stringify(troubled));
+    };
+    findSuccessHistory();
+  }, []);
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -63,48 +71,50 @@ function Analytics(props) {
   };
 
   const findQuiz = (number) => {
-    const userQuizzes = JSON.parse(localStorage.getItem("account")).quizzes;
+    const userQuizzes = props.paidAnalytics
+      ? paidQuizArr()
+      : JSON.parse(localStorage.getItem("account")).quizzes;
     const name = localStorage.getItem("quizName");
     let foundQuiz;
-    for (var i = 0; i < userQuizzes.length; i++) {
-      if (userQuizzes[i].quiz.name === name) {
-        foundQuiz = { ...userQuizzes[i].quiz.questions };
-        break;
+    if (props.paidAnalytics) {
+      for (var i = 0; i < userQuizzes.length; i++) {
+        if (userQuizzes[i].name === name) {
+          foundQuiz = { ...userQuizzes[i].questions };
+          break;
+        }
       }
-    }
-    let answerWithNum = {};
-    for (var key in foundQuiz) {
-      if (foundQuiz[key].answerType === "open") {
-        return { [key + 1]: foundQuiz[key].singleAnswer };
-      }
-      let answersObj = {
-        Q1Correct: foundQuiz[key].Q1Correct,
-        Q2Correct: foundQuiz[key].Q2Correct,
-        Q3Correct: foundQuiz[key].Q3Correct,
-        Q4Correct: foundQuiz[key].Q4Correct,
-      };
-      let answerLookUp = {
-        Q1Correct: "Q1",
-        Q2Correct: "Q2",
-        Q3Correct: "Q3",
-        Q4Correct: "Q4",
-      };
-
-      for (var answer in answersObj) {
-        if (answersObj[answer] === true) {
-          answerWithNum[key] = foundQuiz[key][answerLookUp[answer]];
+    } else {
+      for (var i = 0; i < userQuizzes.length; i++) {
+        if (userQuizzes[i].quiz.name === name) {
+          foundQuiz = { ...userQuizzes[i].quiz.questions };
+          break;
         }
       }
     }
-    for (var key in answerWithNum) {
-      const keyNum = Number(key);
-      const num = Number(number) - 1;
-      if (keyNum !== num) {
-        delete answerWithNum[key];
+    let realNum = Number(number) - 1;
+    const question = foundQuiz[realNum];
+    if (question.singleAnswer.length > 0) {
+      return question.singleAnswer;
+    }
+    const correctOrWrong = {
+      Q1Correct: question.Q1Correct,
+      Q2Correct: question.Q2Correct,
+      Q3Correct: question.Q3Correct,
+      Q4Correct: question.Q4Correct,
+    };
+    let correctChoice;
+    for (var key in correctOrWrong) {
+      if (correctOrWrong[key]) {
+        correctChoice = key;
       }
     }
-
-    return answerWithNum;
+    const keyConverter = {
+      Q1Correct: "Q1",
+      Q2Correct: "Q2",
+      Q3Correct: "Q3",
+      Q4Correct: "Q4",
+    };
+    return question[keyConverter[correctChoice]];
   };
   const findQuestions = (string) => {
     let questionsArray = [];
@@ -119,10 +129,7 @@ function Analytics(props) {
     }
     const mappedQuestions = questionsArray.map((item) => {
       const correct = findQuiz(item.number);
-      let correctAnswer = "";
-      for (var key in correct) {
-        correctAnswer += correct[key];
-      }
+
       return (
         <div>
           <div style={{ display: "flex", flexDirection: "row" }}>
@@ -137,7 +144,7 @@ function Analytics(props) {
             <div>
               <b>{`Correct answer: `}</b>
             </div>
-            <div style={{ marginLeft: 3 }}>{correctAnswer}</div>
+            <div style={{ marginLeft: 3 }}>{correct}</div>
           </div>
         </div>
       );

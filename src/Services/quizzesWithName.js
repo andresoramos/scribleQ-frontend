@@ -1,9 +1,8 @@
 import axios from "axios";
 import decode from "jwt-decode";
-import { number } from "joi";
 import getEditDistance from "./levensteinDistance";
 
-export async function quizzesWithName(name, userInfo) {
+export async function quizzesWithName(name, userInfo, paid) {
   if (name === "") {
     name = localStorage.getItem("quizName");
     userInfo = localStorage.getItem("account");
@@ -11,23 +10,57 @@ export async function quizzesWithName(name, userInfo) {
       return false;
     }
   }
+  //come back here and figure out how to make
+  //sure that paidQuizzes eventually finds
+  //the correct quiz of the moment
   localStorage.setItem("quizName", name);
   const parsedAccount = JSON.parse(userInfo);
+  let paidQuizzes;
+  if (paid) {
+    const { user } = parsedAccount;
+    const { quizzesOwned } = user;
+    let paidQuizArray = [];
+    for (var key in quizzesOwned) {
+      paidQuizArray.push(quizzesOwned[key]);
+    }
+    paidQuizzes = paidQuizArray;
+  }
   const accountQuizzes = [...parsedAccount.quizzes];
   let foundItem;
-  for (var i = 0; i < accountQuizzes.length; i++) {
-    if (accountQuizzes[i].quiz.name === name) {
-      foundItem = accountQuizzes[i];
-      break;
+  if (paid) {
+    for (var i = 0; i < paidQuizzes.length; i++) {
+      console.log(paidQuizzes[i], "this is paid quizzes");
+      if (paidQuizzes[i].name === name) {
+        foundItem = paidQuizzes[i];
+        break;
+      }
+    }
+  } else {
+    for (var i = 0; i < accountQuizzes.length; i++) {
+      if (accountQuizzes[i].quiz.name === name) {
+        foundItem = accountQuizzes[i];
+        break;
+      }
     }
   }
-  const payload = { id: foundItem.quiz._id };
+  const payload = { id: paid ? foundItem._id : foundItem.quiz._id };
   const quizzesReturned = await axios.post(
     "http://localhost:5000/api/quizzes/quizStats",
     payload
   );
   return quizzesReturned.data;
 }
+
+export const paidQuizArr = () => {
+  const parsedAccount = JSON.parse(localStorage.getItem("account"));
+  const { user } = parsedAccount;
+  const { quizzesOwned } = user;
+  let paidQuizArray = [];
+  for (var key in quizzesOwned) {
+    paidQuizArray.push(quizzesOwned[key]);
+  }
+  return paidQuizArray;
+};
 
 export function findAverages(arr) {
   let total = 0;
@@ -45,7 +78,7 @@ export function findAverages(arr) {
   return overAll;
 }
 
-export function findTroubled(arr, callBack) {
+export function findTroubled(arr, callBack, paid) {
   let finalTally = {};
 
   for (var i = 0; i < arr.length; i++) {
@@ -98,7 +131,6 @@ export function findTroubled(arr, callBack) {
     }
   }
   let lowestNum;
-  console.log(finalTally, "first check the final tally");
 
   for (var num in finalTally) {
     if (lowestNum === undefined) {
@@ -117,23 +149,43 @@ export function findTroubled(arr, callBack) {
 
   callBack(arr.length - lowestNum);
 
-  const quizzes = JSON.parse(localStorage.getItem("account")).quizzes;
+  const quizzes = paid
+    ? paidQuizArr()
+    : JSON.parse(localStorage.getItem("account")).quizzes;
   const name = localStorage.getItem("quizName");
   let quizObject;
-  for (var i = 0; i < quizzes.length; i++) {
-    if (quizzes[i].quiz.name === name) {
-      quizObject = quizzes[i];
+  if (paid) {
+    for (var i = 0; i < quizzes.length; i++) {
+      if (quizzes[i].name === name) {
+        quizObject = quizzes[i];
+      }
     }
+    const arrayOfQuestions = quizObject.questions;
+    for (var key in mistakesObj) {
+      mistakesObj[key] = {
+        ...mistakesObj[key],
+        quizQuestion: arrayOfQuestions[Number(key) - 1].question,
+      };
+    }
+    mistakesObj.total = arr.length;
+    return mistakesObj;
+  } else {
+    for (var i = 0; i < quizzes.length; i++) {
+      if (quizzes[i].quiz.name === name) {
+        quizObject = quizzes[i];
+      }
+    }
+
+    const arrayOfQuestions = quizObject.quiz.questions;
+    for (var key in mistakesObj) {
+      mistakesObj[key] = {
+        ...mistakesObj[key],
+        quizQuestion: arrayOfQuestions[Number(key) - 1].question,
+      };
+    }
+    mistakesObj.total = arr.length;
+    return mistakesObj;
   }
-  const arrayOfQuestions = quizObject.quiz.questions;
-  for (var key in mistakesObj) {
-    mistakesObj[key] = {
-      ...mistakesObj[key],
-      quizQuestion: arrayOfQuestions[Number(key) - 1].question,
-    };
-  }
-  mistakesObj.total = arr.length;
-  return mistakesObj;
 }
 
 function compareAnswers(a1, a2) {

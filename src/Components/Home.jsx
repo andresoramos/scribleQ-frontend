@@ -19,7 +19,6 @@ import deleteArrayItem from "./../Services/deleteArrayItem";
 import quizByName from "../Services/quizByName";
 import { updateMakers } from "../Services/answerSave";
 import { findMarketHistory, dropMarket } from "./../Services/findQuiz";
-import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   menu: { position: "absolute", marginTop: 7, cursor: "pointer" },
@@ -45,14 +44,18 @@ const useStyles = makeStyles((theme) => ({
 
 export const Home = (props) => {
   const classes = useStyles();
+  const [boughtQuizzes, setBoughtQuizzes] = useState({});
   const [quizArray, setQuizArray] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [currentMarket, setCurrentMarket] = useState(false);
 
   useEffect(() => {
+    if (localStorage.getItem("boughtQuiz")) {
+      localStorage.removeItem("boughtQuiz");
+    }
     async function populateQuizArray() {
-      // await dropMarket();
       const quizzes = await getQuizzes();
+
       if (!quizzes) {
         return;
       } else {
@@ -63,7 +66,7 @@ export const Home = (props) => {
     createRows();
     // Update the document title using the browser API
     props.upDateLocation(window.location.pathname);
-  });
+  }, []);
 
   const handleStatClick = (event, name) => {
     props.currentStatName(name);
@@ -91,13 +94,7 @@ export const Home = (props) => {
     setCurrentMarket(false);
     setAnchorEl(null);
   };
-  const testBug = async () => {
-    for (var i = 0; i < 101; i++) {
-      await axios.post("http://localhost:5000/api/quizzes/test", { num: i });
-    }
-  };
 
-  //Find how to make it so that this thing instantly deletes the quizzes off of the homepage.  The magic for that happens around here.
   const StyledMenu = withStyles({
     paper: {
       border: "1px solid #d3d4d5",
@@ -117,10 +114,6 @@ export const Home = (props) => {
       {...props}
     />
   ));
-
-  const rows = [
-    { name: "test", dateCreated: "test", likes: "test", dislikes: "test" },
-  ];
 
   const createRows = () => {
     const loadOrNot = localStorage.getItem("account");
@@ -217,7 +210,6 @@ export const Home = (props) => {
 
   return (
     <React.Fragment>
-      <button onClick={testBug}>TEST</button>
       {localStorage.getItem("account") ? (
         <React.Fragment>
           <div className={classes.paperTop}>

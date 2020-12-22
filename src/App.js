@@ -29,6 +29,8 @@ function App(props) {
   const [location, setLocation] = useState("");
   const [quizScore, setQuizScore] = useState({});
   const [currentName, setCurrentName] = useState("");
+  const [paidFormState, setPaidFormState] = useState(null);
+
   const setName = (name) => {
     const token = localStorage.getItem("token");
 
@@ -36,6 +38,11 @@ function App(props) {
   };
   const upDateLocation = (path) => {
     setLocation(path);
+  };
+  const updatePaidQuizAnalytics = (currentName) => {
+    const newAnalytics = { currentName };
+    console.log("You are setting the new analytics");
+    setPaidFormState(newAnalytics);
   };
   const handleCurrentStatName = (name) => {
     setCurrentName(name);
@@ -88,7 +95,12 @@ function App(props) {
         />
         <ProtectedRoute
           path="/purchasedQuizzes"
-          component={(props) => <PurchasedQuizzes {...props} />}
+          component={(props) => (
+            <PurchasedQuizzes
+              updatePaidQuizAnalytics={updatePaidQuizAnalytics}
+              {...props}
+            />
+          )}
         />
         <ProtectedRoute
           path="/marketplace"
@@ -110,7 +122,13 @@ function App(props) {
         <Route
           path="/analytics"
           render={(props) => {
-            return <Analytics currentName={currentName} {...props} />;
+            return (
+              <Analytics
+                paidAnalytics={paidFormState}
+                currentName={currentName}
+                {...props}
+              />
+            );
           }}
         />
         <Route

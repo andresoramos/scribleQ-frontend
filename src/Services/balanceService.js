@@ -31,7 +31,6 @@ export const tradeFunds = async (amount, item) => {
     });
     return tradeFunds.data;
   } catch (error) {
-    console.log(error.response.data, "these are the keys to the response obj");
     return error.response.data === "You already own this quiz."
       ? { owned: true }
       : error.response.status;

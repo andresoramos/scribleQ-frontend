@@ -1,5 +1,6 @@
 import axios from "axios";
 import decode from "jwt-decode";
+import { getCurrUser } from "./balanceService";
 
 async function getQuizzes(marketOnly) {
   try {
@@ -18,5 +19,17 @@ async function getQuizzes(marketOnly) {
     console.log(err.response, "This is the failure from getQuizzes");
   }
 }
+
+export const getBoughtQuizzes = async () => {
+  try {
+    const userId = getCurrUser();
+    const boughtQuizzes = await axios.put(
+      `/api/quizzes/boughtQuizzes/${userId._id}`
+    );
+    return boughtQuizzes.data;
+  } catch (error) {
+    console.log(`You had an error at getQuizzes.js/getBoughtQuizzes: ${error}`);
+  }
+};
 
 export default getQuizzes;
