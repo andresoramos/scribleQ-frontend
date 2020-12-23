@@ -290,6 +290,10 @@ function PurchasedQuizzes(props) {
                     <div className="link">
                       <Link
                         onClick={() => {
+                          const presentQuiz = JSON.stringify(
+                            formState.quizzes[formState.selectedIndex]
+                          );
+                          localStorage.setItem("boughtQuiz", presentQuiz);
                           props.updatePaidQuizAnalytics(
                             formState.quizzes[formState.selectedIndex].name
                           );

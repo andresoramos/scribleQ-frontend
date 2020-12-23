@@ -98,9 +98,9 @@ function ViewQuiz(props) {
   const [allowPass, setAllowPass] = useState(false);
 
   const iValue = localStorage.getItem("i");
+  // const purchasedNotTaken = localStorage.getItem("purchasedNotTaken");
   useEffect(() => {
     if (localStorage.getItem("boughtQuiz")) {
-      console.log("entering the correct bit");
       const boughtQuiz = localStorage.getItem("boughtQuiz");
       return setPresentQuiz(boughtQuiz);
     }
@@ -110,7 +110,11 @@ function ViewQuiz(props) {
     if (iValue === null) {
       return;
     }
-
+    // else {
+    //   //whatever the marker is in local storage, make sure that you eventually
+    //   //delete it before exiting the page
+    //   console.log("You've created the right conditional for your situation");
+    // }
     const quizArray = JSON.parse(localStorage.getItem("account"));
     const email = quizArray.user.email;
     const id = quizArray.user._id;
@@ -473,6 +477,7 @@ function ViewQuiz(props) {
     setOpenAlert(false);
   };
   const returnName = (string) => {
+    console.log(string, "i suspect this will be undefined");
     if (typeof string === "string") {
       const nameObject = JSON.parse(string);
       return nameObject.name;

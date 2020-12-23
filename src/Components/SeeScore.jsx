@@ -54,12 +54,14 @@ function SeeScore(props) {
   };
 
   const createQuestion = () => {
-    const quiz = findQuiz(
-      localStorage.getItem("account"),
-      localStorage.getItem("i")
-    );
+    const boughtQuiz = localStorage.getItem("boughtQuiz");
+    const quiz =
+      boughtQuiz === null
+        ? findQuiz(localStorage.getItem("account"), localStorage.getItem("i"))
+        : JSON.parse(boughtQuiz);
     const scoreScreen = findScoreScreen("scoreScreen");
     const { specifics } = scoreScreen;
+    console.log(quiz, "these are your specifics");
     const returnArray = [];
     for (var key in specifics) {
       const returnObj = {};
@@ -67,16 +69,28 @@ function SeeScore(props) {
         returnObj.questionWrong = key;
         const newId = Number(key) - 1;
         returnObj.newId = newId;
-        returnObj.question = quiz.quiz.questions[newId].question;
-        const wrongAnswer = specifics[key].singleAnswerFlag
-          ? specifics[key].answerSelected
-          : quiz.quiz.questions[newId][specifics[key].answerSelected];
-        returnObj.yourResponse = wrongAnswer;
+        if (boughtQuiz !== null) {
+          returnObj.question = quiz.questions[newId].question;
+          const wrongAnswer = specifics[key].singleAnswerFlag
+            ? specifics[key].answerSelected
+            : quiz.questions[newId][specifics[key].answerSelected];
+          returnObj.yourResponse = wrongAnswer;
+          returnObj.correctAnswer = specifics[key].singleAnswerFlag
+            ? specifics[key].correctAnswer
+            : quiz.questions[newId][specifics[key].correctAnswer];
+          returnArray.push(returnObj);
+        } else {
+          returnObj.question = quiz.quiz.questions[newId].question;
+          const wrongAnswer = specifics[key].singleAnswerFlag
+            ? specifics[key].answerSelected
+            : quiz.quiz.questions[newId][specifics[key].answerSelected];
+          returnObj.yourResponse = wrongAnswer;
 
-        returnObj.correctAnswer = specifics[key].singleAnswerFlag
-          ? specifics[key].correctAnswer
-          : quiz.quiz.questions[newId][specifics[key].correctAnswer];
-        returnArray.push(returnObj);
+          returnObj.correctAnswer = specifics[key].singleAnswerFlag
+            ? specifics[key].correctAnswer
+            : quiz.quiz.questions[newId][specifics[key].correctAnswer];
+          returnArray.push(returnObj);
+        }
       }
     }
     const mapped = returnArray.map((item, i) => {

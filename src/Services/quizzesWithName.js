@@ -18,6 +18,7 @@ export async function quizzesWithName(name, userInfo, paid) {
   let paidQuizzes;
   if (paid) {
     const { user } = parsedAccount;
+    console.log(parsedAccount, "these are the quizzes owned");
     const { quizzesOwned } = user;
     let paidQuizArray = [];
     for (var key in quizzesOwned) {

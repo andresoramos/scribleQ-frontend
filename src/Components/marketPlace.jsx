@@ -132,12 +132,23 @@ function MarketPlace(props) {
       return setAllData({ ...allData, owned: true });
     }
     if (bought) {
+      updateUserAccount(allData.presentQuiz);
       setAllData({ ...allData, open: false, quizScreenOpen: true });
       //bring up modal that gives them option to either see their quizzes that they've
       //purchased, or to continue shopping in the market place
     }
   };
 
+  const updateUserAccount = (quiz) => {
+    const parsedAccount = JSON.parse(localStorage.getItem("account"));
+    const newParsedAccount = _.cloneDeep(parsedAccount);
+    const { user } = parsedAccount;
+    const { quizzesOwned } = user;
+    const newQuizzes = { ...quizzesOwned, [quiz._id]: quiz };
+    newParsedAccount.user.quizzesOwned = newQuizzes;
+    const strungObj = JSON.stringify(newParsedAccount);
+    localStorage.setItem("account", strungObj);
+  };
   const handleOnClick = async (item) => {
     const downloadedQuiz = await downloadQuiz(item);
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
