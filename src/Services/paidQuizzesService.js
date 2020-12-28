@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getCurrUser } from "../Services/balanceService";
+import { getQuizById } from "./getSelectedQuiz";
 
 export const paidQuizzes = async () => {
   const user = getCurrUser();
@@ -23,6 +24,14 @@ export const paidQuizzes = async () => {
     }
   }
   return finalArr;
+};
+
+export const isQuizDeleted = async (quizId) => {
+  const quizDeletedAnswer = await getQuizById(quizId);
+  if (!quizDeletedAnswer) {
+    return true;
+  }
+  return false;
 };
 
 const addCreator = async (id, quizId) => {

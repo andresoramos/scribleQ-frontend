@@ -40,6 +40,7 @@ export default function MyMarketQuizzes(props) {
       return props.history.push("/");
     }
     if (allMarkets.length === 0) {
+      console.log(quiz, "this should be null");
       const all = await findAllMarkets(quiz[selectedIndex].creatorId);
       localStorage.setItem("allMarketObjs", JSON.stringify(all));
       setAllMarkets(all);

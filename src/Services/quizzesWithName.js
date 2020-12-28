@@ -2,7 +2,7 @@ import axios from "axios";
 import decode from "jwt-decode";
 import getEditDistance from "./levensteinDistance";
 
-export async function quizzesWithName(name, userInfo, paid) {
+export async function quizzesWithName(name, userInfo, paid, userId) {
   if (name === "") {
     name = localStorage.getItem("quizName");
     userInfo = localStorage.getItem("account");
@@ -10,9 +10,7 @@ export async function quizzesWithName(name, userInfo, paid) {
       return false;
     }
   }
-  //come back here and figure out how to make
-  //sure that paidQuizzes eventually finds
-  //the correct quiz of the moment
+
   localStorage.setItem("quizName", name);
   const parsedAccount = JSON.parse(userInfo);
   let paidQuizzes;
@@ -44,7 +42,7 @@ export async function quizzesWithName(name, userInfo, paid) {
       }
     }
   }
-  const payload = { id: paid ? foundItem._id : foundItem.quiz._id };
+  const payload = { id: paid ? foundItem._id : foundItem.quiz._id, userId };
   const quizzesReturned = await axios.post(
     "http://localhost:5000/api/quizzes/quizStats",
     payload

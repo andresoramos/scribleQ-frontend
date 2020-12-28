@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import getSelectedQuiz from "./../Services/getSelectedQuiz";
+import { getCurrUser } from "../Services/balanceService";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
@@ -429,6 +430,7 @@ function ViewQuiz(props) {
     return specObj;
   };
   const handleSave = async () => {
+    const userId = getCurrUser()._id;
     const compared = compareFilled();
     if (!compared && !allowPass) {
       return setOpenAlert(true);
@@ -464,7 +466,7 @@ function ViewQuiz(props) {
         ? localStorage.getItem("boughtQuiz")
         : false
     );
-    const savedScore = await saveScoredObject(scoreObj, backendId);
+    const savedScore = await saveScoredObject(scoreObj, backendId, userId);
     props.history.push("/seeScore");
   };
 

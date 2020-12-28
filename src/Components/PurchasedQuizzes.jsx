@@ -8,7 +8,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import { paidQuizzes } from "./../Services/paidQuizzesService";
+import { paidQuizzes, isQuizDeleted } from "./../Services/paidQuizzesService";
 import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
@@ -64,6 +64,7 @@ function PurchasedQuizzes(props) {
     selectedIndex: null,
     alreadyLiked: false,
     deleteAlert: false,
+    quizDeleted: false,
   });
 
   useEffect(() => {
@@ -163,7 +164,13 @@ function PurchasedQuizzes(props) {
   };
 
   const handleClick = async (selectedIndex) => {
-    setFormState({ ...formState, selectedIndex });
+    const quizInQuestion = formState.quizzes[selectedIndex];
+    const quizDeleted = await isQuizDeleted(quizInQuestion._id);
+    if (quizDeleted) {
+      setFormState({ ...formState, selectedIndex, quizDeleted });
+    } else {
+      setFormState({ ...formState, selectedIndex, quizDeleted: false });
+    }
   };
   const findColor = () => {
     if (formState.alreadyLiked) {
@@ -327,21 +334,23 @@ function PurchasedQuizzes(props) {
                   </div>
                   <div className="insideBSRRight">
                     <div style={{ marginTop: "3em" }}>
-                      <Chip
-                        color={findColor()}
-                        label={
-                          findColor() === "default"
-                            ? "Like this quiz"
-                            : findColor() === "secondary"
-                            ? "Click to undo error message"
-                            : "Unlike this quiz"
-                        }
-                        onClick={() => {
-                          handleLike(
-                            formState.quizzes[formState.selectedIndex]._id
-                          );
-                        }}
-                      />
+                      {!formState.quizDeleted && (
+                        <Chip
+                          color={findColor()}
+                          label={
+                            findColor() === "default"
+                              ? "Like this quiz"
+                              : findColor() === "secondary"
+                              ? "Click to undo error message"
+                              : "Unlike this quiz"
+                          }
+                          onClick={() => {
+                            handleLike(
+                              formState.quizzes[formState.selectedIndex]._id
+                            );
+                          }}
+                        />
+                      )}{" "}
                       {formState.alreadyLiked && (
                         <div style={{ fontSize: "12px", color: "red" }}>
                           You've already liked this quiz
@@ -349,15 +358,17 @@ function PurchasedQuizzes(props) {
                       )}
                     </div>
                     <div style={{ marginTop: "3em" }}>
-                      <Chip
-                        color={findDislikeColor()}
-                        label="Dislike quiz"
-                        onClick={() => {
-                          handleDislike(
-                            formState.quizzes[formState.selectedIndex]._id
-                          );
-                        }}
-                      />
+                      {!formState.quizDeleted && (
+                        <Chip
+                          color={findDislikeColor()}
+                          label="Dislike quiz"
+                          onClick={() => {
+                            handleDislike(
+                              formState.quizzes[formState.selectedIndex]._id
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                     <div style={{ marginTop: "3em" }}>
                       <Chip label="Take quiz" onClick={handleTakeQuiz} />

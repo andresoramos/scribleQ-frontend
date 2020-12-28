@@ -14,14 +14,12 @@ export async function unlikeService(quizId) {
 }
 export async function dislikeService(quizId) {
   const userId = getCurrUser()._id;
-  console.log("the function is running");
   const unlike = await axios.put(
     `/api/quizzes/addDisliked/${quizId}/${userId}`
   );
   return unlike.data;
 }
 export async function unDislikeService(quizId) {
-  console.log(quizId, "this is quizId");
   const userId = getCurrUser()._id;
   const unlike = await axios.put(`/api/quizzes/unDislike/${quizId}/${userId}`);
   return unlike.data;

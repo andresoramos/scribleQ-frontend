@@ -376,7 +376,6 @@ function MarketForm(props) {
       const updated = await marketUpdate(finalObj, formState._id);
       return props.history.push("/");
     }
-    console.log("THE ISSUE YOU'RE HAVING STARTS WITH MARKET SAVE");
     const saved = await marketSave(finalObj);
     updateFormStateProperties(["submitted", "edit"], [true, false]);
 

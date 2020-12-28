@@ -1,8 +1,7 @@
 import axios from "axios";
 
-async function saveScoredObject(scoredObj, idNumber) {
-  const finalPayload = { ...scoredObj, idNumber };
-  console.log(finalPayload, "this is the final payload");
+async function saveScoredObject(scoredObj, idNumber, userId) {
+  const finalPayload = { ...scoredObj, idNumber, userId };
   try {
     const savedScore = await axios.post(
       "/api/quizzes/ScoredQuiz",

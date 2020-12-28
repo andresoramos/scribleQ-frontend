@@ -14,6 +14,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import MessageCard from "./MessageCard";
+import { getCurrUser } from "../Services/balanceService";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -37,12 +38,20 @@ function Analytics(props) {
   loggedIn(setApproved);
   useEffect(() => {
     const findSuccessHistory = async () => {
+      const user = getCurrUser();
+      const { _id } = user;
+      //get curr user
+      //send that number into find quizzes
+      //Alter their logic so that they make sure to only return quizzes stamped with the user's number
+      //Also, make it so that the user can delete their copy of a quiz without it
+      //taking it away from those who purchased it
       const findAllQuizzes = await quizzesWithName(
         props.paidAnalytics
           ? props.paidAnalytics.currentName
           : props.currentName,
         localStorage.getItem("account"),
-        props.paidAnalytics ? true : null
+        props.paidAnalytics ? true : null,
+        _id
       );
       if (findAllQuizzes === false) {
         return setApproved(false);
