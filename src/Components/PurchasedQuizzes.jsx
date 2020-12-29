@@ -116,28 +116,28 @@ function PurchasedQuizzes(props) {
     //of the site.  If they did, send em home
   };
 
-  const handleLike = async (quizId) => {
+  const handleLike = async (quiz) => {
     const dislikedColor = findDislikeColor();
     if (findColor() === "primary") {
-      const unliked = await unlikeService(quizId);
+      const unliked = await unlikeService(quiz._id, quiz.hidden);
       console.log(unliked, "this is unliked");
       return populateQuizzes();
     }
     if (findColor() === "secondary") {
-      await unlikeService(quizId);
+      await unlikeService(quiz._id, quiz.hidden);
       return populateQuizzes();
     }
 
     if (dislikedColor === "primary") {
-      await unDislikeService(quizId);
-      const liked = await likeService(quizId);
+      await unDislikeService(quiz._id, quiz.hidden);
+      const liked = await likeService(quiz._id, quiz.hidden);
       if (typeof liked === "object") {
         if (liked.alreadyLiked) {
           return setFormState({ ...formState, alreadyLiked: true });
         }
       }
     } else {
-      const liked = await likeService(quizId);
+      const liked = await likeService(quiz._id, quiz.hidden);
       if (typeof liked === "object") {
         if (liked.alreadyLiked) {
           return setFormState({ ...formState, alreadyLiked: true });
@@ -146,19 +146,19 @@ function PurchasedQuizzes(props) {
     }
     return populateQuizzes();
   };
-  const handleDislike = async (quizId) => {
+  const handleDislike = async (quiz) => {
     const likedStatus = findColor();
     if (findDislikeColor() === "default") {
       if (likedStatus === "default") {
-        await dislikeService(quizId);
+        await dislikeService(quiz._id, quiz.hidden);
         return populateQuizzes();
       } else {
-        await unlikeService(quizId);
-        await dislikeService(quizId);
+        await unlikeService(quiz._id, quiz.hidden);
+        await dislikeService(quiz._id, quiz.hidden);
         return populateQuizzes();
       }
     } else {
-      await unDislikeService(quizId);
+      await unDislikeService(quiz._id, quiz.hidden);
       return populateQuizzes();
     }
   };
@@ -302,7 +302,8 @@ function PurchasedQuizzes(props) {
                           );
                           localStorage.setItem("boughtQuiz", presentQuiz);
                           props.updatePaidQuizAnalytics(
-                            formState.quizzes[formState.selectedIndex].name
+                            formState.quizzes[formState.selectedIndex].name,
+                            formState.quizzes[formState.selectedIndex].hidden
                           );
                           props.history.push("/analytics");
                         }}
@@ -346,7 +347,7 @@ function PurchasedQuizzes(props) {
                           }
                           onClick={() => {
                             handleLike(
-                              formState.quizzes[formState.selectedIndex]._id
+                              formState.quizzes[formState.selectedIndex]
                             );
                           }}
                         />
@@ -364,7 +365,7 @@ function PurchasedQuizzes(props) {
                           label="Dislike quiz"
                           onClick={() => {
                             handleDislike(
-                              formState.quizzes[formState.selectedIndex]._id
+                              formState.quizzes[formState.selectedIndex]
                             );
                           }}
                         />

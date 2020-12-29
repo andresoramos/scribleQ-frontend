@@ -1,6 +1,6 @@
 import axios from "axios";
-import decode from "jwt-decode";
 import getEditDistance from "./levensteinDistance";
+import _ from "lodash";
 
 export async function quizzesWithName(name, userInfo, paid, userId) {
   if (name === "") {
@@ -77,9 +77,8 @@ export function findAverages(arr) {
   return overAll;
 }
 
-export function findTroubled(arr, callBack, paid) {
+export function findTroubled(arr, callBack, paid, hidden) {
   let finalTally = {};
-
   for (var i = 0; i < arr.length; i++) {
     for (var key in arr[i].score.specifics) {
       if (arr[i].score.specifics[key].singleAnswerFlag) {
@@ -159,7 +158,18 @@ export function findTroubled(arr, callBack, paid) {
         quizObject = quizzes[i];
       }
     }
-    const arrayOfQuestions = quizObject.questions;
+    let arrayOfQuestions;
+    if (hidden) {
+      let trimmedQuestions = [];
+      for (var i = 0; i < quizObject.questions.length; i++) {
+        if (!hidden[i + 1]) {
+          trimmedQuestions.push(quizObject.questions[i]);
+        }
+      }
+      arrayOfQuestions = trimmedQuestions;
+    } else {
+      arrayOfQuestions = quizObject.questions;
+    }
     for (var key in mistakesObj) {
       mistakesObj[key] = {
         ...mistakesObj[key],

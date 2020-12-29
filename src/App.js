@@ -39,9 +39,8 @@ function App(props) {
   const upDateLocation = (path) => {
     setLocation(path);
   };
-  const updatePaidQuizAnalytics = (currentName) => {
-    const newAnalytics = { currentName };
-    console.log("You are setting the new analytics");
+  const updatePaidQuizAnalytics = (currentName, hidden) => {
+    const newAnalytics = { currentName, hidden };
     setPaidFormState(newAnalytics);
   };
   const handleCurrentStatName = (name) => {

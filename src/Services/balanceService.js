@@ -17,7 +17,7 @@ export const getCurrUser = () => {
   return currUser;
 };
 
-export const tradeFunds = async (amount, item) => {
+export const tradeFunds = async (amount, item, hidden) => {
   try {
     const currUser = getCurrUser();
     const userId = currUser._id;
@@ -28,6 +28,7 @@ export const tradeFunds = async (amount, item) => {
       userId,
       quizId,
       creatorId,
+      hidden,
     });
     return tradeFunds.data;
   } catch (error) {

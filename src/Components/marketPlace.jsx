@@ -36,6 +36,7 @@ function MarketPlace(props) {
     sameAlert: false,
     owned: false,
     quizScreenOpen: false,
+    hidden: {},
   });
   const topics = [
     { name: "Blum" },
@@ -91,15 +92,29 @@ function MarketPlace(props) {
     const balance = await balanceService();
     if (typeof response === "object") {
       if (response.charge) {
+        console.log(response, "this is the response");
         const { cost } = response;
-        setAllData({
-          ...allData,
-          open: true,
-          cost,
-          quizName: item.name,
-          presentQuiz: item,
-          balance,
-        });
+        let hidden = response.hidden ? response.hidden : undefined;
+        setAllData(
+          hidden
+            ? {
+                ...allData,
+                open: true,
+                cost,
+                quizName: item.name,
+                presentQuiz: item,
+                balance,
+                hidden,
+              }
+            : {
+                ...allData,
+                open: true,
+                cost,
+                quizName: item.name,
+                presentQuiz: item,
+                balance,
+              }
+        );
       }
     }
   };
@@ -124,7 +139,11 @@ function MarketPlace(props) {
   };
 
   const handleBuy = async (amount) => {
-    const bought = await tradeFunds(amount, allData.presentQuiz);
+    const bought = await tradeFunds(
+      amount,
+      allData.presentQuiz,
+      allData.hidden
+    );
     if (bought === 404) {
       return setAllData({ ...allData, sameAlert: true });
     }

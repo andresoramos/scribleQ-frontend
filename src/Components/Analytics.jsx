@@ -38,36 +38,41 @@ function Analytics(props) {
   loggedIn(setApproved);
   useEffect(() => {
     const findSuccessHistory = async () => {
-      const user = getCurrUser();
-      const { _id } = user;
-      //get curr user
-      //send that number into find quizzes
-      //Alter their logic so that they make sure to only return quizzes stamped with the user's number
-      //Also, make it so that the user can delete their copy of a quiz without it
-      //taking it away from those who purchased it
-      const findAllQuizzes = await quizzesWithName(
-        props.paidAnalytics
-          ? props.paidAnalytics.currentName
-          : props.currentName,
-        localStorage.getItem("account"),
-        props.paidAnalytics ? true : null,
-        _id
-      );
-      if (findAllQuizzes === false) {
-        return setApproved(false);
+      if (props.paidAnalytics === null && props.currentName.length === 0) {
+        props.history.push("/");
+      } else {
+        const user = getCurrUser();
+        const { _id } = user;
+        //get curr user
+        //send that number into find quizzes
+        //Alter their logic so that they make sure to only return quizzes stamped with the user's number
+        //Also, make it so that the user can delete their copy of a quiz without it
+        //taking it away from those who purchased it
+        const findAllQuizzes = await quizzesWithName(
+          props.paidAnalytics
+            ? props.paidAnalytics.currentName
+            : props.currentName,
+          localStorage.getItem("account"),
+          props.paidAnalytics ? true : null,
+          _id
+        );
+        if (findAllQuizzes === false) {
+          return setApproved(false);
+        }
+        if (JSON.stringify(findAllQuizzes) === "[]") {
+          setNaNFlag(true);
+        }
+        const average = findAverages(findAllQuizzes);
+        const troubled = findTroubled(
+          findAllQuizzes,
+          setLow,
+          props.paidAnalytics ? true : null,
+          props.paidAnalytics ? props.paidAnalytics.hidden : undefined
+        );
+        setHigh(findAllQuizzes.length);
+        setEarned(average);
+        setMistakes(JSON.stringify(troubled));
       }
-      if (JSON.stringify(findAllQuizzes) === "[]") {
-        setNaNFlag(true);
-      }
-      const average = findAverages(findAllQuizzes);
-      const troubled = findTroubled(
-        findAllQuizzes,
-        setLow,
-        props.paidAnalytics ? true : null
-      );
-      setHigh(findAllQuizzes.length);
-      setEarned(average);
-      setMistakes(JSON.stringify(troubled));
     };
     findSuccessHistory();
   }, []);

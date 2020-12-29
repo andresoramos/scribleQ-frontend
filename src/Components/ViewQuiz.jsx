@@ -479,7 +479,6 @@ function ViewQuiz(props) {
     setOpenAlert(false);
   };
   const returnName = (string) => {
-    console.log(string, "i suspect this will be undefined");
     if (typeof string === "string") {
       const nameObject = JSON.parse(string);
       return nameObject.name;
