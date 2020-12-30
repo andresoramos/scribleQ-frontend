@@ -1,10 +1,26 @@
 import axios from "axios";
 import decode from "jwt-decode";
+import { getCurrUser } from "./balanceService";
 
 export const downloadQuiz = async (quiz) => {
   const user = decode(localStorage.getItem("token"));
   const downloaded = await axios.post("/api/quizzes/download", { quiz, user });
   return downloaded.data;
+};
+
+export const freeDownloadService = async (quiz) => {
+  try {
+    const userId = getCurrUser()._id;
+    const downloaded = await axios.post("api/quizzes/freeDownloadService", {
+      quiz,
+      userId,
+    });
+    return downloaded.data;
+  } catch (error) {
+    console.log(
+      `You have an error at downloadService.js/freeDownloadService: ${error}`
+    );
+  }
 };
 
 export const giveQuizToBuyer = async (quiz) => {

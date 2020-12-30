@@ -12,7 +12,10 @@ import {
   concatArray,
   makeDropdown,
 } from "./../Services/menuCreation";
-import { downloadQuiz } from "./../Services/downloadService";
+import {
+  downloadQuiz,
+  freeDownloadService,
+} from "./../Services/downloadService";
 import ChargeOverlay from "../Components/chargeOverlay";
 import {
   balanceService,
@@ -20,6 +23,7 @@ import {
   addFunds,
 } from "../Services/balanceService";
 import QuizScreenOverlay from "./quizScreenOverlay";
+import DownloadOverlay from "./DownloadOverlay";
 
 function MarketPlace(props) {
   const [allData, setAllData] = useState({
@@ -35,6 +39,7 @@ function MarketPlace(props) {
     presentQuiz: null,
     sameAlert: false,
     owned: false,
+    downloadOpen: false,
     quizScreenOpen: false,
     hidden: {},
   });
@@ -87,12 +92,15 @@ function MarketPlace(props) {
   const handleScreenClose = () => {
     setAllData({ ...allData, quizScreenOpen: false });
   };
+  const handleDownload = (value) => {
+    setAllData({ ...allData, downloadOpen: value });
+  };
 
   const interpretResponse = async (response, item) => {
+    console.log(response);
     const balance = await balanceService();
     if (typeof response === "object") {
       if (response.charge) {
-        console.log(response, "this is the response");
         const { cost } = response;
         let hidden = response.hidden ? response.hidden : undefined;
         setAllData(
@@ -116,6 +124,17 @@ function MarketPlace(props) {
               }
         );
       }
+      if (!response.charge && response.hidden) {
+        let hidden = response.hidden;
+
+        setAllData({
+          ...allData,
+          downloadOpen: true,
+          quizName: item.name,
+          presentQuiz: item,
+          hidden,
+        });
+      }
     }
   };
   const handleFund = async () => {
@@ -123,6 +142,24 @@ function MarketPlace(props) {
     setAllData({ ...allData, balance });
     //service will both have to direct money to the creator's balance,
     //as well as correctly increasing the revenue property in the market obj
+  };
+  const handleQuizDownload = async (quiz, hidden) => {
+    let newQuiz = _.cloneDeep(quiz);
+    console.log(newQuiz, Object.keys(newQuiz));
+    let { questions } = newQuiz;
+    let finalQuestions = [];
+    for (var i = 0; i < questions.length; i++) {
+      if (!hidden[i + 1]) {
+        finalQuestions.push(questions[i]);
+      }
+    }
+    newQuiz.questions = finalQuestions;
+    newQuiz.hidden = hidden;
+    const downloaded = await freeDownloadService(newQuiz);
+    console.log(downloaded, "downchoded");
+    if (downloaded) {
+      setAllData({ ...allData, downloadOpen: false });
+    }
   };
   const handleTextChange = (term) => {
     if (term === "") {
@@ -239,6 +276,17 @@ function MarketPlace(props) {
         title={`You may either continue browsing the marketplace, see all of your purchased quizzes, or take ${
           allData.presentQuiz !== null ? allData.presentQuiz.name : null
         }`}
+      />
+      <DownloadOverlay
+        {...props}
+        hidden={allData.hidden}
+        open={allData.downloadOpen}
+        handleDownload={handleQuizDownload}
+        close={handleDownload}
+        quizName={
+          allData.presentQuiz !== null ? allData.presentQuiz.name : null
+        }
+        quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
       />
     </div>
   );

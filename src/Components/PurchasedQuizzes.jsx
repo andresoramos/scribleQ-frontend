@@ -307,7 +307,6 @@ function PurchasedQuizzes(props) {
                           );
                           props.history.push("/analytics");
                         }}
-                        // href="/analytics"
                       >
                         See Performance Analytics
                       </Link>
