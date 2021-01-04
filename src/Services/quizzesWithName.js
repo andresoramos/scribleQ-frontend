@@ -16,7 +16,6 @@ export async function quizzesWithName(name, userInfo, paid, userId) {
   let paidQuizzes;
   if (paid) {
     const { user } = parsedAccount;
-    console.log(parsedAccount, "these are the quizzes owned");
     const { quizzesOwned } = user;
     let paidQuizArray = [];
     for (var key in quizzesOwned) {
@@ -28,13 +27,14 @@ export async function quizzesWithName(name, userInfo, paid, userId) {
   let foundItem;
   if (paid) {
     for (var i = 0; i < paidQuizzes.length; i++) {
-      console.log(paidQuizzes[i], "this is paid quizzes");
+      console.log(paidQuizzes[i].name, " vs ", name);
       if (paidQuizzes[i].name === name) {
         foundItem = paidQuizzes[i];
         break;
       }
     }
   } else {
+    console.log("went to else");
     for (var i = 0; i < accountQuizzes.length; i++) {
       if (accountQuizzes[i].quiz.name === name) {
         foundItem = accountQuizzes[i];
@@ -160,16 +160,21 @@ export function findTroubled(arr, callBack, paid, hidden) {
     }
     let arrayOfQuestions;
     if (hidden) {
-      let trimmedQuestions = [];
-      for (var i = 0; i < quizObject.questions.length; i++) {
-        if (!hidden[i + 1]) {
-          trimmedQuestions.push(quizObject.questions[i]);
+      if (quizObject.freeHidden) {
+        arrayOfQuestions = quizObject.questions;
+      } else {
+        let trimmedQuestions = [];
+        for (var i = 0; i < quizObject.questions.length; i++) {
+          if (!hidden[i + 1]) {
+            trimmedQuestions.push(quizObject.questions[i]);
+          }
         }
+        arrayOfQuestions = trimmedQuestions;
       }
-      arrayOfQuestions = trimmedQuestions;
     } else {
       arrayOfQuestions = quizObject.questions;
     }
+    console.log(arrayOfQuestions, "questions");
     for (var key in mistakesObj) {
       mistakesObj[key] = {
         ...mistakesObj[key],

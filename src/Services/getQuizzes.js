@@ -20,6 +20,11 @@ async function getQuizzes(marketOnly) {
   }
 }
 
+export const getLastDownloadedQuiz = async () => {
+  const userId = getCurrUser()._id;
+  const quiz = await axios.put(`/api/users/lastDownloaded/${userId}`);
+  return quiz.data;
+};
 export const getBoughtQuizzes = async () => {
   try {
     const userId = getCurrUser();

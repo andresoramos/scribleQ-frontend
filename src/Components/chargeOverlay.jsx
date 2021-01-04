@@ -15,18 +15,10 @@ import "../Styling/chargeOverlay.css";
 //deducted from your balance
 
 function SimpleDialog(props) {
-  const { onClose, selectedValue, open } = props;
-
-  const handleClose = () => {
-    onClose(selectedValue);
-  };
+  const { open } = props;
 
   return (
-    <Dialog
-      onClose={handleClose}
-      aria-labelledby="simple-dialog-title"
-      open={open}
-    >
+    <Dialog aria-labelledby="simple-dialog-title" open={open}>
       <DialogTitle id="simple-dialog-title">{props.title}</DialogTitle>
       <List>
         {props.canBuy ? (
@@ -40,7 +32,7 @@ function SimpleDialog(props) {
               >
                 Buy
               </Button>
-              <Button>Cancel</Button>
+              <Button onClick={props.close}>Cancel</Button>
             </div>
             {props.sameAlert && (
               <Alert severity="error">
@@ -107,7 +99,7 @@ export default function ChargeOverlay(props) {
         sameAlert={props.sameAlert}
         cost={Number(props.cost)}
         error={props.error}
-        onClose={props.close}
+        close={props.close}
         owned={props.owned}
         handleFund={props.handleFund}
         handleTextChange={props.handleTextChange}

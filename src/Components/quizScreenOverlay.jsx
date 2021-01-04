@@ -4,6 +4,7 @@ import List from "@material-ui/core/List";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Dialog from "@material-ui/core/Dialog";
 import "../Styling/chargeOverlay.css";
+import { getLastDownloadedQuiz } from "../Services/getQuizzes";
 
 function ChoiceDialog(props) {
   const { onClose, open } = props;
@@ -26,8 +27,10 @@ function ChoiceDialog(props) {
           <div className="postBuyButtons">
             <Button
               variant="outlined"
-              onClick={() => {
-                props.handleBuy(props.cost);
+              onClick={async () => {
+                const presentQuiz = await getLastDownloadedQuiz();
+                localStorage.setItem("boughtQuiz", JSON.stringify(presentQuiz));
+                props.history.push("/viewQuiz");
               }}
               style={{ marginLeft: "15px" }}
             >

@@ -41,7 +41,6 @@ function App(props) {
   };
   const updatePaidQuizAnalytics = (currentName, hidden) => {
     const newAnalytics = { currentName, hidden };
-    console.log(newAnalytics, "these are the new anal things");
     setPaidFormState(newAnalytics);
   };
   const handleCurrentStatName = (name) => {

@@ -102,29 +102,27 @@ function ViewQuiz(props) {
   // const purchasedNotTaken = localStorage.getItem("purchasedNotTaken");
   useEffect(() => {
     if (localStorage.getItem("boughtQuiz")) {
+      console.log("1, youre getting into the same spot everytime");
       const boughtQuiz = localStorage.getItem("boughtQuiz");
-      return setPresentQuiz(boughtQuiz);
+      console.log(boughtQuiz, "this is your quiz");
+      setPresentQuiz(boughtQuiz);
+    } else {
+      if (allowPass === true) {
+        handleSave();
+      }
+      if (iValue === null) {
+        return;
+      }
+      const quizArray = JSON.parse(localStorage.getItem("account"));
+      const email = quizArray.user.email;
+      const id = quizArray.user._id;
+      async function populateQuiz(id, index) {
+        const findQuiz = await getSelectedQuiz(id, index, email);
+        const quizStrung = JSON.stringify(findQuiz);
+        setPresentQuiz(quizStrung);
+      }
+      populateQuiz(id, iValue);
     }
-    if (allowPass === true) {
-      handleSave();
-    }
-    if (iValue === null) {
-      return;
-    }
-    // else {
-    //   //whatever the marker is in local storage, make sure that you eventually
-    //   //delete it before exiting the page
-    //   console.log("You've created the right conditional for your situation");
-    // }
-    const quizArray = JSON.parse(localStorage.getItem("account"));
-    const email = quizArray.user.email;
-    const id = quizArray.user._id;
-    async function populateQuiz(id, index) {
-      const findQuiz = await getSelectedQuiz(id, index, email);
-      const quizStrung = JSON.stringify(findQuiz);
-      setPresentQuiz(quizStrung);
-    }
-    populateQuiz(id, iValue);
   }, []);
   const resetQuestion = (number) => {
     const resetObj = { ...quizSuccess };

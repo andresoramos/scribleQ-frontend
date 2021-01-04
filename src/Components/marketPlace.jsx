@@ -3,6 +3,7 @@ import "./../Styling/marketPlace.css";
 import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 import Paper from "@material-ui/core/Paper";
+import Button from "@material-ui/core/Button";
 import { getAll, updateCurrentQuiz } from "../Services/findQuiz";
 import _, { set } from "lodash";
 import {
@@ -21,9 +22,11 @@ import {
   balanceService,
   tradeFunds,
   addFunds,
+  getCurrUser,
 } from "../Services/balanceService";
 import QuizScreenOverlay from "./quizScreenOverlay";
 import DownloadOverlay from "./DownloadOverlay";
+import axios from "axios";
 
 function MarketPlace(props) {
   const [allData, setAllData] = useState({
@@ -92,12 +95,14 @@ function MarketPlace(props) {
   const handleScreenClose = () => {
     setAllData({ ...allData, quizScreenOpen: false });
   };
+  const openQSafterDownload = () => {
+    setAllData({ ...allData, quizScreenOpen: true });
+  };
   const handleDownload = (value) => {
     setAllData({ ...allData, downloadOpen: value });
   };
 
   const interpretResponse = async (response, item) => {
-    console.log(response);
     const balance = await balanceService();
     if (typeof response === "object") {
       if (response.charge) {
@@ -124,15 +129,18 @@ function MarketPlace(props) {
               }
         );
       }
-      if (!response.charge && response.hidden) {
-        let hidden = response.hidden;
+      if (
+        (!response.charge && response.hidden) ||
+        (!response.charge && !response.hidden)
+      ) {
+        let hidden = response.hidden ? response.hidden : undefined;
 
         setAllData({
           ...allData,
           downloadOpen: true,
           quizName: item.name,
           presentQuiz: item,
-          hidden,
+          hidden: hidden ? hidden : null,
         });
       }
     }
@@ -144,8 +152,12 @@ function MarketPlace(props) {
     //as well as correctly increasing the revenue property in the market obj
   };
   const handleQuizDownload = async (quiz, hidden) => {
+    hidden = hidden === null ? {} : hidden;
+    console.log(
+      hidden,
+      "this is the hidden on your free download with no hidden"
+    );
     let newQuiz = _.cloneDeep(quiz);
-    console.log(newQuiz, Object.keys(newQuiz));
     let { questions } = newQuiz;
     let finalQuestions = [];
     for (var i = 0; i < questions.length; i++) {
@@ -155,10 +167,10 @@ function MarketPlace(props) {
     }
     newQuiz.questions = finalQuestions;
     newQuiz.hidden = hidden;
+    newQuiz.freeHidden = true;
     const downloaded = await freeDownloadService(newQuiz);
-    console.log(downloaded, "downchoded");
     if (downloaded) {
-      setAllData({ ...allData, downloadOpen: false });
+      setAllData({ ...allData, downloadOpen: false, quizScreenOpen: true });
     }
   };
   const handleTextChange = (term) => {
@@ -207,6 +219,7 @@ function MarketPlace(props) {
   };
   const handleOnClick = async (item) => {
     const downloadedQuiz = await downloadQuiz(item);
+    console.log(downloadedQuiz, "this should give us a full quiz");
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
 
     //create service that saves quiz to both the user, and updates market performance
@@ -269,6 +282,7 @@ function MarketPlace(props) {
         owned={allData.owned}
         handleTextChange={handleTextChange}
       />
+
       <QuizScreenOverlay
         {...props}
         open={allData.quizScreenOpen}
@@ -288,6 +302,13 @@ function MarketPlace(props) {
         }
         quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
       />
+      <Button
+        onClick={async () => {
+          await axios.put(`api/quizzes/destroy/${getCurrUser()._id}`);
+        }}
+      >
+        Delete Buys and Downloads
+      </Button>
     </div>
   );
 }
