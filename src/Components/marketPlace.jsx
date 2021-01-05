@@ -4,8 +4,8 @@ import TextField from "@material-ui/core/TextField";
 import SearchIcon from "@material-ui/icons/Search";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { getAll, updateCurrentQuiz } from "../Services/findQuiz";
-import _, { set } from "lodash";
+import { getAll } from "../Services/findQuiz";
+import _ from "lodash";
 import {
   matchBySpelling,
   matchByContains,
@@ -24,7 +24,12 @@ import {
   addFunds,
   getCurrUser,
 } from "../Services/balanceService";
+import {
+  removeUnpaidQuestions,
+  premiumBuyService,
+} from "../Services/premiumBuyService";
 import QuizScreenOverlay from "./quizScreenOverlay";
+import PremiumScreenOverlay from "./PremiumScreenOverlay";
 import DownloadOverlay from "./DownloadOverlay";
 import axios from "axios";
 
@@ -44,7 +49,9 @@ function MarketPlace(props) {
     owned: false,
     downloadOpen: false,
     quizScreenOpen: false,
+    premiumScreenOpen: false,
     hidden: {},
+    checkboxes: {},
   });
   const topics = [
     { name: "Blum" },
@@ -61,6 +68,13 @@ function MarketPlace(props) {
     const getAllData = await getAll();
     const allDataWithTs = { ...allData, ...getAllData };
     setAllData(allDataWithTs);
+  };
+  const fixCheckBoxes = (value) => {
+    let checkboxes = {
+      ...allData.checkboxes,
+      [value]: allData.checkboxes[value] ? !allData.checkboxes[value] : true,
+    };
+    setAllData({ ...allData, checkboxes });
   };
   const handleSearch = async (term) => {
     if (term.length === 0) {
@@ -130,8 +144,8 @@ function MarketPlace(props) {
         );
       }
       if (
-        (!response.charge && response.hidden) ||
-        (!response.charge && !response.hidden)
+        (!response.charge && response.hidden && !response.premiumCost) ||
+        (!response.charge && !response.hidden && !response.premiumCost)
       ) {
         let hidden = response.hidden ? response.hidden : undefined;
 
@@ -143,6 +157,28 @@ function MarketPlace(props) {
           hidden: hidden ? hidden : null,
         });
       }
+      if (
+        (response.premiumCost && response.hidden) ||
+        (response.premiumCost && !response.hidden)
+      ) {
+        let updatedQuiz = _.cloneDeep(item);
+        updatedQuiz.premiumCost = response.premiumCost;
+        setAllData({
+          ...allData,
+          premiumScreenOpen: true,
+          quizName: item.name,
+          presentQuiz: updatedQuiz,
+          hidden: null,
+        });
+        //create a modal that takes in premium
+        //cost as a prop
+        //It will allow user to select which of the questions
+        //the user wants to select
+        //Then, once user selects buying them,
+        //we'll add up their total cost, trim off
+        //the ones they didn't buy, and trade funds
+        //with the total cost
+      }
     }
   };
   const handleFund = async () => {
@@ -153,10 +189,7 @@ function MarketPlace(props) {
   };
   const handleQuizDownload = async (quiz, hidden) => {
     hidden = hidden === null ? {} : hidden;
-    console.log(
-      hidden,
-      "this is the hidden on your free download with no hidden"
-    );
+
     let newQuiz = _.cloneDeep(quiz);
     let { questions } = newQuiz;
     let finalQuestions = [];
@@ -217,9 +250,30 @@ function MarketPlace(props) {
     const strungObj = JSON.stringify(newParsedAccount);
     localStorage.setItem("account", strungObj);
   };
+  const handlePremiumBuy = async () => {
+    const quiz = _.cloneDeep(allData.presentQuiz);
+    let keepers = quiz.premiumCost;
+    let keepGuide = { ...allData.checkboxes };
+    for (var key in keepGuide) {
+      if (keepGuide[key] === true && keepers[key]) {
+        delete keepers[key];
+      }
+    }
+    let finalPruningObj = {};
+    if (quiz.hidden) {
+      //add keys from hidden to finalPruningObj
+    }
+    //first thing in the morning tomorrow, fix this so that it
+    //tells you how much money you owe for the
+    //purchased questions in this finalpruneobj
+    for (var key in keepers) {
+      finalPruningObj[key] = true;
+    }
+    const readyQuiz = removeUnpaidQuestions(finalPruningObj, quiz);
+    const finalizePremiumBuy = premiumBuyService(readyQuiz);
+  };
   const handleOnClick = async (item) => {
     const downloadedQuiz = await downloadQuiz(item);
-    console.log(downloadedQuiz, "this should give us a full quiz");
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
 
     //create service that saves quiz to both the user, and updates market performance
@@ -295,6 +349,20 @@ function MarketPlace(props) {
         {...props}
         hidden={allData.hidden}
         open={allData.downloadOpen}
+        handleDownload={handleQuizDownload}
+        close={handleDownload}
+        quizName={
+          allData.presentQuiz !== null ? allData.presentQuiz.name : null
+        }
+        quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
+      />
+      <PremiumScreenOverlay
+        {...props}
+        handlePremiumBuy={handlePremiumBuy}
+        checkboxes={allData.checkboxes}
+        fixCheckBoxes={fixCheckBoxes}
+        hidden={allData.hidden}
+        open={allData.premiumScreenOpen}
         handleDownload={handleQuizDownload}
         close={handleDownload}
         quizName={

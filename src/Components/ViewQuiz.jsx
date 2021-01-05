@@ -102,9 +102,7 @@ function ViewQuiz(props) {
   // const purchasedNotTaken = localStorage.getItem("purchasedNotTaken");
   useEffect(() => {
     if (localStorage.getItem("boughtQuiz")) {
-      console.log("1, youre getting into the same spot everytime");
       const boughtQuiz = localStorage.getItem("boughtQuiz");
-      console.log(boughtQuiz, "this is your quiz");
       setPresentQuiz(boughtQuiz);
     } else {
       if (allowPass === true) {
