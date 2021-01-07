@@ -15,9 +15,26 @@
   justify-content: space-between;
   width: 100%;
 }
+.cancelContainer {
+  margin-right: 2em;
+}
+.cardHolder {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+.divider {
+  margin-top: 0.25em;
+  width: 20%;
+  border-top: black solid 2px;
+}
 .mappedPremium {
   display: flex;
   justify-content: center;
+  background-color: blue;
+  align-items: center;
+  align-content: center;
+  width: 50%;
 }
 .postBuyButtons {
   display: flex;
@@ -25,8 +42,29 @@
   margin-right: 10px;
   width: 30%;
 }
-.cardHolder {
+.premQuestionBuy {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 55%;
+  padding-left: 1em;
+  /* margin-top: 25px; */
+}
+.premQuestionBuyContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   width: 100%;
+  margin-top: 25px;
+}
+.sum {
+  margin-top: 2.5px;
+}
+.total {
+  display: flex;
   justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 0px;
+  margin-top: 2em;
 }

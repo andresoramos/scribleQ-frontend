@@ -32,7 +32,13 @@ function SimpleDialog(props) {
               >
                 Buy
               </Button>
-              <Button onClick={props.close}>Cancel</Button>
+              <Button
+                onClick={() => {
+                  props.close("open");
+                }}
+              >
+                Cancel
+              </Button>
             </div>
             {props.sameAlert && (
               <Alert severity="error">
@@ -59,11 +65,22 @@ function SimpleDialog(props) {
                   }}
                 />
                 <Button
+                  style={{ marginLeft: "2em" }}
                   onClick={props.handleFund}
                   variant="contained"
                   color="primary"
                 >
                   Fund Account
+                </Button>
+                <Button
+                  style={{ marginLeft: "2em" }}
+                  onClick={() => {
+                    props.close("open");
+                  }}
+                  variant="contained"
+                  color="primary"
+                >
+                  Cancel
                 </Button>
               </div>
             </div>

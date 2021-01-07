@@ -1,5 +1,6 @@
 import axios from "axios";
 import _ from "lodash";
+import { getCurrUser } from "../Services/balanceService";
 
 export const removeUnpaidQuestions = (removeQuestions, quiz) => {
   let newQuestions = _.cloneDeep(quiz.questions);
@@ -14,9 +15,17 @@ export const removeUnpaidQuestions = (removeQuestions, quiz) => {
   return quiz;
 };
 
-export const premiumBuyService = async (quiz) => {
+export const premiumBuyService = async (quiz, amount) => {
   try {
-    const bought = await axios.post("api/users/premiumBuyService", { quiz });
+    //  amount, userId, creatorId, quizId, hidden
+    const userId = getCurrUser()._id;
+    const bought = await axios.post("api/users/tradeFunds", {
+      amount,
+      userId,
+      creatorId: quiz.creatorId,
+      quizId: quiz._id,
+      hidden: quiz.hidden,
+    });
     return bought.data;
   } catch (error) {
     console.log(`You had a problem at premiumBuyService.js/premiumBuyService`);

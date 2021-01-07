@@ -28,6 +28,7 @@ import {
   removeUnpaidQuestions,
   premiumBuyService,
 } from "../Services/premiumBuyService";
+import BalanceScreenOverlay from "./balanceScreenOverlay";
 import QuizScreenOverlay from "./quizScreenOverlay";
 import PremiumScreenOverlay from "./PremiumScreenOverlay";
 import DownloadOverlay from "./DownloadOverlay";
@@ -49,9 +50,11 @@ function MarketPlace(props) {
     owned: false,
     downloadOpen: false,
     quizScreenOpen: false,
+    balanceScreenOpen: false,
     premiumScreenOpen: false,
     hidden: {},
     checkboxes: {},
+    total: 0,
   });
   const topics = [
     { name: "Blum" },
@@ -66,16 +69,30 @@ function MarketPlace(props) {
   }, []);
   const populateCache = async () => {
     const getAllData = await getAll();
-    const allDataWithTs = { ...allData, ...getAllData };
+    const balance = await balanceService();
+    const allDataWithTs = { ...allData, balance, ...getAllData };
     setAllData(allDataWithTs);
   };
-  const fixCheckBoxes = (value) => {
+  const fixCheckBoxes = (value, cost) => {
+    console.log(cost, "better not be undefined");
+    const numCost = Number(cost);
+    let presentState = allData.checkboxes[value];
+    let total = Number(allData.total);
+    if (!presentState) {
+      total += numCost;
+    } else {
+      total -= numCost;
+    }
+    //check if present check box is truthy or falsy
+    //if truthy, then deduct cost from total
+    //if falsy, add it
     let checkboxes = {
       ...allData.checkboxes,
       [value]: allData.checkboxes[value] ? !allData.checkboxes[value] : true,
     };
-    setAllData({ ...allData, checkboxes });
+    setAllData({ ...allData, checkboxes, total });
   };
+
   const handleSearch = async (term) => {
     if (term.length === 0) {
       return setAllData({ ...allData, dropDown: [] });
@@ -115,6 +132,9 @@ function MarketPlace(props) {
   const handleDownload = (value) => {
     setAllData({ ...allData, downloadOpen: value });
   };
+  const premiumClose = (value) => {
+    setAllData({ ...allData, premiumScreenOpen: value });
+  };
 
   const interpretResponse = async (response, item) => {
     const balance = await balanceService();
@@ -142,6 +162,7 @@ function MarketPlace(props) {
                 balance,
               }
         );
+        return console.log("We're getting past things");
       }
       if (
         (!response.charge && response.hidden && !response.premiumCost) ||
@@ -149,7 +170,7 @@ function MarketPlace(props) {
       ) {
         let hidden = response.hidden ? response.hidden : undefined;
 
-        setAllData({
+        return setAllData({
           ...allData,
           downloadOpen: true,
           quizName: item.name,
@@ -163,7 +184,10 @@ function MarketPlace(props) {
       ) {
         let updatedQuiz = _.cloneDeep(item);
         updatedQuiz.premiumCost = response.premiumCost;
-        setAllData({
+        if (response.hidden) {
+          updatedQuiz.hidden = response.hidden;
+        }
+        return setAllData({
           ...allData,
           premiumScreenOpen: true,
           quizName: item.name,
@@ -184,9 +208,8 @@ function MarketPlace(props) {
   const handleFund = async () => {
     const balance = await addFunds(allData.chargeTerm, allData.presentQuiz);
     setAllData({ ...allData, balance });
-    //service will both have to direct money to the creator's balance,
-    //as well as correctly increasing the revenue property in the market obj
   };
+
   const handleQuizDownload = async (quiz, hidden) => {
     hidden = hidden === null ? {} : hidden;
 
@@ -203,6 +226,7 @@ function MarketPlace(props) {
     newQuiz.freeHidden = true;
     const downloaded = await freeDownloadService(newQuiz);
     if (downloaded) {
+      updateUserAccount(allData.presentQuiz);
       setAllData({ ...allData, downloadOpen: false, quizScreenOpen: true });
     }
   };
@@ -216,8 +240,14 @@ function MarketPlace(props) {
     }
     setAllData({ ...allData, chargeTerm: term });
   };
-  const handleClose = () => {
-    setAllData({ ...allData, open: false });
+  const handleClose = (val) => {
+    if (val === "balanceScreenOpen") {
+      return setAllData({ ...allData, [val]: false, checkboxes: {} });
+    }
+    setAllData({ ...allData, [val]: false });
+  };
+  const reshowBuy = () => {
+    setAllData({ ...allData, premiumScreenOpen: true });
   };
 
   const handleBuy = async (amount) => {
@@ -253,6 +283,7 @@ function MarketPlace(props) {
   const handlePremiumBuy = async () => {
     const quiz = _.cloneDeep(allData.presentQuiz);
     let keepers = quiz.premiumCost;
+    const keepersOriginal = _.cloneDeep(keepers);
     let keepGuide = { ...allData.checkboxes };
     for (var key in keepGuide) {
       if (keepGuide[key] === true && keepers[key]) {
@@ -260,17 +291,42 @@ function MarketPlace(props) {
       }
     }
     let finalPruningObj = {};
+    let costs = 0;
+
     if (quiz.hidden) {
+      for (var key in quiz.hidden) {
+        finalPruningObj[key] = true;
+      }
       //add keys from hidden to finalPruningObj
     }
-    //first thing in the morning tomorrow, fix this so that it
-    //tells you how much money you owe for the
-    //purchased questions in this finalpruneobj
     for (var key in keepers) {
       finalPruningObj[key] = true;
     }
+
+    for (var key in keepersOriginal) {
+      if (!finalPruningObj[key]) {
+        costs += Number(keepersOriginal[key]);
+      }
+    }
+    const balance = await balanceService();
+    if (balance < costs) {
+      return setAllData({
+        ...allData,
+        cost: costs,
+        premiumScreenOpen: false,
+        balanceScreenOpen: true,
+      });
+    }
     const readyQuiz = removeUnpaidQuestions(finalPruningObj, quiz);
-    const finalizePremiumBuy = premiumBuyService(readyQuiz);
+    const finalizePremiumBuy = await premiumBuyService(readyQuiz, costs);
+    if (finalizePremiumBuy) {
+      updateUserAccount(allData.presentQuiz);
+      setAllData({
+        ...allData,
+        quizScreenOpen: true,
+        premiumScreenOpen: false,
+      });
+    }
   };
   const handleOnClick = async (item) => {
     const downloadedQuiz = await downloadQuiz(item);
@@ -323,53 +379,82 @@ function MarketPlace(props) {
           );
         })}
       </div>
-      <ChargeOverlay
-        error={allData.error}
-        balance={allData.balance}
-        cost={allData.cost}
-        handleBuy={handleBuy}
-        quizName={allData.quizName}
-        handleFund={handleFund}
-        open={allData.open}
-        sameAlert={allData.sameAlert}
-        close={handleClose}
-        owned={allData.owned}
-        handleTextChange={handleTextChange}
-      />
+      {allData.open && (
+        <ChargeOverlay
+          error={allData.error}
+          balance={allData.balance}
+          cost={allData.cost}
+          handleBuy={handleBuy}
+          quizName={allData.quizName}
+          handleFund={handleFund}
+          open={allData.open}
+          sameAlert={allData.sameAlert}
+          close={handleClose}
+          owned={allData.owned}
+          handleTextChange={handleTextChange}
+        />
+      )}
 
-      <QuizScreenOverlay
-        {...props}
-        open={allData.quizScreenOpen}
-        close={handleScreenClose}
-        title={`You may either continue browsing the marketplace, see all of your purchased quizzes, or take ${
-          allData.presentQuiz !== null ? allData.presentQuiz.name : null
-        }`}
-      />
-      <DownloadOverlay
-        {...props}
-        hidden={allData.hidden}
-        open={allData.downloadOpen}
-        handleDownload={handleQuizDownload}
-        close={handleDownload}
-        quizName={
-          allData.presentQuiz !== null ? allData.presentQuiz.name : null
-        }
-        quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
-      />
-      <PremiumScreenOverlay
-        {...props}
-        handlePremiumBuy={handlePremiumBuy}
-        checkboxes={allData.checkboxes}
-        fixCheckBoxes={fixCheckBoxes}
-        hidden={allData.hidden}
-        open={allData.premiumScreenOpen}
-        handleDownload={handleQuizDownload}
-        close={handleDownload}
-        quizName={
-          allData.presentQuiz !== null ? allData.presentQuiz.name : null
-        }
-        quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
-      />
+      {allData.quizScreenOpen && (
+        <QuizScreenOverlay
+          {...props}
+          open={allData.quizScreenOpen}
+          close={handleScreenClose}
+          title={`You may either continue browsing the marketplace, see all of your purchased quizzes, or take ${
+            allData.presentQuiz !== null ? allData.presentQuiz.name : null
+          }`}
+        />
+      )}
+      {allData.downloadOpen && (
+        <DownloadOverlay
+          {...props}
+          hidden={allData.hidden}
+          open={allData.downloadOpen}
+          handleDownload={handleQuizDownload}
+          close={handleDownload}
+          quizName={
+            allData.presentQuiz !== null ? allData.presentQuiz.name : null
+          }
+          quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
+        />
+      )}
+      {allData.premiumScreenOpen && (
+        <PremiumScreenOverlay
+          {...props}
+          handlePremiumBuy={handlePremiumBuy}
+          total={allData.total}
+          checkboxes={allData.checkboxes}
+          fixCheckBoxes={fixCheckBoxes}
+          hidden={allData.hidden}
+          open={allData.premiumScreenOpen}
+          handleDownload={handleQuizDownload}
+          close={premiumClose}
+          quizName={
+            allData.presentQuiz !== null ? allData.presentQuiz.name : null
+          }
+          quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
+        />
+      )}
+      {allData.balanceScreenOpen && (
+        <BalanceScreenOverlay
+          {...props}
+          costs={allData.cost}
+          balance={allData.balance}
+          handlePremiumBuy={handlePremiumBuy}
+          checkboxes={allData.checkboxes}
+          fixCheckBoxes={fixCheckBoxes}
+          hidden={allData.hidden}
+          reshowBuy={reshowBuy}
+          open={allData.balanceScreenOpen}
+          handleTextChange={handleTextChange}
+          handleFund={handleFund}
+          close={handleClose}
+          quizName={
+            allData.presentQuiz !== null ? allData.presentQuiz.name : null
+          }
+          quiz={allData.presentQuiz !== null ? allData.presentQuiz : null}
+        />
+      )}
       <Button
         onClick={async () => {
           await axios.put(`api/quizzes/destroy/${getCurrUser()._id}`);
