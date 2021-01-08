@@ -13,8 +13,10 @@ export async function quizzesWithName(name, userInfo, paid, userId) {
 
   localStorage.setItem("quizName", name);
   const parsedAccount = JSON.parse(userInfo);
+  console.log(parsedAccount, parsedAccount.quizzes, "Parsed Account");
   let paidQuizzes;
   if (paid) {
+    console.log("Should be entering paid");
     const { user } = parsedAccount;
     const { quizzesOwned } = user;
     let paidQuizArray = [];
@@ -23,6 +25,7 @@ export async function quizzesWithName(name, userInfo, paid, userId) {
     }
     paidQuizzes = paidQuizArray;
   }
+
   const accountQuizzes = [...parsedAccount.quizzes];
   let foundItem;
   if (paid) {

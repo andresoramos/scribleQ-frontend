@@ -4,6 +4,7 @@ import { getCurrUser } from "./balanceService";
 
 async function getQuizzes(marketOnly) {
   try {
+    const userId = getCurrUser()._id;
     if (marketOnly) {
       const userInfo = decode(localStorage.getItem("token"))._id;
       const list = await axios.post("/api/market/findMarketObj", {
@@ -13,7 +14,7 @@ async function getQuizzes(marketOnly) {
       return list.data;
     }
     const email = decode(localStorage.getItem("token")).email;
-    const data = await axios.post("/api/quizzes/savedQuiz", { email });
+    const data = await axios.post("/api/quizzes/savedQuiz", { email, userId });
     return data.data;
   } catch (err) {
     console.log(err.response, "This is the failure from getQuizzes");

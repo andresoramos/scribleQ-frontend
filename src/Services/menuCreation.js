@@ -2,6 +2,15 @@ import React from "react";
 import getEditDistance from "./levensteinDistance";
 import { alphaService } from "../Services/alphaService";
 import _ from "lodash";
+import { getCurrUser } from "../Services/balanceService";
+import axios from "axios";
+
+export const trendingMarketService = async () => {
+  // const userId = getCurrUser()._id;
+  // const trendingMarkets = await axios.get(`/api/market/marketTrends/${userId}`);
+  // return trendingMarkets.data;
+  return 0;
+};
 
 export const makeDropdown = (array, term, callback) => {
   const dropDownFinal = array.map((item, i) => {

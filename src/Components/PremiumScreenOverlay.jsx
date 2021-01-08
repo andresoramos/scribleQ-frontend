@@ -61,10 +61,14 @@ function PremiumDialog(props) {
       open={open}
     >
       <DialogTitle id="simple-dialog-title">{props.title}</DialogTitle>
-      <FormLabel component="legend">
-        Select the questions you want to buy
-      </FormLabel>
-      <div className="mappedPremium">{premiumQuestionsMap}</div>
+      <div className="title">
+        <FormLabel component="legend">
+          Select the questions you want to buy
+        </FormLabel>
+      </div>
+      <div className="checkboxContainer">
+        <div className="mappedPremium">{premiumQuestionsMap}</div>
+      </div>
       <div className="total">
         <div style={{ fontWeight: "bold" }}>Total</div>
         <div className="divider" />
@@ -80,7 +84,7 @@ function PremiumDialog(props) {
           </Button>
           <Button
             onClick={() => {
-              props.close(false);
+              props.close(false, true);
             }}
           >
             Cancel

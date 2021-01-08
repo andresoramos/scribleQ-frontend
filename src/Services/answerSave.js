@@ -7,7 +7,6 @@ export async function answerSave(payload) {
     const correctedPayload = { ...payload };
     const creatorId = decode(localStorage.getItem("token"))._id;
     correctedPayload.creatorId = creatorId;
-    console.log(correctedPayload, "this is the payload, bichacho");
     const saved = await axios.post(
       "http://localhost:5000/api/quizzes",
       correctedPayload

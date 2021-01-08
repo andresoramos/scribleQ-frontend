@@ -12,6 +12,7 @@ import {
   matchByTags,
   concatArray,
   makeDropdown,
+  trendingMarketService,
 } from "./../Services/menuCreation";
 import {
   downloadQuiz,
@@ -32,6 +33,7 @@ import BalanceScreenOverlay from "./balanceScreenOverlay";
 import QuizScreenOverlay from "./quizScreenOverlay";
 import PremiumScreenOverlay from "./PremiumScreenOverlay";
 import DownloadOverlay from "./DownloadOverlay";
+import { getUserInfo } from "../Services/authenticateUserToken";
 import axios from "axios";
 
 function MarketPlace(props) {
@@ -55,6 +57,7 @@ function MarketPlace(props) {
     hidden: {},
     checkboxes: {},
     total: 0,
+    userInfo: null,
   });
   const topics = [
     { name: "Blum" },
@@ -70,11 +73,19 @@ function MarketPlace(props) {
   const populateCache = async () => {
     const getAllData = await getAll();
     const balance = await balanceService();
-    const allDataWithTs = { ...allData, balance, ...getAllData };
+    let allDataWithTs;
+    if (allData.userInfo === null) {
+      const userId = getCurrUser()._id;
+      const userInfo = await getUserInfo(userId);
+      allDataWithTs = { ...allData, balance, userInfo, ...getAllData };
+    } else {
+      allDataWithTs = { ...allData, balance, ...getAllData };
+    }
+    // const marketTrends = await trendingMarketService();
+    // const allDataWithTs = { ...allData, balance, ...getAllData };
     setAllData(allDataWithTs);
   };
   const fixCheckBoxes = (value, cost) => {
-    console.log(cost, "better not be undefined");
     const numCost = Number(cost);
     let presentState = allData.checkboxes[value];
     let total = Number(allData.total);
@@ -132,7 +143,15 @@ function MarketPlace(props) {
   const handleDownload = (value) => {
     setAllData({ ...allData, downloadOpen: value });
   };
-  const premiumClose = (value) => {
+  const premiumClose = (value, killCheckboxAndTotal) => {
+    if (killCheckboxAndTotal) {
+      return setAllData({
+        ...allData,
+        premiumScreenOpen: value,
+        total: 0,
+        checkboxes: {},
+      });
+    }
     setAllData({ ...allData, premiumScreenOpen: value });
   };
 
@@ -142,7 +161,7 @@ function MarketPlace(props) {
       if (response.charge) {
         const { cost } = response;
         let hidden = response.hidden ? response.hidden : undefined;
-        setAllData(
+        return setAllData(
           hidden
             ? {
                 ...allData,
@@ -162,7 +181,6 @@ function MarketPlace(props) {
                 balance,
               }
         );
-        return console.log("We're getting past things");
       }
       if (
         (!response.charge && response.hidden && !response.premiumCost) ||
@@ -242,7 +260,7 @@ function MarketPlace(props) {
   };
   const handleClose = (val) => {
     if (val === "balanceScreenOpen") {
-      return setAllData({ ...allData, [val]: false, checkboxes: {} });
+      return setAllData({ ...allData, [val]: false, total: 0, checkboxes: {} });
     }
     setAllData({ ...allData, [val]: false });
   };
@@ -272,13 +290,24 @@ function MarketPlace(props) {
 
   const updateUserAccount = (quiz) => {
     const parsedAccount = JSON.parse(localStorage.getItem("account"));
-    const newParsedAccount = _.cloneDeep(parsedAccount);
-    const { user } = parsedAccount;
-    const { quizzesOwned } = user;
+    if (parsedAccount !== "") {
+      const newParsedAccount = _.cloneDeep(parsedAccount);
+      const { user } = parsedAccount;
+      const quizzesOwned = user.quizzesOwned ? user.quizzesOwned : {};
+      const newQuizzes = { ...quizzesOwned, [quiz._id]: quiz };
+      newParsedAccount.user.quizzesOwned = newQuizzes;
+      const strungObj = JSON.stringify(newParsedAccount);
+      return localStorage.setItem("account", strungObj);
+    }
+    //Make sure to clear out account before trying to fix this
+    //again
+    const user = _.cloneDeep(allData.userInfo);
+    const quizzesOwned = user.quizzesOwned ? user.quizzesOwned : {};
     const newQuizzes = { ...quizzesOwned, [quiz._id]: quiz };
-    newParsedAccount.user.quizzesOwned = newQuizzes;
-    const strungObj = JSON.stringify(newParsedAccount);
-    localStorage.setItem("account", strungObj);
+    user.quizzesOwned = newQuizzes;
+    const finalAccount = { user, quizzes: [] };
+    const strungObj = JSON.stringify(finalAccount);
+    return localStorage.setItem("account", strungObj);
   };
   const handlePremiumBuy = async () => {
     const quiz = _.cloneDeep(allData.presentQuiz);
@@ -291,7 +320,8 @@ function MarketPlace(props) {
       }
     }
     let finalPruningObj = {};
-    let costs = 0;
+    // let costs = 0;
+    let costs = allData.total;
 
     if (quiz.hidden) {
       for (var key in quiz.hidden) {
@@ -303,11 +333,11 @@ function MarketPlace(props) {
       finalPruningObj[key] = true;
     }
 
-    for (var key in keepersOriginal) {
-      if (!finalPruningObj[key]) {
-        costs += Number(keepersOriginal[key]);
-      }
-    }
+    // for (var key in keepersOriginal) {
+    //   if (!finalPruningObj[key]) {
+    //     costs += Number(keepersOriginal[key]);
+    //   }
+    // }
     const balance = await balanceService();
     if (balance < costs) {
       return setAllData({
@@ -317,6 +347,7 @@ function MarketPlace(props) {
         balanceScreenOpen: true,
       });
     }
+    console.log(costs, "this should be the same as total");
     const readyQuiz = removeUnpaidQuestions(finalPruningObj, quiz);
     const finalizePremiumBuy = await premiumBuyService(readyQuiz, costs);
     if (finalizePremiumBuy) {

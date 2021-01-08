@@ -55,7 +55,6 @@ export const Home = (props) => {
     }
     async function populateQuizArray() {
       const quizzes = await getQuizzes();
-
       if (!quizzes) {
         return;
       } else {

@@ -132,10 +132,12 @@ export default function Register(props) {
 
       if (props.location.key) {
         const quizzes = await getQuizzes();
+        console.log(quizzes, "Should come back undefined");
         localStorage.setItem("account", JSON.stringify(quizzes));
         props.history.goBack();
       } else {
         const quizzes = await getQuizzes();
+        console.log(quizzes, "Should come back undefine dfrom the else");
         localStorage.setItem("account", JSON.stringify(quizzes));
         window.location = "/";
 

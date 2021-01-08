@@ -20,4 +20,13 @@ export const findCurrentUser = () => {
   }
 };
 
+export const getUserInfo = async (userId) => {
+  try {
+    const userInfo = await axios.put(`/api/users/getUserInfo/${userId}`);
+    return userInfo.data;
+  } catch (error) {
+    console.log(`There's been an error at authenticateUserToken/getUserInfo`);
+  }
+};
+
 export default authenticateUserToken;
