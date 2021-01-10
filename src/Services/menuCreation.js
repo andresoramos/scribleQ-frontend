@@ -6,10 +6,9 @@ import { getCurrUser } from "../Services/balanceService";
 import axios from "axios";
 
 export const trendingMarketService = async () => {
-  // const userId = getCurrUser()._id;
-  // const trendingMarkets = await axios.get(`/api/market/marketTrends/${userId}`);
-  // return trendingMarkets.data;
-  return 0;
+  const userId = getCurrUser()._id;
+  const trendingMarkets = await axios.put(`api/market/marketTrends/${userId}`);
+  return trendingMarkets.data;
 };
 
 export const makeDropdown = (array, term, callback) => {

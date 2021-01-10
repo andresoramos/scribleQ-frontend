@@ -48,9 +48,11 @@ function MarketPlace(props) {
     error: false,
     chargeTerm: null,
     presentQuiz: null,
+    markets: [],
     sameAlert: false,
     owned: false,
     downloadOpen: false,
+    sortedMarkets: [],
     quizScreenOpen: false,
     balanceScreenOpen: false,
     premiumScreenOpen: false,
@@ -60,7 +62,7 @@ function MarketPlace(props) {
     userInfo: null,
   });
   const topics = [
-    { name: "Blum" },
+    { name: "Trending" },
     { name: "Blum" },
     { name: "Blum" },
     { name: "Blum" },
@@ -81,8 +83,13 @@ function MarketPlace(props) {
     } else {
       allDataWithTs = { ...allData, balance, ...getAllData };
     }
-    // const marketTrends = await trendingMarketService();
+    const marketTrends = await trendingMarketService();
+    const sortedMarkets = marketTrends.sort(function (a, b) {
+      return b.timesDownloaded - a.timesDownloaded;
+    });
+    allDataWithTs.sortedMarkets = sortedMarkets;
     // const allDataWithTs = { ...allData, balance, ...getAllData };
+
     setAllData(allDataWithTs);
   };
   const fixCheckBoxes = (value, cost) => {
@@ -291,6 +298,7 @@ function MarketPlace(props) {
   const updateUserAccount = (quiz) => {
     const parsedAccount = JSON.parse(localStorage.getItem("account"));
     if (parsedAccount !== "") {
+      console.log("you need to clear the cache");
       const newParsedAccount = _.cloneDeep(parsedAccount);
       const { user } = parsedAccount;
       const quizzesOwned = user.quizzesOwned ? user.quizzesOwned : {};
@@ -347,7 +355,6 @@ function MarketPlace(props) {
         balanceScreenOpen: true,
       });
     }
-    console.log(costs, "this should be the same as total");
     const readyQuiz = removeUnpaidQuestions(finalPruningObj, quiz);
     const finalizePremiumBuy = await premiumBuyService(readyQuiz, costs);
     if (finalizePremiumBuy) {
@@ -359,15 +366,45 @@ function MarketPlace(props) {
       });
     }
   };
+  const locateQuiz = (name) => {
+    const quiz = allData.quizzes.filter((item) => {
+      return item.name === name;
+    });
+    return quiz;
+  };
   const handleOnClick = async (item) => {
+    if (typeof item === "string") {
+      item = locateQuiz(item)[0];
+    }
+    console.log(item, "this is the new item");
     const downloadedQuiz = await downloadQuiz(item);
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
-
-    //create service that saves quiz to both the user, and updates market performance
-    //as well as the quiz itself, if necessary.
-    //Once the quiz is downloaded, then create an overlay that informs
-    //users that their quiz has been downloaded and that they can either take it
-    //now, go to their downloads page, or simply return to the market
+    //DON'T FORGET TO CREATE A SERVICE THAT LETS YOU DOWNLOAD
+    //A QUIZ WITH NOTHING DONE TO IT!!!!!!
+  };
+  const determineContent = (section) => {
+    console.log(section, "Section");
+    if (section === "Trending") {
+      return allData.sortedMarkets;
+    }
+    return [];
+  };
+  const determineCost = (id) => {
+    const marketObj = allData.markets.filter((item) => {
+      return item.makerId === id;
+    });
+    if (marketObj.cost) {
+      return [
+        marketObj.cost,
+        marketObj.description
+          ? marketObj.description
+          : "No description provided",
+      ];
+    }
+    return [
+      "Free",
+      marketObj.description ? marketObj.description : "No description provided",
+    ];
   };
   return (
     <div className="headerContainer">
@@ -405,7 +442,41 @@ function MarketPlace(props) {
         {topics.map((topic, i) => {
           return (
             <div key={i} className="paperClosed">
-              <Paper className="paperInside">{topic.name}</Paper>
+              <Paper className="paperInside">
+                <h2 className="topicsTitle">{topic.name}</h2>
+                {determineContent(topic.name).map((item, i) => {
+                  return (
+                    <div key={i} className="quizzesList">
+                      <div className="quickInfo">
+                        <div className="nameAndCost">
+                          <div
+                            onClick={() => {
+                              handleOnClick(item.name);
+                            }}
+                            className="quizName"
+                          >
+                            {item.name}
+                          </div>
+                          <div style={{ marginLeft: "1em" }}>{`Cost: ${
+                            determineCost(item._id)[0]
+                          }`}</div>
+                        </div>
+                        <div className="quizDescription">
+                          <div style={{ fontWeight: "bold", fontSize: "12px" }}>
+                            Description
+                          </div>
+                          <div
+                            className="descriptionStyle"
+                            style={{ fontSize: "12px" }}
+                          >
+                            {determineCost(item._id)[1]}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </Paper>
             </div>
           );
         })}

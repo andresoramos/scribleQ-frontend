@@ -1,3 +1,20 @@
+.descriptionStyle {
+  background-color: cornflowerblue;
+  color: white;
+  width: 70%;
+  border-radius: 30px;
+  word-wrap: break-word;
+}
+.divider {
+  border-bottom: 0.5px solid black;
+  width: 90%;
+}
+.quizDescription {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
+}
+
 .headerContainer {
   display: flex;
   width: 100%;
@@ -48,19 +65,33 @@
   font-size: small;
   padding-left: 10px;
 }
+.nameAndCost {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
 .noMatch {
   font-size: small;
   padding-left: 10px;
 }
-.divider {
-  border-bottom: 0.5px solid black;
-  width: 90%;
+.quizzesList {
+}
+.quizName:hover {
+  cursor: pointer;
 }
 .search {
   display: flex;
   justify-content: center;
   padding: 40px;
   width: 35%;
+}
+.subjectText {
+  padding: 0px;
+  margin: 0px;
+  margin-top: -2px;
+  color: antiquewhite;
 }
 
 .topics {
@@ -70,9 +101,7 @@
   justify-content: space-between;
   width: 100%;
 }
-.subjectText {
-  padding: 0px;
-  margin: 0px;
-  margin-top: -2px;
-  color: antiquewhite;
+.topicsTitle {
+  display: flex;
+  justify-content: center;
 }
