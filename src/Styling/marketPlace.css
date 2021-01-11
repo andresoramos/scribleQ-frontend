@@ -1,3 +1,7 @@
+.controlDivider {
+  display: flex;
+  justify-content: center;
+}
 .descriptionStyle {
   background-color: cornflowerblue;
   color: white;
@@ -9,10 +13,7 @@
   border-bottom: 0.5px solid black;
   width: 90%;
 }
-.quizDescription {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1em;
+.dropDown {
 }
 
 .headerContainer {
@@ -30,6 +31,14 @@
   font-size: 40px;
   width: 65%;
 }
+.listItem {
+  font-size: small;
+  padding-left: 10px;
+}
+.listItem:hover {
+  background-color: chartreuse;
+  cursor: pointer;
+}
 .paperClosed {
   width: 25%;
   height: 210px;
@@ -37,11 +46,14 @@
   margin-right: 10px;
 }
 .paperInside {
-  height: 210px;
+  min-height: 210px;
 }
 /* .searchDropdown {
 } */
-.dropDown {
+.quizDescription {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
 }
 .searchTitle {
   display: flex;
@@ -53,18 +65,6 @@
   justify-content: center;
   background-color: grey;
 }
-.controlDivider {
-  display: flex;
-  justify-content: center;
-}
-.listItem:hover {
-  background-color: chartreuse;
-  cursor: pointer;
-}
-.listItem {
-  font-size: small;
-  padding-left: 10px;
-}
 .nameAndCost {
   display: flex;
   flex-direction: row;
@@ -75,6 +75,9 @@
 .noMatch {
   font-size: small;
   padding-left: 10px;
+}
+.noClickQuizName {
+  color: grey;
 }
 .quizzesList {
 }

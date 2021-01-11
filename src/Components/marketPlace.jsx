@@ -13,6 +13,8 @@ import {
   concatArray,
   makeDropdown,
   trendingMarketService,
+  getMostDownloaded,
+  getLikedMarkets,
 } from "./../Services/menuCreation";
 import {
   downloadQuiz,
@@ -53,6 +55,8 @@ function MarketPlace(props) {
     owned: false,
     downloadOpen: false,
     sortedMarkets: [],
+    sortedPopularMarkets: [],
+    sortedLikedMarkets: [],
     quizScreenOpen: false,
     balanceScreenOpen: false,
     premiumScreenOpen: false,
@@ -63,11 +67,8 @@ function MarketPlace(props) {
   });
   const topics = [
     { name: "Trending" },
-    { name: "Blum" },
-    { name: "Blum" },
-    { name: "Blum" },
-    { name: "Blum" },
-    { name: "Blum" },
+    { name: "Most Downloaded" },
+    { name: "Most Liked" },
   ];
   useEffect(() => {
     populateCache();
@@ -84,12 +85,17 @@ function MarketPlace(props) {
       allDataWithTs = { ...allData, balance, ...getAllData };
     }
     const marketTrends = await trendingMarketService();
-    const sortedMarkets = marketTrends.sort(function (a, b) {
-      return b.timesDownloaded - a.timesDownloaded;
-    });
+    const sortedMarkets = marketTrends.unsorted
+      ? marketTrends.returnedQuizzes
+      : marketTrends.sort(function (a, b) {
+          return b.timesDownloaded - a.timesDownloaded;
+        });
+    const mostDownloaded = await getMostDownloaded();
+    const sortedLikedMarkets = await getLikedMarkets();
     allDataWithTs.sortedMarkets = sortedMarkets;
+    allDataWithTs.sortedPopularMarkets = mostDownloaded;
+    allDataWithTs.sortedLikedMarkets = sortedLikedMarkets;
     // const allDataWithTs = { ...allData, balance, ...getAllData };
-
     setAllData(allDataWithTs);
   };
   const fixCheckBoxes = (value, cost) => {
@@ -383,27 +389,35 @@ function MarketPlace(props) {
     //A QUIZ WITH NOTHING DONE TO IT!!!!!!
   };
   const determineContent = (section) => {
-    console.log(section, "Section");
     if (section === "Trending") {
       return allData.sortedMarkets;
     }
+    if (section === "Most Downloaded") {
+      return allData.sortedPopularMarkets;
+    }
+    if (section === "Most Liked") {
+      return allData.sortedLikedMarkets;
+    }
+
     return [];
   };
   const determineCost = (id) => {
     const marketObj = allData.markets.filter((item) => {
       return item.makerId === id;
     });
-    if (marketObj.cost) {
+    if (marketObj[0].cost) {
       return [
-        marketObj.cost,
-        marketObj.description
-          ? marketObj.description
+        marketObj[0].cost,
+        marketObj[0].description
+          ? marketObj[0].description
           : "No description provided",
       ];
     }
     return [
       "Free",
-      marketObj.description ? marketObj.description : "No description provided",
+      marketObj[0].description
+        ? marketObj[0].description
+        : "No description provided",
     ];
   };
   return (
@@ -445,15 +459,23 @@ function MarketPlace(props) {
               <Paper className="paperInside">
                 <h2 className="topicsTitle">{topic.name}</h2>
                 {determineContent(topic.name).map((item, i) => {
+                  if (item.noClick) {
+                  }
                   return (
                     <div key={i} className="quizzesList">
                       <div className="quickInfo">
                         <div className="nameAndCost">
                           <div
-                            onClick={() => {
-                              handleOnClick(item.name);
-                            }}
-                            className="quizName"
+                            onClick={
+                              !item.noClick
+                                ? () => {
+                                    handleOnClick(item.name);
+                                  }
+                                : null
+                            }
+                            className={
+                              !item.noClick ? "quizName" : "noClickQuizName"
+                            }
                           >
                             {item.name}
                           </div>

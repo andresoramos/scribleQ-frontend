@@ -5,10 +5,42 @@ import _ from "lodash";
 import { getCurrUser } from "../Services/balanceService";
 import axios from "axios";
 
+export const getLikedMarkets = async () => {
+  try {
+    const userId = getCurrUser()._id;
+    const likedMarkets = await axios.put(`api/market/mostLiked/${userId}`);
+    return likedMarkets.data;
+  } catch (error) {
+    console.log(
+      `You had an error at menuCreation.js/getLikedMarkets: ${error}`
+    );
+  }
+};
 export const trendingMarketService = async () => {
-  const userId = getCurrUser()._id;
-  const trendingMarkets = await axios.put(`api/market/marketTrends/${userId}`);
-  return trendingMarkets.data;
+  try {
+    const userId = getCurrUser()._id;
+    const trendingMarkets = await axios.put(
+      `api/market/marketTrends/${userId}`
+    );
+    return trendingMarkets.data;
+  } catch (error) {
+    console.log(
+      `You had an error at menuCreation.js/trendingMarketService: ${error}`
+    );
+  }
+};
+export const getMostDownloaded = async () => {
+  try {
+    const userId = getCurrUser()._id;
+    const getMostDownloaded = await axios.put(
+      `api/market/mostDownloaded/${userId}`
+    );
+    return getMostDownloaded.data;
+  } catch (error) {
+    console.log(
+      `You had an error at menuCreation.js/getMostDownloaded: ${error}`
+    );
+  }
 };
 
 export const makeDropdown = (array, term, callback) => {

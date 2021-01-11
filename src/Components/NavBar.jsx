@@ -103,9 +103,6 @@ export default function NavBar(props) {
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleMakeQuiz = () => {
-    console.log("we be working");
-  };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -117,6 +114,7 @@ export default function NavBar(props) {
   };
 
   const handleMobileMenuOpen = (event) => {
+    console.log("this it, blatch");
     setMobileMoreAnchorEl(event.currentTarget);
   };
   const handleLogOut = () => {
@@ -145,6 +143,7 @@ export default function NavBar(props) {
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
+  const marketPlaceId = "marketPlace";
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -227,14 +226,6 @@ export default function NavBar(props) {
               Purchased Quizzes
             </Typography>
           </Link>
-          {/* <Typography
-            onClick={handleMakeQuiz}
-            className={classes.menuItem}
-            variant="h6"
-            noWrap
-          >
-            Make a Quiz
-          </Typography> */}
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
