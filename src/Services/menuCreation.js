@@ -77,6 +77,7 @@ export const makeDropdown = (array, term, callback) => {
       <div
         key={i}
         onClick={() => {
+          console.log(item, "what this give");
           callback(item);
         }}
         className="listItem"
@@ -91,18 +92,26 @@ export const makeDropdown = (array, term, callback) => {
       return item.props.children.props.children === "Includes";
     }
   });
+  // console.log(index1, "this is index 1");
   const index2 = dropDownFinal.findIndex((item) => {
     if (item.props.children.props) {
       return item.props.children.props.children === "Contains";
     }
   });
+  // console.log(index2, "this is index 2");
   if (dropDownFinal[index1 + 1].props.children !== "No matches") {
     for (var i = index1 + 1; i < index2; i++) {
       const firstPart = <b>{term}</b>;
       const remaining = dropDownFinal[i].props.children.slice(term.length);
 
       const quizIndex = array.findIndex((item) => {
-        return item.name === term + remaining;
+        if (item.name === undefined) {
+          return false;
+        }
+        return (
+          item.name.toLowerCase() ===
+          term.toLowerCase() + remaining.toLowerCase()
+        );
       });
       const quiz = array[quizIndex];
 

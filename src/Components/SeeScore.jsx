@@ -42,16 +42,23 @@ const useStyles = makeStyles((theme) => ({
 
 function SeeScore(props) {
   const classes = useStyles();
-  const [approved, setApproved] = useState(false);
+  const [approved, setApproved] = useState(true);
   const [showWrong, setShowWrong] = useState(false);
   const scoreScreen = localStorage.getItem("scoreScreen");
 
   const scoreScreentoObject = JSON.parse(scoreScreen);
-  console.log(scoreScreentoObject, "this is the score screen to obj");
-
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem("scoreScreen");
+    };
+  }, []);
   const showIncorrect = () => {
     setShowWrong(!showWrong);
   };
+  if (scoreScreentoObject === null) {
+    props.history.push("/");
+    return null;
+  }
 
   const createQuestion = () => {
     const boughtQuiz = localStorage.getItem("boughtQuiz");
@@ -61,7 +68,6 @@ function SeeScore(props) {
         : JSON.parse(boughtQuiz);
     const scoreScreen = findScoreScreen("scoreScreen");
     const { specifics } = scoreScreen;
-    console.log(quiz, "these are your specifics");
     const returnArray = [];
     for (var key in specifics) {
       const returnObj = {};
@@ -125,17 +131,6 @@ function SeeScore(props) {
     return mapped;
   };
 
-  if (localStorage.getItem("token")) {
-    const token = localStorage.getItem("token");
-    const checkIfLoggedIn = async (token) => {
-      const auth = await authenticateUserToken(token);
-      if (!auth) {
-        return;
-      }
-      setApproved(true);
-    };
-    checkIfLoggedIn(token);
-  }
   const fixFinalNumber = (string) => {
     console.log(string, "this is the string from the final number");
     let compounder = "";
@@ -162,9 +157,11 @@ function SeeScore(props) {
   return approved ? (
     <div className={classes.container}>
       <h1>{`You've scored ${fixFinalNumber(
-        scoreScreentoObject.stringScore
+        scoreScreentoObject ? scoreScreentoObject.stringScore : null
       )}`}</h1>
-      {fixFinalNumber(scoreScreentoObject.stringScore) !== "100%" && (
+      {fixFinalNumber(
+        scoreScreentoObject ? scoreScreentoObject.stringScore : null
+      ) !== "100%" && (
         <Button onClick={showIncorrect}>
           Click to see which questions you got wrong
         </Button>

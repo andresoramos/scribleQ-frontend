@@ -382,7 +382,10 @@ function MarketPlace(props) {
     if (typeof item === "string") {
       item = locateQuiz(item)[0];
     }
-    console.log(item, "this is the new item");
+    console.log(item, "this is the item");
+    if (item === undefined) {
+      return;
+    }
     const downloadedQuiz = await downloadQuiz(item);
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
     //DON'T FORGET TO CREATE A SERVICE THAT LETS YOU DOWNLOAD
@@ -402,9 +405,12 @@ function MarketPlace(props) {
     return [];
   };
   const determineCost = (id) => {
-    const marketObj = allData.markets.filter((item) => {
+    let marketObj = allData.markets.filter((item) => {
       return item.makerId === id;
     });
+    if (marketObj.length === 0) {
+      marketObj = [{ cost: "You own this already." }];
+    }
     if (marketObj[0].cost) {
       return [
         marketObj[0].cost,

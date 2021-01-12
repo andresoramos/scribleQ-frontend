@@ -1,6 +1,10 @@
 import axios from "axios";
 import decode from "jwt-decode";
 import quizByName from "./quizByName";
+import { getCurrUser } from "../Services/balanceService";
+import _ from "lodash";
+import { getUserInfo } from "./authenticateUserToken";
+import getQuizzes from "./getQuizzes";
 
 export function findQuiz(str, i) {
   const obj = JSON.parse(str);
@@ -10,9 +14,45 @@ export function findQuiz(str, i) {
 }
 
 export async function getAll() {
+  const userId = getCurrUser()._id;
   const markets = await axios.get("/api/market");
-  return markets.data;
+  const clonedMakers = _.cloneDeep(markets.data.makers);
+  const clonedMarkets = _.cloneDeep(markets.data.markets);
+  const clonedQuizzes = _.cloneDeep(markets.data.quizzes);
+  const filteredObj = cleansedArrays(
+    userId,
+    clonedMakers,
+    clonedMarkets,
+    clonedQuizzes
+  );
+  return filteredObj;
 }
+const cleansedArrays = async (userId, makers, markets, quizzes) => {
+  const user = await getUserInfo(userId);
+  let cleansedMarkets = [];
+  for (var i = 0; i < markets.length; i++) {
+    if (markets[i].downloadedBy && markets[i].downloadedBy[userId]) {
+      continue;
+    }
+    if (markets[i].creatorId === userId) {
+      continue;
+    }
+    cleansedMarkets.push(markets[i]);
+  }
+  let cleansedQuizzes = [];
+  for (var i = 0; i < quizzes.length; i++) {
+    if (user.quizzesOwned && user.quizzesOwned[quizzes[i]._id]) {
+      console.log("koochwing!");
+      continue;
+    }
+    if (quizzes[i].creatorId && quizzes[i].creatorId === userId) {
+      continue;
+    }
+    cleansedQuizzes.push(quizzes[i]);
+  }
+  let finalObj = { makers, markets: cleansedMarkets, quizzes: cleansedQuizzes };
+  return finalObj;
+};
 
 export function findScoreScreen(string) {
   return JSON.parse(localStorage.getItem(string));

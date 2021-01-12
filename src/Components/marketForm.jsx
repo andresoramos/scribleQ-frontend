@@ -14,6 +14,7 @@ import { marketSave, marketUpdate } from "../Services/answerSave";
 import DatePicker from "./DatePicker";
 import MyMarketQuizzes from "./MyMarketQuizzes";
 import { findMarketHistory } from "./../Services/findQuiz";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -53,6 +54,8 @@ function MarketForm(props) {
     premium: false,
     chosenPremium: {},
     hidden: false,
+    numberWarning: false,
+    saveDisable: false,
     hide: false,
     hiddenCheck: {},
     form: "",
@@ -75,6 +78,9 @@ function MarketForm(props) {
   const [allowed, setAllowed] = useState(null);
 
   useEffect(() => {
+    if (!localStorage.getItem("currentQuiz")) {
+      props.history.push("/");
+    }
     authenticateUserToken(localStorage.getItem("token"))
       .then((checked) => {
         setAllowed(checked);
@@ -85,6 +91,9 @@ function MarketForm(props) {
       .catch((error) => {
         console.log(`Error fetching user data: ${error}`);
       });
+    return () => {
+      localStorage.removeItem("currentQuiz");
+    };
   }, []);
 
   const handleCheck = () => {
@@ -185,10 +194,22 @@ function MarketForm(props) {
     updateFormStateProperty("options", newOptions);
   };
   const changePremiumCost = (e, index) => {
+    if (e.target.value < 0) {
+      return setFormState({
+        ...formState,
+        numberWarning: true,
+        saveDisable: true,
+      });
+    }
     const newPremiumCost = { ...formState.premiumCost };
 
     newPremiumCost[index] = e.target.value;
-    updateFormStateProperty("premiumCost", newPremiumCost);
+    setFormState({
+      ...formState,
+      premiumCost: newPremiumCost,
+      numberWarning: false,
+      saveDisable: false,
+    });
   };
   const removeSpace = (word) => {
     let stopPoint;
@@ -528,9 +549,14 @@ function MarketForm(props) {
               control={
                 <Checkbox
                   checked={formState.charge}
-                  onChange={(ev) =>
-                    updateFormStateProperty(ev.target.name, !formState.charge)
-                  }
+                  onChange={(ev) => {
+                    setFormState({
+                      ...formState,
+                      charge: !formState.charge,
+                      premiumCost: {},
+                      chosenPremium: {},
+                    });
+                  }}
                   name="charge"
                   color="primary"
                 />
@@ -598,12 +624,6 @@ function MarketForm(props) {
               selectedDate={formState.dateObj}
               setSelectedDate={changeDateObj}
             />
-            // <TextField
-            //   id="standard-helperText"
-            //   onChange={changeDateObj}
-            //   type="date"
-            //   helperText={`Expiration Date`}
-            // />
           )}
           <div style={{ width: "30%" }}>
             <DropDownMenu
@@ -624,12 +644,16 @@ function MarketForm(props) {
           {mappedPremium()}
         </DialogContent>
         <Button
+          disabled={formState.saveDisable}
           onClick={() => {
             handleDialogClose();
           }}
         >
           Save
         </Button>
+        {formState.numberWarning && (
+          <Alert severity="warning">You must enter a positive interger.</Alert>
+        )}
       </Dialog>
       <Dialog aria-describedby="choose-premiums" open={formState.hidden}>
         <DialogContent>

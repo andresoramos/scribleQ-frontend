@@ -16,6 +16,7 @@ import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import { Link } from "react-router-dom";
+import MarketPlace from "./marketPlace";
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -95,15 +96,17 @@ export default function NavBar(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+  const [marketPlaceAnchorEl, setMarketPlaceAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const [name, setName] = useState(localStorage.getItem("name"));
+  const isMarketPlaceMenuOpen = Boolean(marketPlaceAnchorEl);
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
+  const closeMarketPlaceMenu = () => {
+    setMarketPlaceAnchorEl(null);
+  };
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
@@ -114,8 +117,10 @@ export default function NavBar(props) {
   };
 
   const handleMobileMenuOpen = (event) => {
-    console.log("this it, blatch");
     setMobileMoreAnchorEl(event.currentTarget);
+  };
+  const handleMarketPlaceOpen = (event) => {
+    setMarketPlaceAnchorEl(event.currentTarget);
   };
   const handleLogOut = () => {
     localStorage.clear();
@@ -183,6 +188,33 @@ export default function NavBar(props) {
       </MenuItem>
     </Menu>
   );
+  const marketPlaceMenu = (
+    <Menu
+      anchorEl={marketPlaceAnchorEl}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      id={marketPlaceId}
+      keepMounted
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+      open={isMarketPlaceMenuOpen}
+      onClose={closeMarketPlaceMenu}
+    >
+      <MenuItem
+        onClick={() => {
+          window.location = "/marketPlace";
+        }}
+      >
+        <IconButton
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+        >
+          <AccountCircle />
+        </IconButton>
+        <p>Go to MarketPlace</p>
+      </MenuItem>
+    </Menu>
+  );
 
   return (
     <div className={classes.grow}>
@@ -190,8 +222,11 @@ export default function NavBar(props) {
         <Toolbar>
           <IconButton
             edge="start"
+            aria-controls={marketPlaceId}
+            aria-haspopup="true"
             className={classes.menuButton}
             color="inherit"
+            onClick={handleMarketPlaceOpen}
             aria-label="open drawer"
           >
             <MenuIcon />
@@ -216,16 +251,20 @@ export default function NavBar(props) {
               </Typography>
             </Link>
           )}
-          <Link to="/newMakeQuiz" style={{ textDecoration: "none" }}>
-            <Typography className={classes.menuItem} variant="h6" noWrap>
-              Make a Quiz
-            </Typography>
-          </Link>
-          <Link to="/purchasedQuizzes" style={{ textDecoration: "none" }}>
-            <Typography className={classes.menuItem} variant="h6" noWrap>
-              Purchased Quizzes
-            </Typography>
-          </Link>
+          {localStorage.getItem("token") && (
+            <Link to="/newMakeQuiz" style={{ textDecoration: "none" }}>
+              <Typography className={classes.menuItem} variant="h6" noWrap>
+                Make a Quiz
+              </Typography>
+            </Link>
+          )}
+          {localStorage.getItem("token") && (
+            <Link to="/purchasedQuizzes" style={{ textDecoration: "none" }}>
+              <Typography className={classes.menuItem} variant="h6" noWrap>
+                Purchased Quizzes
+              </Typography>
+            </Link>
+          )}
 
           <div className={classes.grow} />
           <div className={classes.sectionDesktop}>
@@ -270,6 +309,7 @@ export default function NavBar(props) {
         </Toolbar>
       </AppBar>
       {renderMobileMenu}
+      {marketPlaceMenu}
       {renderMenu}
     </div>
   );

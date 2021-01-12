@@ -5,6 +5,7 @@ import { getCurrUser } from "./balanceService";
 export const downloadQuiz = async (quiz) => {
   const user = decode(localStorage.getItem("token"));
   const downloaded = await axios.post("/api/quizzes/download", { quiz, user });
+  console.log(downloaded.data, "this is the downloaded");
   return downloaded.data;
 };
 

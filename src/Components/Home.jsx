@@ -156,7 +156,6 @@ export const Home = (props) => {
           <div>
             <Button
               onClick={() => {
-                // localStorage.setItem("linkName", item.name);
                 props.iValueIs(i);
               }}
               to="/viewQuiz"

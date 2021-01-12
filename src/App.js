@@ -54,7 +54,7 @@ function App(props) {
   };
   return (
     <BrowserRouter>
-      {location !== "/banned" && <NavBar signedIn={signedInName} />}
+      {location !== "/banned" && <NavBar {...props} signedIn={signedInName} />}
 
       <Switch>
         <Route
@@ -105,7 +105,19 @@ function App(props) {
           path="/marketplace"
           component={(props) => <Marketplace {...props} />}
         />
-        <Route
+        <ProtectedRoute
+          path="/seeScore"
+          component={(props) => {
+            return (
+              <SeeScore
+                {...props}
+                upDateLocation={upDateLocation}
+                currentScore={quizScore}
+              />
+            );
+          }}
+        />
+        {/* <Route
           path="/seeScore"
           render={(props) => {
             return (
@@ -116,7 +128,7 @@ function App(props) {
               />
             );
           }}
-        />
+        /> */}
 
         <Route
           path="/analytics"
