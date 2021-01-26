@@ -304,7 +304,6 @@ function MarketPlace(props) {
   const updateUserAccount = (quiz) => {
     const parsedAccount = JSON.parse(localStorage.getItem("account"));
     if (parsedAccount !== "") {
-      console.log("you need to clear the cache");
       const newParsedAccount = _.cloneDeep(parsedAccount);
       const { user } = parsedAccount;
       const quizzesOwned = user.quizzesOwned ? user.quizzesOwned : {};
@@ -382,14 +381,11 @@ function MarketPlace(props) {
     if (typeof item === "string") {
       item = locateQuiz(item)[0];
     }
-    console.log(item, "this is the item");
     if (item === undefined) {
       return;
     }
     const downloadedQuiz = await downloadQuiz(item);
     const interpretedResponse = await interpretResponse(downloadedQuiz, item);
-    //DON'T FORGET TO CREATE A SERVICE THAT LETS YOU DOWNLOAD
-    //A QUIZ WITH NOTHING DONE TO IT!!!!!!
   };
   const determineContent = (section) => {
     if (section === "Trending") {

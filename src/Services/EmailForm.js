@@ -5,7 +5,7 @@ export default class Form extends React.Component {
     super(props);
     this.state = {
       feedback: "",
-      name: "Your fucking asshole",
+      name: "TEST_NAME",
       email: "",
     };
     // this.handleChange = this.handleChange.bind(this);
@@ -38,32 +38,3 @@ export default class Form extends React.Component {
     );
   }
 }
-
-//   handleChange(event) {
-//     this.setState({ feedback: event.target.value });
-//   }
-//   handleSubmit(event) {
-//     const templateId = "template_Pcl5Wd0z";
-
-//     this.sendFeedback(templateId, {
-//       message_html: this.state.feedback,
-//       from_name: this.state.name,
-//       reply_to: this.state.email,
-//     });
-//   }
-
-//   sendFeedback(templateId, variables) {
-//     window.emailjs
-//       .send("gmail", templateId, variables)
-//       .then((res) => {
-//         console.log("Email successfully sent!");
-//       })
-//       // Handle errors here however you like, or use a React error boundary
-//       .catch((err) =>
-//         console.error(
-//           "Oh well, you failed. Here some thoughts on the error that occured:",
-//           err
-//         )
-//       );
-//   }
-// }

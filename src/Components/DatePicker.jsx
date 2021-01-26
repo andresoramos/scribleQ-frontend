@@ -12,7 +12,6 @@ export default function DatePicker(props) {
   const handleDateChange = (date) => {
     props.setSelectedDate(date);
   };
-  console.log(selectedDate, "selected date on render");
   return (
     <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <KeyboardDatePicker

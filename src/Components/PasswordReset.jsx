@@ -76,7 +76,6 @@ export default function PasswordReset(props) {
     emailText: "",
   });
   const shouldSubmit = () => {
-    console.log("submit function is running");
     if (email) {
       const { emailText } = error;
       if (emailText) {

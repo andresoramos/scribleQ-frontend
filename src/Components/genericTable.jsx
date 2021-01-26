@@ -27,7 +27,6 @@ export default function GenericTable(props) {
       );
     });
   };
-  console.log(props.rows, "this is props.rows");
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
